@@ -1,0 +1,4061 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Kayan Orphan Care — AI Agent Platform (Mock)",
+    "description": "Prototype backend simulating جمعية كيان للايتام beneficiary management. Multi-channel (Voice/SIP + WhatsApp), Arabic-first. Each route is an agent tool.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/registration/check-phone": {
+      "post": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "Check if a phone number is already registered",
+        "description": "Mirrors the portal message 'رقم الجوال مسجل مسبقا'. Returns whether an account exists so the agent can route the caller to login instead of re-registering. Always call this before starting a new registration.",
+        "operationId": "check_phone_registration_check_phone_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhoneIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/registration/send-otp": {
+      "post": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "Send an OTP verification code",
+        "description": "Sends the رمز التحقق by SMS to start account creation or password reset. Code is returned in the response for prototype testing only.",
+        "operationId": "send_otp_registration_send_otp_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhoneIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/registration/verify-otp": {
+      "post": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "Verify the OTP code",
+        "description": "Verifies the رمز التحقق. On success the caller may create the account.",
+        "operationId": "verify_otp_registration_verify_otp_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/registration/check-eligibility": {
+      "post": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "Check eligibility for Kayan's served category",
+        "description": "Kayan serves orphans with special circumstances (مجهولي الابوين). The bot must confirm the category before collecting a full file, exactly as the officer does in the guide's WhatsApp sample. Non-eligible callers are politely referred elsewhere.",
+        "operationId": "check_eligibility_registration_check_eligibility_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EligibilityIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiary/create-file": {
+      "post": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "Create a new beneficiary file",
+        "description": "Creates the file (تسجيل مستفيد جديد or تسجيل اسرة بديلة) in draft state with only what the caller gave so far. Remaining sections are filled progressively — call /beneficiary/{id}/completeness to see what is still needed.",
+        "operationId": "create_file_beneficiary_create_file_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFileIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reference/form-sections": {
+      "get": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "List the 10 data form sections",
+        "description": "Returns the sections of نموذج البيانات in order, with their field names — use this to walk the caller through the form.",
+        "operationId": "list_sections_reference_form_sections_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reference/orphan-categories": {
+      "get": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "List orphan categories and which are served",
+        "description": "Categories used for the eligibility gate.",
+        "operationId": "list_categories_reference_orphan_categories_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reference/case-types": {
+      "get": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "List file types (new beneficiary vs foster family)",
+        "description": "تسجيل مستفيد جديد for an independent beneficiary over 18; تسجيل اسرة بديلة for a host family caring for an orphan.",
+        "operationId": "list_case_types_reference_case_types_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reference/housing-proofs": {
+      "get": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "List accepted housing ownership proofs",
+        "description": "What counts as اثبات ملكية السكن.",
+        "operationId": "list_housing_proofs_reference_housing_proofs_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiary/{beneficiary_id}": {
+      "get": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "Get a beneficiary file",
+        "description": "Full file with all sections. Use for context before answering questions.",
+        "operationId": "get_file_beneficiary__beneficiary_id__get",
+        "parameters": [
+          {
+            "name": "beneficiary_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Beneficiary Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiary/{beneficiary_id}/section/{section_id}": {
+      "patch": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "Update one section of the data form",
+        "description": "Writes the values the caller dictated into a section (e.g. SEC-HOUSING). Only known fields for that section are accepted. Call completeness after to see what is still missing.",
+        "operationId": "update_section_beneficiary__beneficiary_id__section__section_id__patch",
+        "parameters": [
+          {
+            "name": "beneficiary_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Beneficiary Id"
+            }
+          },
+          {
+            "name": "section_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Section Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSectionIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiary/{beneficiary_id}/completeness": {
+      "get": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "What is still missing from the file",
+        "description": "THE KEY TOOL for follow-up. Returns completion %, the exact missing fields (with their section) and missing mandatory documents, plus whether the file is ready to submit. Use it to ask the beneficiary for precisely what is still needed instead of asking generically.",
+        "operationId": "completeness_beneficiary__beneficiary_id__completeness_get",
+        "parameters": [
+          {
+            "name": "beneficiary_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Beneficiary Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiary/{beneficiary_id}/submit": {
+      "post": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "Submit the file for review (اضافة سجل)",
+        "description": "Submits the completed file to the association for review. Blocked with 409 if mandatory fields or documents are still missing — surface the gaps to the caller rather than retrying.",
+        "operationId": "submit_file_beneficiary__beneficiary_id__submit_post",
+        "parameters": [
+          {
+            "name": "beneficiary_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Beneficiary Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiary/{beneficiary_id}/dependents": {
+      "post": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "Add a dependent (اضافة تابع)",
+        "description": "Adds a household member. Everyone living permanently in the home must be added — spouse, children, siblings, foster mother, orphan siblings — because the household size drives the needs assessment.",
+        "operationId": "add_dependent_beneficiary__beneficiary_id__dependents_post",
+        "parameters": [
+          {
+            "name": "beneficiary_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Beneficiary Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DependentIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "List dependents / household",
+        "description": "All household members with household size.",
+        "operationId": "list_dependents_beneficiary__beneficiary_id__dependents_get",
+        "parameters": [
+          {
+            "name": "beneficiary_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Beneficiary Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiary/{beneficiary_id}/documents": {
+      "get": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "Document checklist and status",
+        "description": "The المرفقات checklist for this file with each document's status (missing / uploaded / verified / rejected / not_available / ineligible).",
+        "operationId": "list_documents_beneficiary__beneficiary_id__documents_get",
+        "parameters": [
+          {
+            "name": "beneficiary_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Beneficiary Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiary/{beneficiary_id}/documents/{document_type_id}": {
+      "patch": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "Record a document as uploaded / not available / ineligible",
+        "description": "Sets a document's status. Per the guide: if the document does not apply (social security, citizen account) mark it 'ineligible' (عدم الاهلية); if it is unavailable (salary certificate) mark it 'not_available' (لا يوجد).",
+        "operationId": "set_document_beneficiary__beneficiary_id__documents__document_type_id__patch",
+        "parameters": [
+          {
+            "name": "beneficiary_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Beneficiary Id"
+            }
+          },
+          {
+            "name": "document_type_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Document Type Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DocStatusIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiary/{beneficiary_id}/financial-profile": {
+      "get": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "Get the financial profile & need score",
+        "description": "Income, documented monthly obligations (الفواتير الشهرية), per-person living costs (التكاليف الشهرية للفرد), net income, per-capita income and the derived need score used for prioritization.",
+        "operationId": "get_finance_beneficiary__beneficiary_id__financial_profile_get",
+        "parameters": [
+          {
+            "name": "beneficiary_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Beneficiary Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiary/{beneficiary_id}/obligations": {
+      "post": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "Add a documented monthly obligation",
+        "description": "Adds to الفواتير الشهرية and recalculates net income, per-capita income and the need score.",
+        "operationId": "add_obligation_beneficiary__beneficiary_id__obligations_post",
+        "parameters": [
+          {
+            "name": "beneficiary_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Beneficiary Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ObligationIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiary/{beneficiary_id}/person-costs": {
+      "post": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "Add a per-person monthly living cost",
+        "description": "Adds to التكاليف الشهرية للفرد. Luxury/entertainment costs (PC-LUXURY) are rejected with 409 — they are not counted per the guide.",
+        "operationId": "add_cost_beneficiary__beneficiary_id__person_costs_post",
+        "parameters": [
+          {
+            "name": "beneficiary_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Beneficiary Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CostIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reference/obligation-types": {
+      "get": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "List monthly obligation types",
+        "description": "What counts as الفواتير الشهرية.",
+        "operationId": "list_obligations_reference_obligation_types_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reference/person-cost-types": {
+      "get": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "List per-person monthly cost types",
+        "description": "What counts (and what does not) as التكاليف الشهرية للفرد.",
+        "operationId": "list_costs_reference_person_cost_types_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/faqs/search": {
+      "get": {
+        "tags": [
+          "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
+        ],
+        "summary": "Search the beneficiary FAQ",
+        "description": "Keyword search over the FAQ built from the association's guide (registration, eligibility, dependents, housing, finances, documents, requests, decisions). Use this before improvising an answer.",
+        "operationId": "search_faqs_faqs_search_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "examples": [
+                "مشهد الضمان"
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "examples": [
+                "ar",
+                "en"
+              ],
+              "default": "ar",
+              "title": "Lang"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10,
+              "minimum": 1,
+              "default": 3,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/tickets": {
+      "get": {
+        "tags": [
+          "2 · نظام التذاكر CRM | Tickets & Kanban"
+        ],
+        "summary": "List tickets with filters",
+        "description": "Lists tickets (التذاكر والطلبات). Filter by status, department, channel or beneficiary. Each row carries the SLA countdown like the admin panel.",
+        "operationId": "list_tickets_crm_tickets_get",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                "open"
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "department_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                "DEP-BEN"
+              ],
+              "title": "Department Id"
+            }
+          },
+          {
+            "name": "channel",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                "whatsapp"
+              ],
+              "title": "Channel"
+            }
+          },
+          {
+            "name": "beneficiary_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Beneficiary Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 25,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "2 · نظام التذاكر CRM | Tickets & Kanban"
+        ],
+        "summary": "Open a ticket from any channel",
+        "description": "Creates a ticket from a WhatsApp message or a phone call. If a phone is given the beneficiary is auto-matched. This is what the bot calls when it cannot resolve the query itself or when a human must act.",
+        "operationId": "create_ticket_crm_tickets_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTicketIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/tickets/{ticket_id}": {
+      "get": {
+        "tags": [
+          "2 · نظام التذاكر CRM | Tickets & Kanban"
+        ],
+        "summary": "Get a ticket with its full conversation",
+        "description": "Full ticket detail including the message log (سجل المحادثة), SLA remaining, and the beneficiary's other tickets — the same context the agent screen shows.",
+        "operationId": "get_ticket_crm_tickets__ticket_id__get",
+        "parameters": [
+          {
+            "name": "ticket_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Ticket Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/tickets/{ticket_id}/status": {
+      "patch": {
+        "tags": [
+          "2 · نظام التذاكر CRM | Tickets & Kanban"
+        ],
+        "summary": "Move a ticket across the kanban board",
+        "description": "Moves a ticket to another column (مفتوح / جاري العمل / بانتظار العميل / تم الرد / مغلق).",
+        "operationId": "move_ticket_crm_tickets__ticket_id__status_patch",
+        "parameters": [
+          {
+            "name": "ticket_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Ticket Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoveTicketIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/tickets/{ticket_id}/assign": {
+      "patch": {
+        "tags": [
+          "2 · نظام التذاكر CRM | Tickets & Kanban"
+        ],
+        "summary": "Assign a ticket to a staff member",
+        "description": "Assigns the ticket to a member of فريق العمل.",
+        "operationId": "assign_ticket_crm_tickets__ticket_id__assign_patch",
+        "parameters": [
+          {
+            "name": "ticket_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Ticket Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/tickets/{ticket_id}/reply": {
+      "post": {
+        "tags": [
+          "2 · نظام التذاكر CRM | Tickets & Kanban"
+        ],
+        "summary": "Post a reply on a ticket",
+        "description": "Adds an outbound message to the conversation and moves the ticket to 'replied'. If the WhatsApp 24h window has expired the response warns that only a template message may be sent.",
+        "operationId": "reply_ticket_crm_tickets__ticket_id__reply_post",
+        "parameters": [
+          {
+            "name": "ticket_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Ticket Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplyIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/kanban": {
+      "get": {
+        "tags": [
+          "2 · نظام التذاكر CRM | Tickets & Kanban"
+        ],
+        "summary": "Get the kanban board",
+        "description": "Returns the board grouped into columns exactly as the admin panel renders it (مفتوح، جاري العمل، بانتظار العميل، تم الرد) with per-column counts and cards.",
+        "operationId": "kanban_crm_kanban_get",
+        "parameters": [
+          {
+            "name": "department_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                "DEP-BEN"
+              ],
+              "title": "Department Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/stats": {
+      "get": {
+        "tags": [
+          "2 · نظام التذاكر CRM | Tickets & Kanban"
+        ],
+        "summary": "Ticket statistics dashboard",
+        "description": "Totals by status, today's tickets, closure rate, average response time and the busiest department — the metric strip from the admin panel.",
+        "operationId": "stats_crm_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/departments": {
+      "get": {
+        "tags": [
+          "2 · نظام التذاكر CRM | Tickets & Kanban"
+        ],
+        "summary": "List departments and their SLA",
+        "description": "Routing targets (التصنيف) with each one's SLA in hours.",
+        "operationId": "list_departments_crm_departments_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/staff": {
+      "get": {
+        "tags": [
+          "2 · نظام التذاكر CRM | Tickets & Kanban"
+        ],
+        "summary": "List staff (فريق العمل)",
+        "description": "Staff available for assignment and escalation.",
+        "operationId": "list_staff_crm_staff_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/whatsapp/inbound": {
+      "post": {
+        "tags": [
+          "3 · قناة الواتساب | WhatsApp Channel"
+        ],
+        "summary": "Handle an inbound WhatsApp message",
+        "description": "Entry point for the WhatsApp bot. Identifies the sender against the beneficiary database, opens or refreshes the 24-hour session window, and returns the caller's context (file status, open tickets, pending requests) so the agent can answer without asking who they are.",
+        "operationId": "wa_inbound_whatsapp_inbound_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WaInboundIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/whatsapp/send": {
+      "post": {
+        "tags": [
+          "3 · قناة الواتساب | WhatsApp Channel"
+        ],
+        "summary": "Send a WhatsApp message",
+        "description": "Sends a free-form message. Blocked with 409 if the 24-hour session window has closed — use /whatsapp/send-template instead.",
+        "operationId": "wa_send_whatsapp_send_post",
+        "parameters": [
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "examples": [
+                "966500287602"
+              ],
+              "title": "To"
+            }
+          },
+          {
+            "name": "body_ar",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "examples": [
+                "تم استلام طلبكم"
+              ],
+              "title": "Body Ar"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/whatsapp/send-template": {
+      "post": {
+        "tags": [
+          "3 · قناة الواتساب | WhatsApp Channel"
+        ],
+        "summary": "Send an approved WhatsApp template",
+        "description": "Sends a pre-approved template message — the only thing permitted once the 24-hour window has closed.",
+        "operationId": "wa_template_whatsapp_send_template_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemplateSendIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/whatsapp/templates": {
+      "get": {
+        "tags": [
+          "3 · قناة الواتساب | WhatsApp Channel"
+        ],
+        "summary": "List approved message templates",
+        "description": "Templates for OTP, registration confirmation, document requests, decisions, visit scheduling and payment notices.",
+        "operationId": "wa_templates_whatsapp_templates_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/whatsapp/session/{phone}": {
+      "get": {
+        "tags": [
+          "3 · قناة الواتساب | WhatsApp Channel"
+        ],
+        "summary": "Check a WhatsApp session window",
+        "description": "Returns whether the 24-hour window is still open and how long remains (الوقت المتبقي).",
+        "operationId": "wa_session_whatsapp_session__phone__get",
+        "parameters": [
+          {
+            "name": "phone",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Phone"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/voice/call-start": {
+      "post": {
+        "tags": [
+          "4 · قناة الاتصال الهاتفي | Voice / SIP Channel"
+        ],
+        "summary": "Start a voice call session (SIP)",
+        "description": "Called when a SIP call connects. Identifies the caller from the ANI, loads their context, and returns a ready greeting. The agent should NOT disclose file details until identity is confirmed for sensitive operations.",
+        "operationId": "call_start_voice_call_start_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CallStartIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/voice/call-end/{call_id}": {
+      "post": {
+        "tags": [
+          "4 · قناة الاتصال الهاتفي | Voice / SIP Channel"
+        ],
+        "summary": "End a voice call and log the outcome",
+        "description": "Closes the call session with its outcome, detected intent and duration for reporting.",
+        "operationId": "call_end_voice_call_end__call_id__post",
+        "parameters": [
+          {
+            "name": "call_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Call Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CallEndIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/voice/transfer/{call_id}": {
+      "post": {
+        "tags": [
+          "4 · قناة الاتصال الهاتفي | Voice / SIP Channel"
+        ],
+        "summary": "Transfer a call to a human agent",
+        "description": "Escalates a live call to a human, creating a ticket that carries the call context so the agent does not start cold.",
+        "operationId": "transfer_call_voice_transfer__call_id__post",
+        "parameters": [
+          {
+            "name": "call_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Call Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransferIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/voice/calls": {
+      "get": {
+        "tags": [
+          "4 · قناة الاتصال الهاتفي | Voice / SIP Channel"
+        ],
+        "summary": "List call sessions",
+        "description": "Recent voice sessions with outcome and detected intent, for reporting.",
+        "operationId": "list_calls_voice_calls_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications": {
+      "get": {
+        "tags": [
+          "3 · قناة الواتساب | WhatsApp Channel"
+        ],
+        "summary": "List sent notifications (WhatsApp / SMS log)",
+        "description": "Everything the platform has sent in this session — useful to verify the bot actually notified the beneficiary.",
+        "operationId": "list_notifications_notifications_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 30,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs": {
+      "get": {
+        "tags": [
+          "5 · طلبات الدعم | Support Requests"
+        ],
+        "summary": "List the 5 association programs",
+        "description": "برنامج علم، التاهيل والتدريب، جودة حياة، سكني، قيمي — each with its description and request-type count.",
+        "operationId": "list_programs_programs_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/request-types": {
+      "get": {
+        "tags": [
+          "5 · طلبات الدعم | Support Requests"
+        ],
+        "summary": "List request types under a program",
+        "description": "The projects/requests available under a program, with the approval ceiling and whether the support is recurring monthly or one-off.",
+        "operationId": "program_requests_programs__program_id__request_types_get",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Program Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/request-types/search": {
+      "get": {
+        "tags": [
+          "5 · طلبات الدعم | Support Requests"
+        ],
+        "summary": "Find the right request type from free text",
+        "description": "Maps what the beneficiary said (e.g. 'محتاج مساعدة في الايجار') to the correct request type and program. Use this before creating a request so the case lands in the right program.",
+        "operationId": "search_request_types_request_types_search_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "examples": [
+                "ايجار"
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 20,
+              "minimum": 1,
+              "default": 5,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/support-requests": {
+      "post": {
+        "tags": [
+          "5 · طلبات الدعم | Support Requests"
+        ],
+        "summary": "Submit a support request (طلب دعم)",
+        "description": "Creates a support request under a program. Requires an APPROVED beneficiary file — returns 409 otherwise, matching the guide ('after your file is complete and approved'). Amounts above the request ceiling are rejected.",
+        "operationId": "create_request_support_requests_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRequestIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/support-requests/{request_id}": {
+      "get": {
+        "tags": [
+          "5 · طلبات الدعم | Support Requests"
+        ],
+        "summary": "Get a support request with its casework and decision",
+        "description": "Full request detail including the case study steps and the committee decision if one has been issued.",
+        "operationId": "get_request_support_requests__request_id__get",
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Request Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiary/{beneficiary_id}/support-requests": {
+      "get": {
+        "tags": [
+          "5 · طلبات الدعم | Support Requests"
+        ],
+        "summary": "List a beneficiary's support requests",
+        "description": "All requests raised by a beneficiary with their stage and decision.",
+        "operationId": "list_requests_beneficiary__beneficiary_id__support_requests_get",
+        "parameters": [
+          {
+            "name": "beneficiary_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Beneficiary Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/support-requests/{request_id}/add-detail": {
+      "patch": {
+        "tags": [
+          "5 · طلبات الدعم | Support Requests"
+        ],
+        "summary": "Append more detail to a request",
+        "description": "Use when the case worker or bot asks the beneficiary to explain further. Appends to وصف الحالة rather than overwriting it, preserving the history.",
+        "operationId": "add_detail_support_requests__request_id__add_detail_patch",
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Request Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddDetailIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reference/case-steps": {
+      "get": {
+        "tags": [
+          "6 · دراسة الحالة واللجنة | Casework & Committee"
+        ],
+        "summary": "List case study step types",
+        "description": "المقابلة المكتبية، المقابلة الالكترونية، الزيارة الميدانية، تقييم الوضع النفسي.",
+        "operationId": "list_case_steps_reference_case_steps_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/support-requests/{request_id}/open-case": {
+      "post": {
+        "tags": [
+          "6 · دراسة الحالة واللجنة | Casework & Committee"
+        ],
+        "summary": "Open a case study for a request",
+        "description": "Starts دراسة الحالة and moves the request to 'under_study'. Assigns a social researcher.",
+        "operationId": "open_case_support_requests__request_id__open_case_post",
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Request Id"
+            }
+          },
+          {
+            "name": "researcher_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "examples": [
+                "STF-04"
+              ],
+              "default": "STF-04",
+              "title": "Researcher Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cases/{case_id}/schedule-step": {
+      "post": {
+        "tags": [
+          "6 · دراسة الحالة واللجنة | Casework & Committee"
+        ],
+        "summary": "Schedule a case study step (visit / interview / assessment)",
+        "description": "Schedules a field visit, office or online interview, or psychological assessment, and notifies the beneficiary on WhatsApp.",
+        "operationId": "schedule_step_cases__case_id__schedule_step_post",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleStepIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cases/{case_id}/record-findings": {
+      "post": {
+        "tags": [
+          "6 · دراسة الحالة واللجنة | Casework & Committee"
+        ],
+        "summary": "Record findings for a completed step",
+        "description": "Marks a case step complete and stores the researcher's findings.",
+        "operationId": "record_findings_cases__case_id__record_findings_post",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FindingsIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cases/{case_id}/submit-to-committee": {
+      "post": {
+        "tags": [
+          "6 · دراسة الحالة واللجنة | Casework & Committee"
+        ],
+        "summary": "Submit the case to the specialized committee",
+        "description": "Presents the case to اللجنة المختصة with the researcher's recommendation. Requires at least one completed step (409 otherwise).",
+        "operationId": "submit_committee_cases__case_id__submit_to_committee_post",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitCommitteeIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/support-requests/{request_id}/decision": {
+      "post": {
+        "tags": [
+          "6 · دراسة الحالة واللجنة | Casework & Committee"
+        ],
+        "summary": "Record the committee decision and notify the beneficiary",
+        "description": "Records قبول الطلب / طلب استكمال مستندات / الاعتذار, then notifies the beneficiary on BOTH WhatsApp and SMS as the guide specifies. Accepted requests become eligible for enrollment and disbursement.",
+        "operationId": "record_decision_support_requests__request_id__decision_post",
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Request Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/committee/queue": {
+      "get": {
+        "tags": [
+          "6 · دراسة الحالة واللجنة | Casework & Committee"
+        ],
+        "summary": "List cases awaiting committee review",
+        "description": "The committee's queue, ordered by the beneficiary's need score so the highest-need cases surface first (support is given وفق الاحتياج والاولوية).",
+        "operationId": "committee_queue_committee_queue_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enrollments": {
+      "post": {
+        "tags": [
+          "7 · الاعتماد والصرف | Enrollment & Disbursement"
+        ],
+        "summary": "Enrol an approved beneficiary into a program",
+        "description": "Creates the enrollment for an ACCEPTED request and generates the monthly disbursement schedule. Returns 409 if the request was not accepted or is already enrolled.",
+        "operationId": "create_enrollment_enrollments_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrollIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiary/{beneficiary_id}/enrollments": {
+      "get": {
+        "tags": [
+          "7 · الاعتماد والصرف | Enrollment & Disbursement"
+        ],
+        "summary": "List a beneficiary's program enrollments",
+        "description": "Every program the beneficiary is enrolled in, with amounts and status.",
+        "operationId": "list_enrollments_beneficiary__beneficiary_id__enrollments_get",
+        "parameters": [
+          {
+            "name": "beneficiary_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Beneficiary Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiary/{beneficiary_id}/disbursements": {
+      "get": {
+        "tags": [
+          "7 · الاعتماد والصرف | Enrollment & Disbursement"
+        ],
+        "summary": "List scheduled and paid disbursements",
+        "description": "The monthly transfer schedule with totals paid and upcoming — this answers 'كم اتحول لي وكم باقي'.",
+        "operationId": "list_disbursements_beneficiary__beneficiary_id__disbursements_get",
+        "parameters": [
+          {
+            "name": "beneficiary_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Beneficiary Id"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                "scheduled"
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/disbursements/{disbursement_id}/approve": {
+      "post": {
+        "tags": [
+          "7 · الاعتماد والصرف | Enrollment & Disbursement"
+        ],
+        "summary": "Approve a disbursement for payment (التعميد بالصرف)",
+        "description": "Moves a scheduled disbursement to approved so finance can pay it.",
+        "operationId": "approve_disbursement_disbursements__disbursement_id__approve_post",
+        "parameters": [
+          {
+            "name": "disbursement_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Disbursement Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveDisbIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/disbursements/{disbursement_id}/pay": {
+      "post": {
+        "tags": [
+          "7 · الاعتماد والصرف | Enrollment & Disbursement"
+        ],
+        "summary": "Execute payment to the beneficiary's IBAN",
+        "description": "Records a bank transfer against the disbursement and sends an SMS notice. Blocked (409) if the beneficiary has no IBAN on file.",
+        "operationId": "pay_disbursement_disbursements__disbursement_id__pay_post",
+        "parameters": [
+          {
+            "name": "disbursement_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Disbursement Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiary/{beneficiary_id}/payments": {
+      "get": {
+        "tags": [
+          "7 · الاعتماد والصرف | Enrollment & Disbursement"
+        ],
+        "summary": "Payment history",
+        "description": "All settled payments with bank reference numbers.",
+        "operationId": "list_payments_beneficiary__beneficiary_id__payments_get",
+        "parameters": [
+          {
+            "name": "beneficiary_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Beneficiary Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/finance/disbursement-run": {
+      "get": {
+        "tags": [
+          "7 · الاعتماد والصرف | Enrollment & Disbursement"
+        ],
+        "summary": "Upcoming disbursement run",
+        "description": "Everything due in the next N days across all beneficiaries — the monthly payment run the finance team executes.",
+        "operationId": "disbursement_run_finance_disbursement_run_get",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 120,
+              "minimum": 1,
+              "default": 30,
+              "title": "Days"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sponsorships": {
+      "get": {
+        "tags": [
+          "8 · الكفالات والفعاليات | Sponsorships & Events"
+        ],
+        "summary": "List sponsorships (الكفالات)",
+        "description": "Sponsor-to-beneficiary kafala records, restricted or unrestricted.",
+        "operationId": "list_sponsorships_sponsorships_get",
+        "parameters": [
+          {
+            "name": "beneficiary_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Beneficiary Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events": {
+      "get": {
+        "tags": [
+          "8 · الكفالات والفعاليات | Sponsorships & Events"
+        ],
+        "summary": "List events and activities (الفعاليات والانشطة)",
+        "description": "Association events with capacity and registration counts.",
+        "operationId": "list_events_events_get",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                "scheduled"
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/{event_id}/register": {
+      "post": {
+        "tags": [
+          "8 · الكفالات والفعاليات | Sponsorships & Events"
+        ],
+        "summary": "Register a beneficiary for an event",
+        "description": "Registers an approved beneficiary for an event; blocked when the event is full or already completed.",
+        "operationId": "register_event_events__event_id__register_post",
+        "parameters": [
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Event Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterEventIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiary/{beneficiary_id}/history": {
+      "get": {
+        "tags": [
+          "9 · السجل الشامل | Beneficiary 360"
+        ],
+        "summary": "Complete beneficiary history (السجل الشامل)",
+        "description": "THE ONE CALL that returns everything about a beneficiary in one place: file status and completeness, household, documents, finances, every support request with its decision, enrollments, disbursements, payments, sponsorships, tickets and channel sessions. Use it to open any conversation with full context.",
+        "operationId": "history_beneficiary__beneficiary_id__history_get",
+        "parameters": [
+          {
+            "name": "beneficiary_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Beneficiary Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficiaries/search": {
+      "get": {
+        "tags": [
+          "9 · السجل الشامل | Beneficiary 360"
+        ],
+        "summary": "Search beneficiaries by phone, name, file number or ID",
+        "description": "Primary lookup for both channels — resolves a caller to their file. Phone matching accepts 05…, 9665…, +9665… formats.",
+        "operationId": "search_beneficiary_beneficiaries_search_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "examples": [
+                "0501234567"
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 25,
+              "minimum": 1,
+              "default": 5,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/overview": {
+      "get": {
+        "tags": [
+          "9 · السجل الشامل | Beneficiary 360"
+        ],
+        "summary": "Association-wide overview report",
+        "description": "Headline numbers across files, requests, programs, disbursements and channels — the management dashboard.",
+        "operationId": "overview_reports_overview_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Platform info",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Health check",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AddDetailIn": {
+        "properties": {
+          "additional_detail_ar": {
+            "type": "string",
+            "minLength": 5,
+            "title": "Additional Detail Ar",
+            "examples": [
+              "صدر انذار اخلاء من المالك بتاريخ 1 يوليو"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "additional_detail_ar"
+        ],
+        "title": "AddDetailIn"
+      },
+      "ApproveDisbIn": {
+        "properties": {
+          "approved_by": {
+            "type": "string",
+            "title": "Approved By",
+            "default": "STF-06",
+            "examples": [
+              "STF-06"
+            ]
+          }
+        },
+        "type": "object",
+        "title": "ApproveDisbIn"
+      },
+      "AssignIn": {
+        "properties": {
+          "staff_id": {
+            "type": "string",
+            "title": "Staff Id",
+            "examples": [
+              "STF-02"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "staff_id"
+        ],
+        "title": "AssignIn"
+      },
+      "CallEndIn": {
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "title": "Outcome",
+            "description": "resolved_by_bot | escalated_to_agent | ticket_created | voicemail",
+            "examples": [
+              "resolved_by_bot"
+            ]
+          },
+          "intent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intent",
+            "examples": [
+              "استفسار عن حالة الطلب"
+            ]
+          },
+          "duration_sec": {
+            "type": "integer",
+            "title": "Duration Sec",
+            "default": 0,
+            "examples": [
+              145
+            ]
+          },
+          "transcript_ar": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transcript Ar"
+          }
+        },
+        "type": "object",
+        "required": [
+          "outcome"
+        ],
+        "title": "CallEndIn"
+      },
+      "CallStartIn": {
+        "properties": {
+          "from_number": {
+            "type": "string",
+            "title": "From Number",
+            "examples": [
+              "0501234567"
+            ]
+          },
+          "to_number": {
+            "type": "string",
+            "title": "To Number",
+            "default": "966112925559",
+            "examples": [
+              "966112925559"
+            ]
+          },
+          "sip_call_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sip Call Id",
+            "examples": [
+              "sip-123456@kayan.pbx"
+            ]
+          },
+          "direction": {
+            "type": "string",
+            "title": "Direction",
+            "default": "inbound",
+            "examples": [
+              "inbound",
+              "outbound"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "from_number"
+        ],
+        "title": "CallStartIn"
+      },
+      "CostIn": {
+        "properties": {
+          "type_id": {
+            "type": "string",
+            "title": "Type Id",
+            "description": "From /reference/person-cost-types",
+            "examples": [
+              "PC-GROCERY"
+            ]
+          },
+          "monthly_sar": {
+            "type": "number",
+            "title": "Monthly Sar",
+            "examples": [
+              1200.0
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "type_id",
+          "monthly_sar"
+        ],
+        "title": "CostIn"
+      },
+      "CreateFileIn": {
+        "properties": {
+          "phone": {
+            "type": "string",
+            "title": "Phone",
+            "examples": [
+              "0555550001"
+            ]
+          },
+          "case_type": {
+            "type": "string",
+            "title": "Case Type",
+            "description": "CT-IND or CT-FOSTER",
+            "examples": [
+              "CT-IND"
+            ]
+          },
+          "orphan_category_id": {
+            "type": "string",
+            "title": "Orphan Category Id",
+            "examples": [
+              "OC-UNK"
+            ]
+          },
+          "full_name_ar": {
+            "type": "string",
+            "title": "Full Name Ar",
+            "description": "الاسم الرباعي كما في الهوية",
+            "examples": [
+              "محمد بن عبدالله القحطاني"
+            ]
+          },
+          "national_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "National Id",
+            "examples": [
+              "1012345678"
+            ]
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City",
+            "examples": [
+              "الرياض"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "phone",
+          "case_type",
+          "orphan_category_id",
+          "full_name_ar"
+        ],
+        "title": "CreateFileIn"
+      },
+      "CreateRequestIn": {
+        "properties": {
+          "beneficiary_id": {
+            "type": "string",
+            "title": "Beneficiary Id",
+            "examples": [
+              "BEN-1001"
+            ]
+          },
+          "request_type_id": {
+            "type": "string",
+            "title": "Request Type Id",
+            "examples": [
+              "REQ-HSG-01"
+            ]
+          },
+          "case_description_ar": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Case Description Ar",
+            "description": "وصف الحالة — the beneficiary's own explanation, in detail",
+            "examples": [
+              "الاسرة متاخرة عن سداد الايجار لثلاثة اشهر وصدر انذار اخلاء"
+            ]
+          },
+          "requested_amount_sar": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Amount Sar",
+            "examples": [
+              18000
+            ]
+          },
+          "internal_classification": {
+            "type": "string",
+            "title": "Internal Classification",
+            "default": "اعتيادي",
+            "examples": [
+              "عاجل",
+              "اعتيادي",
+              "متكرر",
+              "موسمي"
+            ]
+          },
+          "channel": {
+            "type": "string",
+            "title": "Channel",
+            "default": "whatsapp",
+            "examples": [
+              "whatsapp",
+              "call",
+              "portal"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "beneficiary_id",
+          "request_type_id",
+          "case_description_ar"
+        ],
+        "title": "CreateRequestIn"
+      },
+      "CreateTicketIn": {
+        "properties": {
+          "subject_ar": {
+            "type": "string",
+            "title": "Subject Ar",
+            "examples": [
+              "سداد ايجار"
+            ]
+          },
+          "channel": {
+            "type": "string",
+            "title": "Channel",
+            "default": "whatsapp",
+            "examples": [
+              "whatsapp",
+              "call",
+              "portal"
+            ]
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone",
+            "examples": [
+              "0501234567"
+            ]
+          },
+          "beneficiary_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Beneficiary Id",
+            "examples": [
+              "BEN-1001"
+            ]
+          },
+          "department_id": {
+            "type": "string",
+            "title": "Department Id",
+            "default": "DEP-BEN",
+            "examples": [
+              "DEP-BEN"
+            ]
+          },
+          "priority": {
+            "type": "string",
+            "title": "Priority",
+            "default": "medium",
+            "examples": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "first_message_ar": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Message Ar",
+            "examples": [
+              "احتاج مساعدة في سداد الايجار"
+            ]
+          },
+          "linked_request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Linked Request Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subject_ar"
+        ],
+        "title": "CreateTicketIn"
+      },
+      "DecisionIn": {
+        "properties": {
+          "decision": {
+            "type": "string",
+            "title": "Decision",
+            "description": "accepted | docs_required | declined",
+            "examples": [
+              "accepted"
+            ]
+          },
+          "approved_amount_sar": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved Amount Sar",
+            "examples": [
+              15000
+            ]
+          },
+          "reason_ar": {
+            "type": "string",
+            "title": "Reason Ar",
+            "examples": [
+              "استيفاء الشروط ووجود احتياج مؤكد"
+            ]
+          },
+          "required_documents_ar": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Required Documents Ar",
+            "examples": [
+              [
+                "تعريف الراتب",
+                "عقد الايجار"
+              ]
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "decision",
+          "reason_ar"
+        ],
+        "title": "DecisionIn"
+      },
+      "DependentIn": {
+        "properties": {
+          "name_ar": {
+            "type": "string",
+            "title": "Name Ar",
+            "examples": [
+              "سارة القحطاني"
+            ]
+          },
+          "relationship_ar": {
+            "type": "string",
+            "title": "Relationship Ar",
+            "description": "الزوج/الزوجة، ابن، ابنة، اخ، اخت، الام الحاضنة، اخ يتيم ذو ظروف خاصة",
+            "examples": [
+              "ابنة"
+            ]
+          },
+          "birth_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Birth Date",
+            "examples": [
+              "2015-04-01"
+            ]
+          },
+          "gender": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender",
+            "examples": [
+              "female"
+            ]
+          },
+          "education_stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Education Stage",
+            "examples": [
+              "ابتدائي"
+            ]
+          },
+          "has_special_needs": {
+            "type": "boolean",
+            "title": "Has Special Needs",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "name_ar",
+          "relationship_ar"
+        ],
+        "title": "DependentIn"
+      },
+      "DocStatusIn": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "uploaded | verified | rejected | not_available | ineligible",
+            "examples": [
+              "uploaded"
+            ]
+          },
+          "note_ar": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note Ar",
+            "examples": [
+              "لا يوجد"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "DocStatusIn"
+      },
+      "EligibilityIn": {
+        "properties": {
+          "orphan_category_id": {
+            "type": "string",
+            "title": "Orphan Category Id",
+            "description": "From GET /reference/orphan-categories",
+            "examples": [
+              "OC-UNK"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "orphan_category_id"
+        ],
+        "title": "EligibilityIn"
+      },
+      "EnrollIn": {
+        "properties": {
+          "support_request_id": {
+            "type": "string",
+            "title": "Support Request Id",
+            "examples": [
+              "SR-20001"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "default": "one_time",
+            "examples": [
+              "one_time",
+              "monthly_recurring"
+            ]
+          },
+          "months": {
+            "type": "integer",
+            "maximum": 36.0,
+            "minimum": 1.0,
+            "title": "Months",
+            "description": "Number of monthly instalments for recurring support",
+            "default": 1,
+            "examples": [
+              12
+            ]
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Date",
+            "examples": [
+              "2026-08-01"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "support_request_id"
+        ],
+        "title": "EnrollIn"
+      },
+      "FindingsIn": {
+        "properties": {
+          "step_id": {
+            "type": "string",
+            "title": "Step Id",
+            "examples": [
+              "CS-FIELD"
+            ]
+          },
+          "findings_ar": {
+            "type": "string",
+            "title": "Findings Ar",
+            "examples": [
+              "تم التحقق من السكن وعدد التابعين ومطابقة البيانات"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "step_id",
+          "findings_ar"
+        ],
+        "title": "FindingsIn"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "MoveTicketIn": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "open | in_progress | waiting_customer | replied | closed | expired",
+            "examples": [
+              "in_progress"
+            ]
+          },
+          "note_ar": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note Ar"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "MoveTicketIn"
+      },
+      "ObligationIn": {
+        "properties": {
+          "type_id": {
+            "type": "string",
+            "title": "Type Id",
+            "description": "From /reference/obligation-types",
+            "examples": [
+              "OB-RENT"
+            ]
+          },
+          "monthly_sar": {
+            "type": "number",
+            "title": "Monthly Sar",
+            "examples": [
+              1500.0
+            ]
+          },
+          "documented": {
+            "type": "boolean",
+            "title": "Documented",
+            "description": "Documented in SIMAH / Najiz / a contract",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "type_id",
+          "monthly_sar"
+        ],
+        "title": "ObligationIn"
+      },
+      "PhoneIn": {
+        "properties": {
+          "phone": {
+            "type": "string",
+            "title": "Phone",
+            "description": "Saudi mobile, any format",
+            "examples": [
+              "0501234567"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "phone"
+        ],
+        "title": "PhoneIn"
+      },
+      "RegisterEventIn": {
+        "properties": {
+          "beneficiary_id": {
+            "type": "string",
+            "title": "Beneficiary Id",
+            "examples": [
+              "BEN-1001"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "beneficiary_id"
+        ],
+        "title": "RegisterEventIn"
+      },
+      "ReplyIn": {
+        "properties": {
+          "body_ar": {
+            "type": "string",
+            "title": "Body Ar",
+            "examples": [
+              "تم استلام طلبكم وجاري دراسته"
+            ]
+          },
+          "sender": {
+            "type": "string",
+            "title": "Sender",
+            "default": "agent",
+            "examples": [
+              "agent",
+              "bot"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "body_ar"
+        ],
+        "title": "ReplyIn"
+      },
+      "ScheduleStepIn": {
+        "properties": {
+          "step_id": {
+            "type": "string",
+            "title": "Step Id",
+            "description": "CS-DESK | CS-ONLINE | CS-FIELD | CS-PSYCH",
+            "examples": [
+              "CS-FIELD"
+            ]
+          },
+          "scheduled_at": {
+            "type": "string",
+            "title": "Scheduled At",
+            "examples": [
+              "2026-08-02T10:00:00Z"
+            ]
+          },
+          "assigned_staff_id": {
+            "type": "string",
+            "title": "Assigned Staff Id",
+            "default": "STF-04",
+            "examples": [
+              "STF-04"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "step_id",
+          "scheduled_at"
+        ],
+        "title": "ScheduleStepIn"
+      },
+      "SubmitCommitteeIn": {
+        "properties": {
+          "recommendation_ar": {
+            "type": "string",
+            "title": "Recommendation Ar",
+            "examples": [
+              "التوصية بالقبول ضمن السقف المعتمد"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "recommendation_ar"
+        ],
+        "title": "SubmitCommitteeIn"
+      },
+      "TemplateSendIn": {
+        "properties": {
+          "to": {
+            "type": "string",
+            "title": "To",
+            "examples": [
+              "966500287602"
+            ]
+          },
+          "template_id": {
+            "type": "string",
+            "title": "Template Id",
+            "examples": [
+              "TPL-DOCS"
+            ]
+          },
+          "params": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Params",
+            "examples": [
+              {
+                "docs": "صورة الهوية، تعريف الراتب",
+                "request_no": "SR-20001"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "to",
+          "template_id"
+        ],
+        "title": "TemplateSendIn"
+      },
+      "TransferIn": {
+        "properties": {
+          "reason_ar": {
+            "type": "string",
+            "title": "Reason Ar",
+            "examples": [
+              "الحالة تحتاج تدخل موظف"
+            ]
+          },
+          "department_id": {
+            "type": "string",
+            "title": "Department Id",
+            "default": "DEP-BEN",
+            "examples": [
+              "DEP-BEN"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "reason_ar"
+        ],
+        "title": "TransferIn"
+      },
+      "UpdateSectionIn": {
+        "properties": {
+          "values": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Values",
+            "examples": [
+              {
+                "education_level": "بكالوريوس",
+                "employment_status": "لا يعمل"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "values"
+        ],
+        "title": "UpdateSectionIn"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VerifyOtpIn": {
+        "properties": {
+          "phone": {
+            "type": "string",
+            "title": "Phone",
+            "examples": [
+              "0501234567"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "examples": [
+              "1234"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "phone",
+          "code"
+        ],
+        "title": "VerifyOtpIn"
+      },
+      "WaInboundIn": {
+        "properties": {
+          "from_number": {
+            "type": "string",
+            "title": "From Number",
+            "examples": [
+              "966500287602"
+            ]
+          },
+          "text_ar": {
+            "type": "string",
+            "title": "Text Ar",
+            "examples": [
+              "السلام عليكم ابغى اسجل في الجمعية"
+            ]
+          },
+          "message_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message Id",
+            "examples": [
+              "wamid.abc123"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "from_number",
+          "text_ar"
+        ],
+        "title": "WaInboundIn"
+      }
+    }
+  }
+}

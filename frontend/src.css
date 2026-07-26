@@ -1,0 +1,57 @@
+@font-face {
+  font-family:'IBM Plex Sans Arabic'; font-style:normal; font-weight:300; font-display:swap;
+  src:url('../fonts/plex-ar-300.woff2') format('woff2'); unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF;
+}
+@font-face {
+  font-family:'IBM Plex Sans Arabic'; font-style:normal; font-weight:300; font-display:swap;
+  src:url('../fonts/plex-la-300.woff2') format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F,U+2074,U+20AC,U+2122,U+2212;
+}
+@font-face {
+  font-family:'IBM Plex Sans Arabic'; font-style:normal; font-weight:400; font-display:swap;
+  src:url('../fonts/plex-ar-400.woff2') format('woff2'); unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF;
+}
+@font-face {
+  font-family:'IBM Plex Sans Arabic'; font-style:normal; font-weight:400; font-display:swap;
+  src:url('../fonts/plex-la-400.woff2') format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F,U+2074,U+20AC,U+2122,U+2212;
+}
+@font-face {
+  font-family:'IBM Plex Sans Arabic'; font-style:normal; font-weight:500; font-display:swap;
+  src:url('../fonts/plex-ar-500.woff2') format('woff2'); unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF;
+}
+@font-face {
+  font-family:'IBM Plex Sans Arabic'; font-style:normal; font-weight:500; font-display:swap;
+  src:url('../fonts/plex-la-500.woff2') format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F,U+2074,U+20AC,U+2122,U+2212;
+}
+@font-face {
+  font-family:'IBM Plex Sans Arabic'; font-style:normal; font-weight:600; font-display:swap;
+  src:url('../fonts/plex-ar-600.woff2') format('woff2'); unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF;
+}
+@font-face {
+  font-family:'IBM Plex Sans Arabic'; font-style:normal; font-weight:600; font-display:swap;
+  src:url('../fonts/plex-la-600.woff2') format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F,U+2074,U+20AC,U+2122,U+2212;
+}
+@font-face {
+  font-family:'IBM Plex Sans Arabic'; font-style:normal; font-weight:700; font-display:swap;
+  src:url('../fonts/plex-ar-700.woff2') format('woff2'); unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF;
+}
+@font-face {
+  font-family:'IBM Plex Sans Arabic'; font-style:normal; font-weight:700; font-display:swap;
+  src:url('../fonts/plex-la-700.woff2') format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+2000-206F,U+2074,U+20AC,U+2122,U+2212;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body { height: 100%; }
+  body { background:#FAFAFB; color:#0F172A; -webkit-font-smoothing: antialiased; }
+  ::-webkit-scrollbar { width:10px; height:10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background:#E4E7EC; border-radius:8px; border:3px solid #FAFAFB; }
+  ::-webkit-scrollbar-thumb:hover { background:#D0D5DD; }
+}
+@layer utilities {
+  .tabular { font-variant-numeric: tabular-nums; }
+  [dir="rtl"] .flip { transform: scaleX(-1); }
+}

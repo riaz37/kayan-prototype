@@ -1,0 +1,98 @@
+# Kayan WhatsApp Agent - Showcase Script
+# Copy each message and send to agent one by one
+
+# ============================================================
+# STEP 1: GREETING
+# ============================================================
+# Arabic: مرحبا
+# English: Hello
+# Expected: Agent greets you with your name
+مرحبا
+
+# ============================================================
+# STEP 2: CHECK FILE STATUS
+# ============================================================
+# Arabic: ابي اعرف حالة ملفي
+# English: I want to know my file status
+# Expected: Shows file status (approved), completion %
+ابي اعرف حالة ملفي
+
+# ============================================================
+# STEP 3: CHECK MISSING DOCUMENTS
+# ============================================================
+# Arabic: وش ناقص على الملف
+# English: What's missing on the file?
+# Expected: Lists missing documents
+وش ناقص على الملف
+
+# ============================================================
+# STEP 4: START SUPPORT REQUEST
+# ============================================================
+# Arabic: ابي مساعدة مالية
+# English: I need financial assistance
+# Expected: Agent asks what type of help
+ابي مساعدة مالية
+
+# ============================================================
+# STEP 5: SPECIFY REQUEST TYPE
+# ============================================================
+# Arabic: رسوم المدرسة لولدي
+# English: School fees for my son
+# Expected: Agent finds school fees request type
+رسوم المدرسة لولدي
+
+# ============================================================
+# STEP 6: PROVIDE AMOUNT
+# ============================================================
+# Arabic: المبلغ 4500 ريال
+# English: The amount is 4500 riyals
+# Expected: Agent confirms amount
+المبلغ 4500 ريال
+
+# ============================================================
+# STEP 7: CONFIRM REQUEST
+# ============================================================
+# Arabic: نعم، اكد
+# English: Yes, confirm
+# Expected: Agent creates support request
+نعم، اكد
+
+# ============================================================
+# STEP 8: CHECK OPEN REQUESTS
+# ============================================================
+# Arabic: وش الطلبات المفتوحة
+# English: What are the open requests?
+# Expected: Lists all open requests
+وش الطلبات المفتوحة
+
+# ============================================================
+# STEP 9: CHECK DISBURSEMENT
+# ============================================================
+# Arabic: متى ينزل المبلغ
+# English: When will the amount be disbursed?
+# Expected: Shows next payment date
+متى ينزل المبلغ
+
+# ============================================================
+# STEP 10: CREATE SUPPORT TICKET
+# ============================================================
+# Arabic: ابي اكلم موظف
+# English: I want to speak with an employee
+# Expected: Creates support ticket
+ابي اكلم موظف
+
+# ============================================================
+# QUICK COPY - ALL MESSAGES
+# ============================================================
+# Copy these lines one by one:
+
+مرحبا
+ابي اعرف حالة ملفي
+وش ناقص على الملف
+ابي مساعدة مالية
+رسوم المدرسة لولدي
+المبلغ 4500 ريال
+نعم، اكد
+وش الطلبات المفتوحة
+متى ينزل المبلغ
+ابي اكلم موظف

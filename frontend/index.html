@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>جمعية كيان للأيتام — نظام إدارة المستفيدين</title>
+<meta name="description" content="نظام إدارة المستفيدين والتذاكر والبرامج — جمعية كيان للأيتام" />
+
+
+<link rel="stylesheet" href="dist/app.css">
+
+<style>
+  #boot { position:fixed; inset:0; display:grid; place-items:center; background:#FAFAFB; z-index:99; }
+  #boot .dot { width:34px;height:34px;border-radius:12px;background:#0F8478;
+               display:grid;place-items:center;color:#fff;font-weight:700;font-family:sans-serif;
+               animation:pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.65;transform:scale(.94)} }
+</style>
+</head>
+<body>
+  <div id="boot"><div class="dot">ك</div></div>
+  <div id="root"></div>
+
+  <script src="vendor/react.js"></script>
+  <script src="vendor/react-dom.js"></script>
+  <script src="dist/ui.js"></script>
+  <script src="dist/pages.js"></script>
+  <script src="dist/app.js"></script>
+  <script>
+    var b = document.getElementById('boot');
+    if (b) setTimeout(function(){ b.style.transition='opacity .3s'; b.style.opacity=0;
+                                  setTimeout(function(){ b.remove(); }, 320); }, 150);
+  </script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+[
+  {
+    "id": "FAQ-01",
+    "category": "registration",
+    "q_ar": "كيف اسجل في نظام جمعية كيان؟",
+    "a_ar": "ادخل الى موقع kayan.org.sa واضغط على ايقونة المستخدم ثم اختر تسجيل حساب جديد وادخل رقم الجوال ورمز التحقق وكلمة المرور.",
+    "q_en": "How do I register?",
+    "a_en": "Go to kayan.org.sa, click the user icon, choose create new account, then enter your mobile, the verification code, and a password."
+  },
+  {
+    "id": "FAQ-02",
+    "category": "registration",
+    "q_ar": "تظهر لي رسالة رقم الجوال مسجل مسبقا فماذا افعل؟",
+    "a_ar": "هذا يعني ان لديك حساب سابق. قم بتسجيل الدخول مباشرة، وان نسيت كلمة المرور تواصل مع خدمات المستفيدين على 0506094154 لان الكود قد يصل متاخرا.",
+    "q_en": "It says my number is already registered.",
+    "a_en": "You already have an account. Log in directly, or contact beneficiary services on 0506094154 if you forgot the password, as the code may arrive late."
+  },
+  {
+    "id": "FAQ-03",
+    "category": "eligibility",
+    "q_ar": "من هي الفئة التي تخدمها جمعية كيان؟",
+    "a_ar": "جمعية كيان للايتام تخدم الايتام ذوي الظروف الخاصة (مجهولي الابوين). يتم التحقق من الفئة قبل استكمال الطلب.",
+    "q_en": "Who is eligible?",
+    "a_en": "Kayan serves orphans with special circumstances (of unknown parentage). Category is verified before the request proceeds."
+  },
+  {
+    "id": "FAQ-04",
+    "category": "forms",
+    "q_ar": "ما الفرق بين تسجيل مستفيد جديد وتسجيل اسرة بديلة؟",
+    "a_ar": "تسجيل مستفيد جديد يستخدم للمستفيد المستقل الذي تجاوز عمره 18 عاما، اما تسجيل اسرة بديلة فيستخدم للاسر الحاضنة او البديلة التي ترعى يتيم او يتيمة.",
+    "q_en": "Difference between the two forms?",
+    "a_en": "New beneficiary is for an independent beneficiary over 18; foster family is for a host/alternative family caring for an orphan."
+  },
+  {
+    "id": "FAQ-05",
+    "category": "dependents",
+    "q_ar": "من يجب اضافته في بيانات التابعين؟",
+    "a_ar": "كل فرد يسكن معك في نفس المنزل: الزوج او الزوجة، الابناء او البنات، الاخ او الاخت، الام الحاضنة، احد الاخوة الايتام ذوي الظروف الخاصة، او اي شخص اخر يسكن معك بشكل دائم.",
+    "q_en": "Who must be added as a dependent?",
+    "a_en": "Everyone living in the same home: spouse, children, siblings, foster mother, orphan siblings with special circumstances, or anyone permanently residing with you."
+  },
+  {
+    "id": "FAQ-06",
+    "category": "dependents",
+    "q_ar": "لماذا يجب اضافة جميع التابعين؟",
+    "a_ar": "لان ذلك يساعد الجمعية على تكوين صورة واضحة عن الحالة الاسرية والمعيشية، ودراسة الاحتياج بشكل ادق، واحتساب عدد افراد الاسرة المقيمين في نفس السكن، وربط الخدمات المناسبة لجميع افراد الاسرة، وتقييم الحالة السكنية والاجتماعية بصورة صحيحة.",
+    "q_en": "Why add all dependents?",
+    "a_en": "It gives a clear picture of the household, sharpens the needs assessment, counts residents in the home, links suitable services to each member, and assesses the housing and social situation correctly."
+  },
+  {
+    "id": "FAQ-07",
+    "category": "housing",
+    "q_ar": "ما المقصود باثبات ملكية السكن؟",
+    "a_ar": "اي مستند او عقد يوضح نوع السكن الحالي المرتبط بالمستفيد او الاسرة، مثل عقد ايجار او صك ملكية او عقد رهن او صك ورثة او صك وقف او عقد انتفاع خيري او اي مستند رسمي يثبت طبيعة السكن.",
+    "q_en": "What counts as housing proof?",
+    "a_en": "Any document or contract showing the current housing type: rental contract, title deed, mortgage, inheritance deed, endowment deed, charitable usufruct, or any official document proving the housing arrangement."
+  },
+  {
+    "id": "FAQ-08",
+    "category": "finance",
+    "q_ar": "ما المقصود بالفواتير الشهرية؟",
+    "a_ar": "اجمالي الالتزامات والمبالغ المالية الشهرية الموثقة على المستفيد او الاسرة، مثل القروض والبطاقات الائتمانية وسداد الايجار وفواتير الكهرباء والمياه والجوال والانترنت والتزامات تابي وتمارا واوامر التنفيذ في ناجز واي التزام موثق في تقرير سمة.",
+    "q_en": "What are monthly bills?",
+    "a_en": "Total documented monthly obligations: loans, credit cards, rent, utilities, telecom, Tabby/Tamara, Najiz enforcement orders, and anything documented in the SIMAH credit report."
+  },
+  {
+    "id": "FAQ-09",
+    "category": "finance",
+    "q_ar": "ما هي التكاليف الشهرية للفرد؟",
+    "a_ar": "المصاريف الاساسية الشهرية اللازمة للمعيشة وليست المصروفات الكمالية، مثل البنزين والمواصلات والمقاضي وحليب الرضيع والسلفات الشخصية. لا يتم احتساب المصاريف الكمالية او الترفيهية.",
+    "q_en": "What are per-person monthly costs?",
+    "a_en": "Essential living costs, not luxuries: fuel, transport, groceries, infant milk, undocumented personal loans. Luxury or entertainment spending is not counted."
+  },
+  {
+    "id": "FAQ-10",
+    "category": "documents",
+    "q_ar": "ماذا افعل اذا كان المستند لا ينطبق علي؟",
+    "a_ar": "اذا كان المستند لا ينطبق عليك مثل الضمان الاجتماعي او حساب المواطن، يرجى ارفاق صورة توضح عدم الاهلية. واذا كان المستند غير متوفر مثل تعريف الراتب، يرجى ارفاق صورة مكتوب عليها لا يوجد.",
+    "q_en": "What if a document does not apply to me?",
+    "a_en": "If it does not apply (e.g. social security, citizen account) attach an image showing ineligibility. If unavailable (e.g. salary certificate) attach an image marked 'not available'."
+  },
+  {
+    "id": "FAQ-11",
+    "category": "requests",
+    "q_ar": "كيف اقدم طلب دعم؟",
+    "a_ar": "بعد اكتمال بيانات حسابك كمستفيد واعتماده من قبل المسؤولة بالجمعية، اختر طلب الدعم من قائمة الخدمات الالكترونية، ثم اختر البرنامج والطلب المناسب وعبئ الاستبيان.",
+    "q_en": "How do I submit a support request?",
+    "a_en": "Once your beneficiary file is complete and approved by the association officer, choose Support Request from the e-services menu, pick the program and request type, and fill the questionnaire."
+  },
+  {
+    "id": "FAQ-12",
+    "category": "requests",
+    "q_ar": "ما هي برامج الجمعية؟",
+    "a_ar": "خمسة برامج: برنامج علم، برنامج التاهيل والتدريب، برنامج جودة حياة، برنامج سكني، وبرنامج قيمي. ويندرج تحت كل برنامج مشاريع وطلبات متعددة.",
+    "q_en": "What are the programs?",
+    "a_en": "Five: Ilm (education), Rehabilitation and Training, Quality of Life, Housing, and Values. Each contains multiple projects and request types."
+  },
+  {
+    "id": "FAQ-13",
+    "category": "casework",
+    "q_ar": "كيف تتم دراسة الاحتياج؟",
+    "a_ar": "يتم تقييم الاحتياج من خلال وسائل متعددة على سبيل المثال لا الحصر: المقابلات المكتبية والالكترونية والزيارات الميدانية والمقاييس النفسية، ثم تعرض الحالة على اللجنة المختصة.",
+    "q_en": "How is the need assessed?",
+    "a_en": "Through several means including office and online interviews, field visits, and psychological scales; the case is then presented to the specialized committee."
+  },
+  {
+    "id": "FAQ-14",
+    "category": "casework",
+    "q_ar": "كيف اعرف نتيجة طلبي؟",
+    "a_ar": "سيتم اشعارك بالقرار سواء كان قبول الطلب او طلب استكمال مستندات او الاعتذار، وذلك عبر الرد في الواتساب وايضا رسالة نصية. ويمكنك متابعة طلباتك من خلال حسابك في النظام.",
+    "q_en": "How do I learn the outcome?",
+    "a_en": "You are notified of the decision (accepted, documents required, or declined) via WhatsApp reply and SMS. You can also track requests in your account."
+  },
+  {
+    "id": "FAQ-15",
+    "category": "general",
+    "q_ar": "هل التسجيل في النظام يعني قبول الطلب؟",
+    "a_ar": "لا. التسجيل في النظام لا يعني قبول الطلب. جميع الطلبات تخضع لدراسة وتقييم، ويتم تقديم الدعم وفق الاحتياج والاولوية.",
+    "q_en": "Does registering mean approval?",
+    "a_en": "No. Registration does not mean approval. All requests are studied and evaluated, and support is provided according to need and priority."
+  },
+  {
+    "id": "FAQ-16",
+    "category": "general",
+    "q_ar": "كيف اتواصل مع الجمعية؟",
+    "a_ar": "قسم خدمات المستفيدين على الواتساب 0506094154، او هاتف 0533155582 و 0112925559، او البريد info@kayan.org.sa، والموقع kayan.org.sa. العنوان الرياض حي الفلاح.",
+    "q_en": "How do I contact Kayan?",
+    "a_en": "Beneficiary services on WhatsApp 0506094154, phones 0533155582 and 0112925559, email info@kayan.org.sa, site kayan.org.sa. Address: Riyadh, Al Falah district."
+  },
+  {
+    "id": "FAQ-17",
+    "category": "documents",
+    "q_ar": "كيف استخرج مشهد الضمان الاجتماعي؟",
+    "a_ar": "ادخل الى موقع نظام الضمان الاجتماعي المطور في وزارة الموارد البشرية، سجل الدخول، ومن القائمة الرئيسية اختر الخدمات الالكترونية ثم طلب مشهد اعانة او اعاشة، ثم اضغط اصدار المشهد ثم عرض او تحميل ليصلك بصيغة PDF. ويشترط ان يتضمن المشهد اسماء جميع التابعين وقيمة مبلغ الاعانة.",
+    "q_en": "How do I get the social security statement?",
+    "a_en": "Log in to the developed Social Security system on the HRSD site, choose E-Services then request a support/subsistence statement, click issue then view/download for a PDF. It must include all dependents' names and the support amount."
+  },
+  {
+    "id": "FAQ-18",
+    "category": "general",
+    "q_ar": "متى يتم تقديم الدعم؟",
+    "a_ar": "يتم تقديم الدعم وفق الاحتياج والاولوية. ودقة البيانات تساعد في سرعة دراسة الطلب، بينما عدم اكتمال البيانات والمستندات قد يؤثر على دراسة الحالة.",
+    "q_en": "When is support provided?",
+    "a_en": "According to need and priority. Accurate data speeds up the review, while incomplete data or documents may affect the case study."
+  }
+]

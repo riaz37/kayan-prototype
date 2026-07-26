@@ -1,0 +1,2865 @@
+[
+  {
+    "id": "BEN-1001",
+    "file_no": "KY-3001",
+    "case_type": "CT-FOSTER",
+    "status": "draft",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2024-12-01T10:00:00Z",
+    "approved_at": null,
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "احمد بن عبدالله المطيري",
+        "national_id": "1609139099",
+        "birth_date": "1995-07-31",
+        "gender": "male",
+        "marital_status": "اعزب",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 3,
+        "income_sources": [
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 1803.61
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 492.53
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج تعليمي",
+        "referral_source": "الموقع الالكتروني",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "البنك الاهلي السعودي",
+        "iban": "SA4628194821993518190937",
+        "account_holder_name": "احمد بن عبدالله المطيري"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966586579754",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966586579754"
+      },
+      "SEC-EDU": {
+        "education_level": "متوسط",
+        "employment_status": "باحث عن عمل",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "الرياض",
+        "district": "حي النرجس",
+        "housing_type": "دور في فيلا",
+        "ownership_proof_type": "HP-RENT",
+        "rooms": 5,
+        "monthly_rent": 2500.0,
+        "monthly_bills": 5068.48
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "لا يوجد",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 437.67
+      }
+    }
+  },
+  {
+    "id": "BEN-1002",
+    "file_no": "KY-3002",
+    "case_type": "CT-IND",
+    "status": "submitted",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2024-11-24T10:00:00Z",
+    "approved_at": null,
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "احمد بن محمد الحربي",
+        "national_id": "1907866661",
+        "birth_date": "1992-07-31",
+        "gender": "male",
+        "marital_status": "ارمل",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 0,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 2526.61
+          },
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 2159.22
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 1062.48
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج سكني",
+        "referral_source": "الواتساب",
+        "previous_support": true
+      },
+      "SEC-BANK": {
+        "bank_name": "البنك الاهلي السعودي",
+        "iban": "SA7215901092815901396245",
+        "account_holder_name": "احمد بن محمد الحربي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966595711777",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966595711777"
+      },
+      "SEC-EDU": {
+        "education_level": "دبلوم",
+        "employment_status": "يعمل بدوام جزئي",
+        "employer": "جهة حكومية",
+        "monthly_salary": 2526.61
+      },
+      "SEC-HOUSING": {
+        "city": "بريدة",
+        "district": "حي الصفراء",
+        "housing_type": "دور في فيلا",
+        "ownership_proof_type": "HP-RENT",
+        "rooms": 3,
+        "monthly_rent": 2500.0,
+        "monthly_bills": 423.04
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "ضغط",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 96.86
+      }
+    }
+  },
+  {
+    "id": "BEN-1003",
+    "file_no": "KY-3003",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2025-12-31T10:00:00Z",
+    "approved_at": "2026-02-09T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "راكان بن سعد الدوسري",
+        "national_id": "1511637265",
+        "birth_date": "2005-07-28",
+        "gender": "male",
+        "marital_status": "ارمل",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 3,
+        "income_sources": [],
+        "has_social_security": false,
+        "has_citizen_account": false
+      },
+      "SEC-JOIN": {
+        "join_reason": "تاهيل وتوظيف",
+        "referral_source": "جهة حكومية",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "مصرف الراجحي",
+        "iban": "SA2220297299752882001826",
+        "account_holder_name": "راكان بن سعد الدوسري"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966533043483",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966533043483"
+      },
+      "SEC-EDU": {
+        "education_level": "بكالوريوس",
+        "employment_status": "طالب",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "الرياض",
+        "district": "حي العزيزية",
+        "housing_type": "بيت شعبي",
+        "ownership_proof_type": "HP-WAQF",
+        "rooms": 4,
+        "monthly_rent": 0.0,
+        "monthly_bills": 2031.32
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "فقر دم",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 212.27
+      }
+    }
+  },
+  {
+    "id": "BEN-1004",
+    "file_no": "KY-3004",
+    "case_type": "CT-IND",
+    "status": "submitted",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2026-05-07T10:00:00Z",
+    "approved_at": null,
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "عبدالله بن ناصر المطيري",
+        "national_id": "1242731672",
+        "birth_date": "1986-08-02",
+        "gender": "male",
+        "marital_status": "متزوج",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 5,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 7595.58
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 872.9
+          }
+        ],
+        "has_social_security": false,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج تعليمي",
+        "referral_source": "جهة حكومية",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "بنك البلاد",
+        "iban": "SA5635515058770658948113",
+        "account_holder_name": "عبدالله بن ناصر المطيري"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966511440242",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966511440242"
+      },
+      "SEC-EDU": {
+        "education_level": "دبلوم",
+        "employment_status": "يعمل بدوام جزئي",
+        "employer": "جهة حكومية",
+        "monthly_salary": 7595.58
+      },
+      "SEC-HOUSING": {
+        "city": "الدمام",
+        "district": "حي الشاطئ",
+        "housing_type": "دور في فيلا",
+        "ownership_proof_type": "HP-WAQF",
+        "rooms": 5,
+        "monthly_rent": 1500.0,
+        "monthly_bills": 1866.73
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "ربو",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 167.44
+      }
+    }
+  },
+  {
+    "id": "BEN-1005",
+    "file_no": "KY-3005",
+    "case_type": "CT-IND",
+    "status": "submitted",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2025-04-06T10:00:00Z",
+    "approved_at": null,
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "جواهر بن سعد العنزي",
+        "national_id": "1530435205",
+        "birth_date": "1995-07-31",
+        "gender": "female",
+        "marital_status": "اعزب",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودية"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 5,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 5397.86
+          },
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 3134.3
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": false
+      },
+      "SEC-JOIN": {
+        "join_reason": "تاهيل وتوظيف",
+        "referral_source": "توصية مستفيد",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "البنك الاهلي السعودي",
+        "iban": "SA3801412690604431982965",
+        "account_holder_name": "جواهر بن سعد العنزي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966572492086",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966572492086"
+      },
+      "SEC-EDU": {
+        "education_level": "لم يكمل التعليم",
+        "employment_status": "يعمل بدوام جزئي",
+        "employer": "شركة خاصة",
+        "monthly_salary": 5397.86
+      },
+      "SEC-HOUSING": {
+        "city": "المدينة المنورة",
+        "district": "حي الحرة الشرقية",
+        "housing_type": "استوديو",
+        "ownership_proof_type": "HP-WAQF",
+        "rooms": 1,
+        "monthly_rent": 2500.0,
+        "monthly_bills": 3301.39
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "فقر دم",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 426.71
+      }
+    }
+  },
+  {
+    "id": "BEN-1006",
+    "file_no": "KY-3006",
+    "case_type": "CT-FOSTER",
+    "status": "approved",
+    "orphan_category_id": "OC-SPEC",
+    "eligibility_verified": true,
+    "created_at": "2026-05-05T10:00:00Z",
+    "approved_at": "2026-05-22T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "لطيفة بن ناصر العتيبي",
+        "national_id": "1537760207",
+        "birth_date": "1986-08-02",
+        "gender": "female",
+        "marital_status": "ارمل",
+        "orphan_category_id": "OC-SPEC",
+        "nationality": "سعودية"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 6,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 7358.66
+          },
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 2248.08
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 805.33
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "تاهيل وتوظيف",
+        "referral_source": "توصية مستفيد",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "بنك البلاد",
+        "iban": "SA5651505561304451669156",
+        "account_holder_name": "لطيفة بن ناصر العتيبي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966540410423",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966540410423"
+      },
+      "SEC-EDU": {
+        "education_level": "ثانوي",
+        "employment_status": "يعمل بدوام كامل",
+        "employer": "عمل حر",
+        "monthly_salary": 7358.66
+      },
+      "SEC-HOUSING": {
+        "city": "جدة",
+        "district": "حي النزهة",
+        "housing_type": "دور في فيلا",
+        "ownership_proof_type": "HP-OTHER",
+        "rooms": 3,
+        "monthly_rent": 1500.0,
+        "monthly_bills": 6188.04
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "فقر دم",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 487.18
+      }
+    }
+  },
+  {
+    "id": "BEN-1007",
+    "file_no": "KY-3007",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-SPEC",
+    "eligibility_verified": true,
+    "created_at": "2025-01-26T10:00:00Z",
+    "approved_at": "2025-03-06T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "ماجد بن عبدالله الزهراني",
+        "national_id": "1180023904",
+        "birth_date": "2003-07-29",
+        "gender": "male",
+        "marital_status": "مطلق",
+        "orphan_category_id": "OC-SPEC",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 3,
+        "income_sources": [
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 1170.51
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 717.89
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "تاهيل وتوظيف",
+        "referral_source": "الموقع الالكتروني",
+        "previous_support": true
+      },
+      "SEC-BANK": {
+        "bank_name": "بنك الرياض",
+        "iban": "SA8936439008474537838306",
+        "account_holder_name": "ماجد بن عبدالله الزهراني"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966540037614",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966540037614"
+      },
+      "SEC-EDU": {
+        "education_level": "متوسط",
+        "employment_status": "طالب",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "الرياض",
+        "district": "حي الشفا",
+        "housing_type": "بيت شعبي",
+        "ownership_proof_type": "HP-DEED",
+        "rooms": 4,
+        "monthly_rent": 0.0,
+        "monthly_bills": 2158.12
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "لا يوجد",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 217.39
+      }
+    }
+  },
+  {
+    "id": "BEN-1008",
+    "file_no": "KY-3008",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-SPEC",
+    "eligibility_verified": true,
+    "created_at": "2026-01-04T10:00:00Z",
+    "approved_at": "2026-02-07T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "محمد بن ناصر البقمي",
+        "national_id": "1071043195",
+        "birth_date": "1996-07-30",
+        "gender": "male",
+        "marital_status": "مطلق",
+        "orphan_category_id": "OC-SPEC",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 3,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 8330.46
+          },
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 2748.38
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 913.33
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج معيشي",
+        "referral_source": "الموقع الالكتروني",
+        "previous_support": true
+      },
+      "SEC-BANK": {
+        "bank_name": "البنك السعودي الفرنسي",
+        "iban": "SA5440910317764672720429",
+        "account_holder_name": "محمد بن ناصر البقمي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966535575918",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966535575918"
+      },
+      "SEC-EDU": {
+        "education_level": "متوسط",
+        "employment_status": "عمل حر",
+        "employer": "عمل حر",
+        "monthly_salary": 8330.46
+      },
+      "SEC-HOUSING": {
+        "city": "جدة",
+        "district": "حي الروضة",
+        "housing_type": "دور في فيلا",
+        "ownership_proof_type": "HP-INHERIT",
+        "rooms": 1,
+        "monthly_rent": 0.0,
+        "monthly_bills": 1216.63
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "ضغط",
+        "disability": true,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 195.46
+      }
+    }
+  },
+  {
+    "id": "BEN-1009",
+    "file_no": "KY-3009",
+    "case_type": "CT-IND",
+    "status": "under_review",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2025-07-27T10:00:00Z",
+    "approved_at": null,
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "سعود بن عبدالله الشمري",
+        "national_id": "1056529413",
+        "birth_date": "2006-07-28",
+        "gender": "male",
+        "marital_status": "ارمل",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 0,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 4710.11
+          },
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 891.77
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": false
+      },
+      "SEC-JOIN": {
+        "join_reason": "تاهيل وتوظيف",
+        "referral_source": "الموقع الالكتروني",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "بنك البلاد",
+        "iban": "SA8281264644604956605366",
+        "account_holder_name": "سعود بن عبدالله الشمري"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966530626116",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966530626116"
+      },
+      "SEC-EDU": {
+        "education_level": "بكالوريوس",
+        "employment_status": "يعمل بدوام جزئي",
+        "employer": "جهة حكومية",
+        "monthly_salary": 4710.11
+      },
+      "SEC-HOUSING": {
+        "city": "الرياض",
+        "district": "حي الشفا",
+        "housing_type": "دور في فيلا",
+        "ownership_proof_type": "HP-DEED",
+        "rooms": 1,
+        "monthly_rent": 1000.0,
+        "monthly_bills": 4970.18
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "لا يوجد",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 545.88
+      }
+    }
+  },
+  {
+    "id": "BEN-1010",
+    "file_no": "KY-3010",
+    "case_type": "CT-FOSTER",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2024-12-22T10:00:00Z",
+    "approved_at": "2025-01-20T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "عبدالله بن محمد الحربي",
+        "national_id": "1649366578",
+        "birth_date": "1993-07-31",
+        "gender": "male",
+        "marital_status": "متزوج",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 2,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 2747.84
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 779.62
+          }
+        ],
+        "has_social_security": false,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج سكني",
+        "referral_source": "الموقع الالكتروني",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "بنك البلاد",
+        "iban": "SA7379727611256517880021",
+        "account_holder_name": "عبدالله بن محمد الحربي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966558108620",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966558108620"
+      },
+      "SEC-EDU": {
+        "education_level": "ابتدائي",
+        "employment_status": "عمل حر",
+        "employer": "-",
+        "monthly_salary": 2747.84
+      },
+      "SEC-HOUSING": {
+        "city": "بريدة",
+        "district": "حي الصفراء",
+        "housing_type": "دور في فيلا",
+        "ownership_proof_type": "HP-INHERIT",
+        "rooms": 3,
+        "monthly_rent": 2500.0,
+        "monthly_bills": 474.99
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "فقر دم",
+        "disability": false,
+        "has_health_insurance": true,
+        "monthly_medication_cost": 473.03
+      }
+    }
+  },
+  {
+    "id": "BEN-1011",
+    "file_no": "KY-3011",
+    "case_type": "CT-FOSTER",
+    "status": "approved",
+    "orphan_category_id": "OC-SPEC",
+    "eligibility_verified": true,
+    "created_at": "2024-09-09T10:00:00Z",
+    "approved_at": "2024-10-12T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "بندر بن سعد العتيبي",
+        "national_id": "1027390000",
+        "birth_date": "1989-08-01",
+        "gender": "male",
+        "marital_status": "مطلق",
+        "orphan_category_id": "OC-SPEC",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 1,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 2511.64
+          },
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 2278.52
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 645.79
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج معيشي",
+        "referral_source": "الموقع الالكتروني",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "مصرف الانماء",
+        "iban": "SA3694923597220327112464",
+        "account_holder_name": "بندر بن سعد العتيبي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966500859979",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966500859979"
+      },
+      "SEC-EDU": {
+        "education_level": "بكالوريوس",
+        "employment_status": "عمل حر",
+        "employer": "عمل حر",
+        "monthly_salary": 2511.64
+      },
+      "SEC-HOUSING": {
+        "city": "بريدة",
+        "district": "حي الصفراء",
+        "housing_type": "دور في فيلا",
+        "ownership_proof_type": "HP-RENT",
+        "rooms": 1,
+        "monthly_rent": 2500.0,
+        "monthly_bills": 6170.65
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "لا يوجد",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 142.6
+      }
+    }
+  },
+  {
+    "id": "BEN-1012",
+    "file_no": "KY-3012",
+    "case_type": "CT-FOSTER",
+    "status": "approved",
+    "orphan_category_id": "OC-SPEC",
+    "eligibility_verified": true,
+    "created_at": "2025-12-25T10:00:00Z",
+    "approved_at": "2026-02-03T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "بندر بن محمد القحطاني",
+        "national_id": "1780063943",
+        "birth_date": "1995-07-31",
+        "gender": "male",
+        "marital_status": "اعزب",
+        "orphan_category_id": "OC-SPEC",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 3,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 8447.23
+          },
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 2242.95
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 603.56
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج تعليمي",
+        "referral_source": "الواتساب",
+        "previous_support": true
+      },
+      "SEC-BANK": {
+        "bank_name": "مصرف الراجحي",
+        "iban": "SA1925200020101953816133",
+        "account_holder_name": "بندر بن محمد القحطاني"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966531001471",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966531001471"
+      },
+      "SEC-EDU": {
+        "education_level": "متوسط",
+        "employment_status": "عمل حر",
+        "employer": "-",
+        "monthly_salary": 8447.23
+      },
+      "SEC-HOUSING": {
+        "city": "الدمام",
+        "district": "حي المزروعية",
+        "housing_type": "دور في فيلا",
+        "ownership_proof_type": "HP-MORT",
+        "rooms": 3,
+        "monthly_rent": 2500.0,
+        "monthly_bills": 1765.97
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "لا يوجد",
+        "disability": false,
+        "has_health_insurance": true,
+        "monthly_medication_cost": 154.02
+      }
+    }
+  },
+  {
+    "id": "BEN-1013",
+    "file_no": "KY-3013",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2024-11-08T10:00:00Z",
+    "approved_at": "2024-12-23T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "نواف بن محمد الشمري",
+        "national_id": "1527749325",
+        "birth_date": "1993-07-31",
+        "gender": "male",
+        "marital_status": "متزوج",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 0,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 6280.28
+          }
+        ],
+        "has_social_security": false,
+        "has_citizen_account": false
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج تعليمي",
+        "referral_source": "توصية مستفيد",
+        "previous_support": true
+      },
+      "SEC-BANK": {
+        "bank_name": "البنك السعودي الفرنسي",
+        "iban": "SA9223598523534121362244",
+        "account_holder_name": "نواف بن محمد الشمري"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966564311436",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966564311436"
+      },
+      "SEC-EDU": {
+        "education_level": "دبلوم",
+        "employment_status": "يعمل بدوام جزئي",
+        "employer": "-",
+        "monthly_salary": 6280.28
+      },
+      "SEC-HOUSING": {
+        "city": "مكة المكرمة",
+        "district": "حي العزيزية",
+        "housing_type": "غرفة",
+        "ownership_proof_type": "HP-OTHER",
+        "rooms": 4,
+        "monthly_rent": 2000.0,
+        "monthly_bills": 4822.74
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "ضغط",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 177.73
+      }
+    }
+  },
+  {
+    "id": "BEN-1014",
+    "file_no": "KY-3014",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2025-12-28T10:00:00Z",
+    "approved_at": "2026-02-08T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "نورة بن سعد القحطاني",
+        "national_id": "1058567326",
+        "birth_date": "1991-08-01",
+        "gender": "female",
+        "marital_status": "اعزب",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودية"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 5,
+        "income_sources": [
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 463.99
+          }
+        ],
+        "has_social_security": false,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج معيشي",
+        "referral_source": "الموقع الالكتروني",
+        "previous_support": true
+      },
+      "SEC-BANK": {
+        "bank_name": "بنك البلاد",
+        "iban": "SA6001665941346836732213",
+        "account_holder_name": "نورة بن سعد القحطاني"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966578325674",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966578325674"
+      },
+      "SEC-EDU": {
+        "education_level": "بكالوريوس",
+        "employment_status": "لا يعمل",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "المدينة المنورة",
+        "district": "حي الحرة الشرقية",
+        "housing_type": "دور في فيلا",
+        "ownership_proof_type": "HP-OTHER",
+        "rooms": 4,
+        "monthly_rent": 2000.0,
+        "monthly_bills": 3828.47
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "لا يوجد",
+        "disability": false,
+        "has_health_insurance": true,
+        "monthly_medication_cost": 422.52
+      }
+    }
+  },
+  {
+    "id": "BEN-1015",
+    "file_no": "KY-3015",
+    "case_type": "CT-IND",
+    "status": "submitted",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2026-07-14T10:00:00Z",
+    "approved_at": null,
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "احمد بن ناصر البقمي",
+        "national_id": "1566125009",
+        "birth_date": "2006-07-28",
+        "gender": "male",
+        "marital_status": "مطلق",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 0,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 5541.74
+          }
+        ],
+        "has_social_security": false,
+        "has_citizen_account": false
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج سكني",
+        "referral_source": "جهة حكومية",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "البنك الاهلي السعودي",
+        "iban": "SA0362515578834656480445",
+        "account_holder_name": "احمد بن ناصر البقمي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966576584853",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966576584853"
+      },
+      "SEC-EDU": {
+        "education_level": "لم يكمل التعليم",
+        "employment_status": "يعمل بدوام جزئي",
+        "employer": "عمل حر",
+        "monthly_salary": 5541.74
+      },
+      "SEC-HOUSING": {
+        "city": "جدة",
+        "district": "حي السلامة",
+        "housing_type": "بيت شعبي",
+        "ownership_proof_type": "HP-DEED",
+        "rooms": 3,
+        "monthly_rent": 2000.0,
+        "monthly_bills": 1067.1
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "ضغط",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 380.89
+      }
+    }
+  },
+  {
+    "id": "BEN-1016",
+    "file_no": "KY-3016",
+    "case_type": "CT-IND",
+    "status": "draft",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2025-05-15T10:00:00Z",
+    "approved_at": null,
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "امل بن فهد العتيبي",
+        "national_id": "1798016967",
+        "birth_date": "2005-07-28",
+        "gender": "female",
+        "marital_status": "اعزب",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودية"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 4,
+        "income_sources": [
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 3041.26
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": false
+      },
+      "SEC-JOIN": {
+        "join_reason": "تاهيل وتوظيف",
+        "referral_source": "الواتساب",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "بنك البلاد",
+        "iban": "SA8117320600113127049372",
+        "account_holder_name": "امل بن فهد العتيبي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966505214877",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966505214877"
+      },
+      "SEC-EDU": {
+        "education_level": "لم يكمل التعليم",
+        "employment_status": "لا يعمل",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "بريدة",
+        "district": "حي الاسكان",
+        "housing_type": "شقة",
+        "ownership_proof_type": "HP-CHARITY",
+        "rooms": 1,
+        "monthly_rent": 0.0,
+        "monthly_bills": 1288.92
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "لا يوجد",
+        "disability": true,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 411.98
+      }
+    }
+  },
+  {
+    "id": "BEN-1017",
+    "file_no": "KY-3017",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-SPEC",
+    "eligibility_verified": true,
+    "created_at": "2025-07-30T10:00:00Z",
+    "approved_at": "2025-08-23T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "دانة بن سعد الحربي",
+        "national_id": "1490673490",
+        "birth_date": "1982-08-03",
+        "gender": "female",
+        "marital_status": "ارمل",
+        "orphan_category_id": "OC-SPEC",
+        "nationality": "سعودية"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 4,
+        "income_sources": [],
+        "has_social_security": false,
+        "has_citizen_account": false
+      },
+      "SEC-JOIN": {
+        "join_reason": "تاهيل وتوظيف",
+        "referral_source": "الموقع الالكتروني",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "بنك الرياض",
+        "iban": "SA1369848578933331245995",
+        "account_holder_name": "دانة بن سعد الحربي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966568230751",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966568230751"
+      },
+      "SEC-EDU": {
+        "education_level": "ثانوي",
+        "employment_status": "باحث عن عمل",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "المدينة المنورة",
+        "district": "حي الحرة الشرقية",
+        "housing_type": "غرفة",
+        "ownership_proof_type": "HP-OTHER",
+        "rooms": 1,
+        "monthly_rent": 1000.0,
+        "monthly_bills": 4225.7
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "لا يوجد",
+        "disability": false,
+        "has_health_insurance": true,
+        "monthly_medication_cost": 168.33
+      }
+    }
+  },
+  {
+    "id": "BEN-1018",
+    "file_no": "KY-3018",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2026-03-15T10:00:00Z",
+    "approved_at": "2026-04-23T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "لطيفة بن عبدالله الشمري",
+        "national_id": "1302319527",
+        "birth_date": "2004-07-28",
+        "gender": "female",
+        "marital_status": "ارمل",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودية"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 4,
+        "income_sources": [
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 1143.56
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 842.11
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج سكني",
+        "referral_source": "الموقع الالكتروني",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "بنك الرياض",
+        "iban": "SA5371525302782724663204",
+        "account_holder_name": "لطيفة بن عبدالله الشمري"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966594524715",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966594524715"
+      },
+      "SEC-EDU": {
+        "education_level": "دبلوم",
+        "employment_status": "طالب",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "مكة المكرمة",
+        "district": "حي الششة",
+        "housing_type": "شقة",
+        "ownership_proof_type": "HP-DEED",
+        "rooms": 5,
+        "monthly_rent": 0.0,
+        "monthly_bills": 1084.78
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "لا يوجد",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 555.14
+      }
+    }
+  },
+  {
+    "id": "BEN-1019",
+    "file_no": "KY-3019",
+    "case_type": "CT-IND",
+    "status": "draft",
+    "orphan_category_id": "OC-SPEC",
+    "eligibility_verified": true,
+    "created_at": "2025-07-10T10:00:00Z",
+    "approved_at": null,
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "ريم بن سعد الشمري",
+        "national_id": "1811535690",
+        "birth_date": "1998-07-30",
+        "gender": "female",
+        "marital_status": "اعزب",
+        "orphan_category_id": "OC-SPEC",
+        "nationality": "سعودية"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 1,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 4912.57
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 715.86
+          }
+        ],
+        "has_social_security": false,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "تاهيل وتوظيف",
+        "referral_source": "جهة حكومية",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "مصرف الانماء",
+        "iban": "SA8203139221448001340997",
+        "account_holder_name": "ريم بن سعد الشمري"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966583715120",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966583715120"
+      },
+      "SEC-EDU": {
+        "education_level": "ثانوي",
+        "employment_status": "عمل حر",
+        "employer": "-",
+        "monthly_salary": 4912.57
+      },
+      "SEC-HOUSING": {
+        "city": "جدة",
+        "district": "حي الصفا",
+        "housing_type": "غرفة",
+        "ownership_proof_type": "HP-WAQF",
+        "rooms": 5,
+        "monthly_rent": 2000.0,
+        "monthly_bills": 1980.87
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "فقر دم",
+        "disability": false,
+        "has_health_insurance": true,
+        "monthly_medication_cost": 243.39
+      }
+    }
+  },
+  {
+    "id": "BEN-1020",
+    "file_no": "KY-3020",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2026-02-28T10:00:00Z",
+    "approved_at": "2026-03-12T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "عبدالله بن ناصر الدوسري",
+        "national_id": "1094948091",
+        "birth_date": "1999-07-30",
+        "gender": "male",
+        "marital_status": "اعزب",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 3,
+        "income_sources": [],
+        "has_social_security": false,
+        "has_citizen_account": false
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج سكني",
+        "referral_source": "جهة حكومية",
+        "previous_support": true
+      },
+      "SEC-BANK": {
+        "bank_name": "مصرف الراجحي",
+        "iban": "SA4145210984179827182469",
+        "account_holder_name": "عبدالله بن ناصر الدوسري"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966544318479",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966544318479"
+      },
+      "SEC-EDU": {
+        "education_level": "لم يكمل التعليم",
+        "employment_status": "طالب",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "جدة",
+        "district": "حي الروضة",
+        "housing_type": "غرفة",
+        "ownership_proof_type": "HP-DEED",
+        "rooms": 5,
+        "monthly_rent": 0.0,
+        "monthly_bills": 5139.93
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "ضغط",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 182.22
+      }
+    }
+  },
+  {
+    "id": "BEN-1021",
+    "file_no": "KY-3021",
+    "case_type": "CT-IND",
+    "status": "under_review",
+    "orphan_category_id": "OC-SPEC",
+    "eligibility_verified": true,
+    "created_at": "2025-04-08T10:00:00Z",
+    "approved_at": null,
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "عبدالرحمن بن فهد العتيبي",
+        "national_id": "1674284269",
+        "birth_date": "1995-07-31",
+        "gender": "male",
+        "marital_status": "متزوج",
+        "orphan_category_id": "OC-SPEC",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 3,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 4403.97
+          },
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 1722.8
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 557.6
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج سكني",
+        "referral_source": "توصية مستفيد",
+        "previous_support": true
+      },
+      "SEC-BANK": {
+        "bank_name": "مصرف الانماء",
+        "iban": "SA3536000497484896886675",
+        "account_holder_name": "عبدالرحمن بن فهد العتيبي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966509570183",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966509570183"
+      },
+      "SEC-EDU": {
+        "education_level": "ابتدائي",
+        "employment_status": "يعمل بدوام جزئي",
+        "employer": "عمل حر",
+        "monthly_salary": 4403.97
+      },
+      "SEC-HOUSING": {
+        "city": "المدينة المنورة",
+        "district": "حي العوالي",
+        "housing_type": "استوديو",
+        "ownership_proof_type": "HP-INHERIT",
+        "rooms": 5,
+        "monthly_rent": 2000.0,
+        "monthly_bills": 4636.96
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "ربو",
+        "disability": false,
+        "has_health_insurance": true,
+        "monthly_medication_cost": 252.74
+      }
+    }
+  },
+  {
+    "id": "BEN-1022",
+    "file_no": "KY-3022",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2025-03-29T10:00:00Z",
+    "approved_at": "2025-04-28T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "نورة بن عبدالله القحطاني",
+        "national_id": "1235420419",
+        "birth_date": "2005-07-28",
+        "gender": "female",
+        "marital_status": "مطلق",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودية"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 2,
+        "income_sources": [],
+        "has_social_security": false,
+        "has_citizen_account": false
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج تعليمي",
+        "referral_source": "جهة حكومية",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "مصرف الراجحي",
+        "iban": "SA0369070933302925074694",
+        "account_holder_name": "نورة بن عبدالله القحطاني"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966571369364",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966571369364"
+      },
+      "SEC-EDU": {
+        "education_level": "دبلوم",
+        "employment_status": "لا يعمل",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "الرياض",
+        "district": "حي الشفا",
+        "housing_type": "شقة",
+        "ownership_proof_type": "HP-OTHER",
+        "rooms": 2,
+        "monthly_rent": 2500.0,
+        "monthly_bills": 3292.89
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "لا يوجد",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 111.93
+      }
+    }
+  },
+  {
+    "id": "BEN-1023",
+    "file_no": "KY-3023",
+    "case_type": "CT-FOSTER",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2026-06-21T10:00:00Z",
+    "approved_at": "2026-07-21T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "بندر بن فهد الغامدي",
+        "national_id": "1311858431",
+        "birth_date": "1985-08-02",
+        "gender": "male",
+        "marital_status": "مطلق",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 2,
+        "income_sources": [
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 2505.69
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 855.73
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج سكني",
+        "referral_source": "الواتساب",
+        "previous_support": true
+      },
+      "SEC-BANK": {
+        "bank_name": "البنك السعودي الفرنسي",
+        "iban": "SA6456724205560736512414",
+        "account_holder_name": "بندر بن فهد الغامدي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966593060926",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966593060926"
+      },
+      "SEC-EDU": {
+        "education_level": "متوسط",
+        "employment_status": "باحث عن عمل",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "الدمام",
+        "district": "حي الشاطئ",
+        "housing_type": "دور في فيلا",
+        "ownership_proof_type": "HP-INHERIT",
+        "rooms": 1,
+        "monthly_rent": 1000.0,
+        "monthly_bills": 1758.98
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "ربو",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 107.8
+      }
+    }
+  },
+  {
+    "id": "BEN-1024",
+    "file_no": "KY-3024",
+    "case_type": "CT-IND",
+    "status": "submitted",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2026-04-17T10:00:00Z",
+    "approved_at": null,
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "الجوهرة بن محمد العتيبي",
+        "national_id": "1087254229",
+        "birth_date": "1989-08-01",
+        "gender": "female",
+        "marital_status": "متزوج",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودية"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 3,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 3391.74
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 686.22
+          }
+        ],
+        "has_social_security": false,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج معيشي",
+        "referral_source": "الموقع الالكتروني",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "البنك الاهلي السعودي",
+        "iban": "SA2976314057300443147125",
+        "account_holder_name": "الجوهرة بن محمد العتيبي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966577954281",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966577954281"
+      },
+      "SEC-EDU": {
+        "education_level": "ابتدائي",
+        "employment_status": "يعمل بدوام جزئي",
+        "employer": "-",
+        "monthly_salary": 3391.74
+      },
+      "SEC-HOUSING": {
+        "city": "الرياض",
+        "district": "حي الشفا",
+        "housing_type": "غرفة",
+        "ownership_proof_type": "HP-RENT",
+        "rooms": 3,
+        "monthly_rent": 1000.0,
+        "monthly_bills": 603.13
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "ضغط",
+        "disability": false,
+        "has_health_insurance": true,
+        "monthly_medication_cost": 293.33
+      }
+    }
+  },
+  {
+    "id": "BEN-1025",
+    "file_no": "KY-3025",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2026-06-18T10:00:00Z",
+    "approved_at": "2026-07-19T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "محمد بن ناصر الزهراني",
+        "national_id": "1170226407",
+        "birth_date": "1982-08-03",
+        "gender": "male",
+        "marital_status": "مطلق",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 1,
+        "income_sources": [
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 2387.9
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 711.7
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج تعليمي",
+        "referral_source": "جهة حكومية",
+        "previous_support": true
+      },
+      "SEC-BANK": {
+        "bank_name": "بنك الرياض",
+        "iban": "SA8768269910594996572458",
+        "account_holder_name": "محمد بن ناصر الزهراني"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966503371295",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966503371295"
+      },
+      "SEC-EDU": {
+        "education_level": "بكالوريوس",
+        "employment_status": "باحث عن عمل",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "جدة",
+        "district": "حي الصفا",
+        "housing_type": "بيت شعبي",
+        "ownership_proof_type": "HP-WAQF",
+        "rooms": 2,
+        "monthly_rent": 2000.0,
+        "monthly_bills": 817.64
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "ربو",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 136.35
+      }
+    }
+  },
+  {
+    "id": "BEN-1026",
+    "file_no": "KY-3026",
+    "case_type": "CT-FOSTER",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2025-12-26T10:00:00Z",
+    "approved_at": "2026-01-21T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "عبدالله بن محمد البقمي",
+        "national_id": "1135885709",
+        "birth_date": "1996-07-30",
+        "gender": "male",
+        "marital_status": "اعزب",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 4,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 8160.03
+          },
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 1619.35
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": false
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج معيشي",
+        "referral_source": "توصية مستفيد",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "مصرف الراجحي",
+        "iban": "SA0345370971071142284629",
+        "account_holder_name": "عبدالله بن محمد البقمي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966548470052",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966548470052"
+      },
+      "SEC-EDU": {
+        "education_level": "دبلوم",
+        "employment_status": "عمل حر",
+        "employer": "عمل حر",
+        "monthly_salary": 8160.03
+      },
+      "SEC-HOUSING": {
+        "city": "مكة المكرمة",
+        "district": "حي العزيزية",
+        "housing_type": "شقة",
+        "ownership_proof_type": "HP-RENT",
+        "rooms": 2,
+        "monthly_rent": 0.0,
+        "monthly_bills": 156.03
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "ربو",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 235.54
+      }
+    }
+  },
+  {
+    "id": "BEN-1027",
+    "file_no": "KY-3027",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-SPEC",
+    "eligibility_verified": true,
+    "created_at": "2025-03-14T10:00:00Z",
+    "approved_at": "2025-04-18T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "محمد بن سعد البقمي",
+        "national_id": "1769429124",
+        "birth_date": "1984-08-02",
+        "gender": "male",
+        "marital_status": "مطلق",
+        "orphan_category_id": "OC-SPEC",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 4,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 7759.92
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 464.29
+          }
+        ],
+        "has_social_security": false,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج معيشي",
+        "referral_source": "توصية مستفيد",
+        "previous_support": true
+      },
+      "SEC-BANK": {
+        "bank_name": "البنك الاهلي السعودي",
+        "iban": "SA9192495756175244802430",
+        "account_holder_name": "محمد بن سعد البقمي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966530673948",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966530673948"
+      },
+      "SEC-EDU": {
+        "education_level": "لم يكمل التعليم",
+        "employment_status": "يعمل بدوام كامل",
+        "employer": "-",
+        "monthly_salary": 7759.92
+      },
+      "SEC-HOUSING": {
+        "city": "بريدة",
+        "district": "حي الصفراء",
+        "housing_type": "دور في فيلا",
+        "ownership_proof_type": "HP-CHARITY",
+        "rooms": 1,
+        "monthly_rent": 2000.0,
+        "monthly_bills": 3432.88
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "لا يوجد",
+        "disability": false,
+        "has_health_insurance": true,
+        "monthly_medication_cost": 485.68
+      }
+    }
+  },
+  {
+    "id": "BEN-1028",
+    "file_no": "KY-3028",
+    "case_type": "CT-IND",
+    "status": "under_review",
+    "orphan_category_id": "OC-SPEC",
+    "eligibility_verified": true,
+    "created_at": "2026-03-07T10:00:00Z",
+    "approved_at": null,
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "لطيفة بن سعد العنزي",
+        "national_id": "1236109210",
+        "birth_date": "1990-08-01",
+        "gender": "female",
+        "marital_status": "متزوج",
+        "orphan_category_id": "OC-SPEC",
+        "nationality": "سعودية"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 2,
+        "income_sources": [
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 2657.99
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": false
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج تعليمي",
+        "referral_source": "توصية مستفيد",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "بنك الرياض",
+        "iban": "SA2228053773567350101650",
+        "account_holder_name": "لطيفة بن سعد العنزي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966539666304",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966539666304"
+      },
+      "SEC-EDU": {
+        "education_level": "ابتدائي",
+        "employment_status": "باحث عن عمل",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "الدمام",
+        "district": "حي الشاطئ",
+        "housing_type": "غرفة",
+        "ownership_proof_type": "HP-DEED",
+        "rooms": 2,
+        "monthly_rent": 1500.0,
+        "monthly_bills": 4379.25
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "لا يوجد",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 385.63
+      }
+    }
+  },
+  {
+    "id": "BEN-1029",
+    "file_no": "KY-3029",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2025-05-06T10:00:00Z",
+    "approved_at": "2025-06-16T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "منال بن عبدالله القحطاني",
+        "national_id": "1286023828",
+        "birth_date": "1991-08-01",
+        "gender": "female",
+        "marital_status": "اعزب",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودية"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 1,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 2629.58
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 1002.86
+          }
+        ],
+        "has_social_security": false,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج معيشي",
+        "referral_source": "جهة حكومية",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "مصرف الراجحي",
+        "iban": "SA5331420441038068540507",
+        "account_holder_name": "منال بن عبدالله القحطاني"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966584856466",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966584856466"
+      },
+      "SEC-EDU": {
+        "education_level": "ثانوي",
+        "employment_status": "عمل حر",
+        "employer": "عمل حر",
+        "monthly_salary": 2629.58
+      },
+      "SEC-HOUSING": {
+        "city": "جدة",
+        "district": "حي الصفا",
+        "housing_type": "دور في فيلا",
+        "ownership_proof_type": "HP-INHERIT",
+        "rooms": 4,
+        "monthly_rent": 0.0,
+        "monthly_bills": 2644.8
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "سكري",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 380.99
+      }
+    }
+  },
+  {
+    "id": "BEN-1030",
+    "file_no": "KY-3030",
+    "case_type": "CT-IND",
+    "status": "draft",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2026-02-25T10:00:00Z",
+    "approved_at": null,
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "راكان بن فهد الدوسري",
+        "national_id": "1272056561",
+        "birth_date": "1994-07-31",
+        "gender": "male",
+        "marital_status": "متزوج",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 2,
+        "income_sources": [
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 1205.92
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 592.63
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج معيشي",
+        "referral_source": "جهة حكومية",
+        "previous_support": true
+      },
+      "SEC-BANK": {
+        "bank_name": "بنك الرياض",
+        "iban": "SA8847146471772820257839",
+        "account_holder_name": "راكان بن فهد الدوسري"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966558564083",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966558564083"
+      },
+      "SEC-EDU": {
+        "education_level": "ابتدائي",
+        "employment_status": "باحث عن عمل",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "المدينة المنورة",
+        "district": "حي الحرة الشرقية",
+        "housing_type": "بيت شعبي",
+        "ownership_proof_type": "HP-RENT",
+        "rooms": 5,
+        "monthly_rent": 1000.0,
+        "monthly_bills": 2913.9
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "لا يوجد",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 550.15
+      }
+    }
+  },
+  {
+    "id": "BEN-1031",
+    "file_no": "KY-3031",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2026-07-11T10:00:00Z",
+    "approved_at": "2026-08-25T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "سلطان بن عبدالله الحربي",
+        "national_id": "1567113190",
+        "birth_date": "2004-07-28",
+        "gender": "male",
+        "marital_status": "ارمل",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 1,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 3801.59
+          }
+        ],
+        "has_social_security": false,
+        "has_citizen_account": false
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج سكني",
+        "referral_source": "الواتساب",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "مصرف الراجحي",
+        "iban": "SA3570869260255380284841",
+        "account_holder_name": "سلطان بن عبدالله الحربي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966556448686",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966556448686"
+      },
+      "SEC-EDU": {
+        "education_level": "لم يكمل التعليم",
+        "employment_status": "عمل حر",
+        "employer": "-",
+        "monthly_salary": 3801.59
+      },
+      "SEC-HOUSING": {
+        "city": "مكة المكرمة",
+        "district": "حي الششة",
+        "housing_type": "بيت شعبي",
+        "ownership_proof_type": "HP-DEED",
+        "rooms": 4,
+        "monthly_rent": 1500.0,
+        "monthly_bills": 2726.42
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "فقر دم",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 182.98
+      }
+    }
+  },
+  {
+    "id": "BEN-1032",
+    "file_no": "KY-3032",
+    "case_type": "CT-IND",
+    "status": "submitted",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2026-04-14T10:00:00Z",
+    "approved_at": null,
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "الجوهرة بن محمد الحربي",
+        "national_id": "1762020274",
+        "birth_date": "1983-08-03",
+        "gender": "female",
+        "marital_status": "متزوج",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودية"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 4,
+        "income_sources": [
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 827.1
+          }
+        ],
+        "has_social_security": false,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج معيشي",
+        "referral_source": "الواتساب",
+        "previous_support": true
+      },
+      "SEC-BANK": {
+        "bank_name": "بنك الرياض",
+        "iban": "SA5832360562438137226561",
+        "account_holder_name": "الجوهرة بن محمد الحربي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966505138814",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966505138814"
+      },
+      "SEC-EDU": {
+        "education_level": "دبلوم",
+        "employment_status": "لا يعمل",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "بريدة",
+        "district": "حي الاسكان",
+        "housing_type": "شقة",
+        "ownership_proof_type": "HP-OTHER",
+        "rooms": 4,
+        "monthly_rent": 1500.0,
+        "monthly_bills": 3436.56
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "لا يوجد",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 181.77
+      }
+    }
+  },
+  {
+    "id": "BEN-1033",
+    "file_no": "KY-3033",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2026-03-12T10:00:00Z",
+    "approved_at": "2026-03-28T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "سعود بن محمد الدوسري",
+        "national_id": "1079331224",
+        "birth_date": "2007-07-28",
+        "gender": "male",
+        "marital_status": "ارمل",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 0,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 8164.93
+          }
+        ],
+        "has_social_security": false,
+        "has_citizen_account": false
+      },
+      "SEC-JOIN": {
+        "join_reason": "تاهيل وتوظيف",
+        "referral_source": "الموقع الالكتروني",
+        "previous_support": true
+      },
+      "SEC-BANK": {
+        "bank_name": "مصرف الراجحي",
+        "iban": "SA1933398031951039245179",
+        "account_holder_name": "سعود بن محمد الدوسري"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966520566013",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966520566013"
+      },
+      "SEC-EDU": {
+        "education_level": "متوسط",
+        "employment_status": "عمل حر",
+        "employer": "شركة خاصة",
+        "monthly_salary": 8164.93
+      },
+      "SEC-HOUSING": {
+        "city": "الدمام",
+        "district": "حي الفيصلية",
+        "housing_type": "بيت شعبي",
+        "ownership_proof_type": "HP-OTHER",
+        "rooms": 2,
+        "monthly_rent": 0.0,
+        "monthly_bills": 2208.33
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "لا يوجد",
+        "disability": false,
+        "has_health_insurance": true,
+        "monthly_medication_cost": 198.64
+      }
+    }
+  },
+  {
+    "id": "BEN-1034",
+    "file_no": "KY-3034",
+    "case_type": "CT-FOSTER",
+    "status": "submitted",
+    "orphan_category_id": "OC-SPEC",
+    "eligibility_verified": true,
+    "created_at": "2025-11-17T10:00:00Z",
+    "approved_at": null,
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "فهد بن عبدالله الغامدي",
+        "national_id": "1066566135",
+        "birth_date": "1986-08-02",
+        "gender": "male",
+        "marital_status": "ارمل",
+        "orphan_category_id": "OC-SPEC",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 5,
+        "income_sources": [],
+        "has_social_security": false,
+        "has_citizen_account": false
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج معيشي",
+        "referral_source": "الموقع الالكتروني",
+        "previous_support": true
+      },
+      "SEC-BANK": {
+        "bank_name": "مصرف الانماء",
+        "iban": "SA0176694725831567904514",
+        "account_holder_name": "فهد بن عبدالله الغامدي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966527683130",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966527683130"
+      },
+      "SEC-EDU": {
+        "education_level": "دبلوم",
+        "employment_status": "طالب",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "الدمام",
+        "district": "حي الفيصلية",
+        "housing_type": "غرفة",
+        "ownership_proof_type": "HP-MORT",
+        "rooms": 3,
+        "monthly_rent": 2500.0,
+        "monthly_bills": 4276.37
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "لا يوجد",
+        "disability": false,
+        "has_health_insurance": true,
+        "monthly_medication_cost": 533.91
+      }
+    }
+  },
+  {
+    "id": "BEN-1035",
+    "file_no": "KY-3035",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2025-07-17T10:00:00Z",
+    "approved_at": "2025-08-18T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "نواف بن عبدالله الشمري",
+        "national_id": "1238024824",
+        "birth_date": "1978-08-04",
+        "gender": "male",
+        "marital_status": "اعزب",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 5,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 4607.31
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 338.66
+          }
+        ],
+        "has_social_security": false,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج معيشي",
+        "referral_source": "جهة حكومية",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "بنك الرياض",
+        "iban": "SA2447395761456567413978",
+        "account_holder_name": "نواف بن عبدالله الشمري"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966562502487",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966562502487"
+      },
+      "SEC-EDU": {
+        "education_level": "لم يكمل التعليم",
+        "employment_status": "يعمل بدوام جزئي",
+        "employer": "عمل حر",
+        "monthly_salary": 4607.31
+      },
+      "SEC-HOUSING": {
+        "city": "بريدة",
+        "district": "حي الصفراء",
+        "housing_type": "بيت شعبي",
+        "ownership_proof_type": "HP-INHERIT",
+        "rooms": 3,
+        "monthly_rent": 2500.0,
+        "monthly_bills": 1789.29
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "ضغط",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 173.03
+      }
+    }
+  },
+  {
+    "id": "BEN-1036",
+    "file_no": "KY-3036",
+    "case_type": "CT-FOSTER",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2024-11-10T10:00:00Z",
+    "approved_at": "2024-11-25T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "هالة بن ناصر الحربي",
+        "national_id": "1508115307",
+        "birth_date": "1987-08-02",
+        "gender": "female",
+        "marital_status": "متزوج",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودية"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 4,
+        "income_sources": [
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 1337.28
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 375.07
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "تاهيل وتوظيف",
+        "referral_source": "توصية مستفيد",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "بنك البلاد",
+        "iban": "SA9890087173455893383498",
+        "account_holder_name": "هالة بن ناصر الحربي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966503208465",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966503208465"
+      },
+      "SEC-EDU": {
+        "education_level": "ابتدائي",
+        "employment_status": "باحث عن عمل",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "المدينة المنورة",
+        "district": "حي الحرة الشرقية",
+        "housing_type": "بيت شعبي",
+        "ownership_proof_type": "HP-CHARITY",
+        "rooms": 1,
+        "monthly_rent": 2500.0,
+        "monthly_bills": 1031.49
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "ربو",
+        "disability": true,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 572.72
+      }
+    }
+  },
+  {
+    "id": "BEN-1037",
+    "file_no": "KY-3037",
+    "case_type": "CT-IND",
+    "status": "submitted",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2025-06-17T10:00:00Z",
+    "approved_at": null,
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "تركي بن محمد الزهراني",
+        "national_id": "1662622013",
+        "birth_date": "1984-08-02",
+        "gender": "male",
+        "marital_status": "ارمل",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 1,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 6766.15
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 522.65
+          }
+        ],
+        "has_social_security": false,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج سكني",
+        "referral_source": "الموقع الالكتروني",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "مصرف الراجحي",
+        "iban": "SA7039815598773033561192",
+        "account_holder_name": "تركي بن محمد الزهراني"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966537799719",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966537799719"
+      },
+      "SEC-EDU": {
+        "education_level": "لم يكمل التعليم",
+        "employment_status": "يعمل بدوام جزئي",
+        "employer": "-",
+        "monthly_salary": 6766.15
+      },
+      "SEC-HOUSING": {
+        "city": "الرياض",
+        "district": "حي الشفا",
+        "housing_type": "دور في فيلا",
+        "ownership_proof_type": "HP-INHERIT",
+        "rooms": 2,
+        "monthly_rent": 2500.0,
+        "monthly_bills": 6958.18
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "ضغط",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 283.03
+      }
+    }
+  },
+  {
+    "id": "BEN-1038",
+    "file_no": "KY-3038",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2024-12-22T10:00:00Z",
+    "approved_at": "2025-01-19T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "سارة بن عبدالله الغامدي",
+        "national_id": "1760830287",
+        "birth_date": "2001-07-29",
+        "gender": "female",
+        "marital_status": "اعزب",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودية"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 0,
+        "income_sources": [
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 864.74
+          }
+        ],
+        "has_social_security": false,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج تعليمي",
+        "referral_source": "جهة حكومية",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "مصرف الانماء",
+        "iban": "SA1885113115444427995301",
+        "account_holder_name": "سارة بن عبدالله الغامدي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966510193867",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966510193867"
+      },
+      "SEC-EDU": {
+        "education_level": "دبلوم",
+        "employment_status": "باحث عن عمل",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "المدينة المنورة",
+        "district": "حي الحرة الشرقية",
+        "housing_type": "استوديو",
+        "ownership_proof_type": "HP-CHARITY",
+        "rooms": 2,
+        "monthly_rent": 2500.0,
+        "monthly_bills": 2152.05
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "فقر دم",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 547.72
+      }
+    }
+  },
+  {
+    "id": "BEN-1039",
+    "file_no": "KY-3039",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2026-05-16T10:00:00Z",
+    "approved_at": "2026-06-28T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "احمد بن عبدالله الغامدي",
+        "national_id": "1133404612",
+        "birth_date": "1988-08-01",
+        "gender": "male",
+        "marital_status": "ارمل",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودي"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 0,
+        "income_sources": [
+          {
+            "type": "الضمان الاجتماعي",
+            "amount_sar": 2359.86
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 730.73
+          }
+        ],
+        "has_social_security": true,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج تعليمي",
+        "referral_source": "توصية مستفيد",
+        "previous_support": false
+      },
+      "SEC-BANK": {
+        "bank_name": "البنك الاهلي السعودي",
+        "iban": "SA5401349921916411180151",
+        "account_holder_name": "احمد بن عبدالله الغامدي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966528178472",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966528178472"
+      },
+      "SEC-EDU": {
+        "education_level": "ابتدائي",
+        "employment_status": "طالب",
+        "employer": "-",
+        "monthly_salary": 0
+      },
+      "SEC-HOUSING": {
+        "city": "الدمام",
+        "district": "حي الشاطئ",
+        "housing_type": "بيت شعبي",
+        "ownership_proof_type": "HP-INHERIT",
+        "rooms": 4,
+        "monthly_rent": 2000.0,
+        "monthly_bills": 4530.24
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "ضغط",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 436.99
+      }
+    }
+  },
+  {
+    "id": "BEN-1040",
+    "file_no": "KY-3040",
+    "case_type": "CT-IND",
+    "status": "approved",
+    "orphan_category_id": "OC-UNK",
+    "eligibility_verified": true,
+    "created_at": "2025-12-08T10:00:00Z",
+    "approved_at": "2026-01-11T10:00:00Z",
+    "sections": {
+      "SEC-BASIC": {
+        "full_name_ar": "ريم بن ناصر العتيبي",
+        "national_id": "1534077711",
+        "birth_date": "1993-07-31",
+        "gender": "female",
+        "marital_status": "ارمل",
+        "orphan_category_id": "OC-UNK",
+        "nationality": "سعودية"
+      },
+      "SEC-EXTRA": {
+        "dependents_count": 5,
+        "income_sources": [
+          {
+            "type": "راتب",
+            "amount_sar": 4065.69
+          },
+          {
+            "type": "حساب المواطن",
+            "amount_sar": 306.03
+          }
+        ],
+        "has_social_security": false,
+        "has_citizen_account": true
+      },
+      "SEC-JOIN": {
+        "join_reason": "احتياج سكني",
+        "referral_source": "جهة حكومية",
+        "previous_support": true
+      },
+      "SEC-BANK": {
+        "bank_name": "بنك البلاد",
+        "iban": "SA2367013145773580183739",
+        "account_holder_name": "ريم بن ناصر العتيبي"
+      },
+      "SEC-CONTACT": {
+        "mobile": "966596106803",
+        "alt_mobile": null,
+        "email": null,
+        "whatsapp": "966596106803"
+      },
+      "SEC-EDU": {
+        "education_level": "بكالوريوس",
+        "employment_status": "يعمل بدوام جزئي",
+        "employer": "شركة خاصة",
+        "monthly_salary": 4065.69
+      },
+      "SEC-HOUSING": {
+        "city": "الرياض",
+        "district": "حي الملز",
+        "housing_type": "بيت شعبي",
+        "ownership_proof_type": "HP-DEED",
+        "rooms": 1,
+        "monthly_rent": 0.0,
+        "monthly_bills": 2223.29
+      },
+      "SEC-HEALTH": {
+        "chronic_conditions": "لا يوجد",
+        "disability": false,
+        "has_health_insurance": false,
+        "monthly_medication_cost": 567.71
+      }
+    }
+  }
+]

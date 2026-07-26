@@ -1,0 +1,149 @@
+# Kayan WhatsApp AI Agent - Complete Showcase
+# Step-by-step messages for live demonstration
+
+# ============================================================
+# SCENARIO 1: EXISTING BENEFICIARY (Known User)
+# Phone: 966533043483 (راكان الدوسري - Approved)
+# ============================================================
+
+# Step 1: Greeting
+# English: Hello
+# Arabic: مرحبا
+Hello
+
+# Step 2: Check File Status
+# English: What is my file status?
+# Arabic: ابي اعرف حالة ملفي
+What is my file status?
+
+# Step 3: Check Missing Documents
+# English: What documents are missing?
+# Arabic: وش ناقص على الملف
+What documents are missing?
+
+# Step 4: Start Support Request
+# English: I need financial assistance
+# Arabic: ابي مساعدة مالية
+I need financial assistance
+
+# Step 5: Specify Request Type
+# English: School fees for my son
+# Arabic: رسوم المدرسة لولدي
+School fees for my son
+
+# Step 6: Provide Amount
+# English: The amount is 4500 riyals
+# Arabic: المبلغ 4500 ريال
+The amount is 4500 riyals
+
+# Step 7: Confirm Request
+# English: Yes, confirm
+# Arabic: نعم، اكد
+Yes, confirm
+
+# Step 8: Check Open Requests
+# English: What are my open requests?
+# Arabic: وش الطلبات المفتوحة
+What are my open requests?
+
+# Step 9: Check Disbursement
+# English: When will the payment be disbursed?
+# Arabic: متى ينزل المبلغ
+When will the payment be disbursed?
+
+# Step 10: Create Support Ticket
+# English: I want to speak with an employee
+# Arabic: ابي اكلم موظف
+I want to speak with an employee
+
+
+# ============================================================
+# SCENARIO 2: NEW USER REGISTRATION
+# Phone: 966500287602 (New User)
+# ============================================================
+
+# Step 1: Start Registration
+# English: Hello, I want to register
+# Arabic: مرحبا، ابي اسجل
+Hello, I want to register
+
+# Step 2: Provide Phone Number
+# English: 966500287602
+# Arabic: 966500287602
+966500287602
+
+# Step 3: Confirm Category
+# English: Unknown parents
+# Arabic: مجهول الأبوين
+Unknown parents
+
+# Step 4: Provide OTP (simulated)
+# English: 3565
+# Arabic: 3565
+3565
+
+# Step 5: Provide Name
+# English: Mohammed bin Abdullah Al-Rashid
+# Arabic: محمد بن عبدالله الراشد
+Mohammed bin Abdullah Al-Rashid
+
+# Step 6: Provide City
+# English: Riyadh
+# Arabic: الرياض
+Riyadh
+
+# Step 7: Case Type
+# English: Independent
+# Arabic: مستقل
+Independent
+
+
+# ============================================================
+# SCENARIO 3: FAQ & INFORMATION
+# Phone: 966533043483 (Existing User)
+# ============================================================
+
+# Step 1: Ask About Programs
+# English: What programs do you have?
+# Arabic: وش البرامج اللي عندكم
+What programs do you have?
+
+# Step 2: Ask About Maximum Assistance
+# English: What is the maximum assistance amount?
+# Arabic: كم الحد الأقصى للمساعدة
+What is the maximum assistance amount?
+
+# Step 3: Ask About Eligibility
+# English: What are the eligibility requirements?
+# Arabic: وش شروط الأهلية
+What are the eligibility requirements?
+
+
+# ============================================================
+# QUICK COPY - ALL ENGLISH MESSAGES
+# ============================================================
+Hello
+What is my file status?
+What documents are missing?
+I need financial assistance
+School fees for my son
+The amount is 4500 riyals
+Yes, confirm
+What are my open requests?
+When will the payment be disbursed?
+I want to speak with an employee
+
+
+# ============================================================
+# QUICK COPY - ALL ARABIC MESSAGES
+# ============================================================
+مرحبا
+ابي اعرف حالة ملفي
+وش ناقص على الملف
+ابي مساعدة مالية
+رسوم المدرسة لولدي
+المبلغ 4500 ريال
+نعم، اكد
+وش الطلبات المفتوحة
+متى ينزل المبلغ
+ابي اكلم موظف

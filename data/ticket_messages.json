@@ -1,0 +1,626 @@
+[
+  {
+    "id": "MSG-90001",
+    "ticket_id": "TK-2026-5037",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "سداد ايجار",
+    "sent_at": "2026-07-10T18:08:00Z"
+  },
+  {
+    "id": "MSG-90002",
+    "ticket_id": "TK-2026-5074",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "استفسار عن برنامج علم",
+    "sent_at": "2026-07-04T10:08:00Z"
+  },
+  {
+    "id": "MSG-90003",
+    "ticket_id": "TK-2026-5074",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "تم استلام المستندات وسيتم رفعها للجنة المختصة",
+    "sent_at": "2026-07-04T10:16:00Z"
+  },
+  {
+    "id": "MSG-90004",
+    "ticket_id": "TK-2026-5111",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "سداد ايجار",
+    "sent_at": "2026-07-20T14:08:00Z"
+  },
+  {
+    "id": "MSG-90005",
+    "ticket_id": "TK-2026-5111",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "تم استلام المستندات وسيتم رفعها للجنة المختصة",
+    "sent_at": "2026-07-20T14:16:00Z"
+  },
+  {
+    "id": "MSG-90006",
+    "ticket_id": "TK-2026-5111",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "تم استلام المستندات وسيتم رفعها للجنة المختصة",
+    "sent_at": "2026-07-20T14:24:00Z"
+  },
+  {
+    "id": "MSG-90007",
+    "ticket_id": "TK-2026-5148",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "طلب زيارة ميدانية",
+    "sent_at": "2026-07-04T02:08:00Z"
+  },
+  {
+    "id": "MSG-90008",
+    "ticket_id": "TK-2026-5185",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "رقم الجوال مسجل مسبقا",
+    "sent_at": "2026-07-16T20:08:00Z"
+  },
+  {
+    "id": "MSG-90009",
+    "ticket_id": "TK-2026-5185",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "متى يتم الرد على الطلب؟",
+    "sent_at": "2026-07-16T20:16:00Z"
+  },
+  {
+    "id": "MSG-90010",
+    "ticket_id": "TK-2026-5222",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "رقم الجوال مسجل مسبقا",
+    "sent_at": "2026-07-17T10:08:00Z"
+  },
+  {
+    "id": "MSG-90011",
+    "ticket_id": "TK-2026-5259",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "تاخر صرف المساعدة",
+    "sent_at": "2026-07-06T13:08:00Z"
+  },
+  {
+    "id": "MSG-90012",
+    "ticket_id": "TK-2026-5259",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "نامل تزويدنا بصورة الهوية الوطنية لاستكمال الطلب",
+    "sent_at": "2026-07-06T13:16:00Z"
+  },
+  {
+    "id": "MSG-90013",
+    "ticket_id": "TK-2026-5296",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "استفسار عن فعالية",
+    "sent_at": "2026-07-12T19:08:00Z"
+  },
+  {
+    "id": "MSG-90014",
+    "ticket_id": "TK-2026-5296",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "نامل تزويدنا بصورة الهوية الوطنية لاستكمال الطلب",
+    "sent_at": "2026-07-12T19:16:00Z"
+  },
+  {
+    "id": "MSG-90015",
+    "ticket_id": "TK-2026-5296",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "نامل تزويدنا بصورة الهوية الوطنية لاستكمال الطلب",
+    "sent_at": "2026-07-12T19:24:00Z"
+  },
+  {
+    "id": "MSG-90016",
+    "ticket_id": "TK-2026-5333",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "استفسار عن فعالية",
+    "sent_at": "2026-07-11T05:08:00Z"
+  },
+  {
+    "id": "MSG-90017",
+    "ticket_id": "TK-2026-5333",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "نامل تزويدنا بصورة الهوية الوطنية لاستكمال الطلب",
+    "sent_at": "2026-07-11T05:16:00Z"
+  },
+  {
+    "id": "MSG-90018",
+    "ticket_id": "TK-2026-5370",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "طلب مشهد الضمان",
+    "sent_at": "2026-07-06T04:08:00Z"
+  },
+  {
+    "id": "MSG-90019",
+    "ticket_id": "TK-2026-5370",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "شكرا لتواصلكم، جاري دراسة طلبكم وسنوافيكم بالتحديث",
+    "sent_at": "2026-07-06T04:16:00Z"
+  },
+  {
+    "id": "MSG-90020",
+    "ticket_id": "TK-2026-5370",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "متى يتم الرد على الطلب؟",
+    "sent_at": "2026-07-06T04:24:00Z"
+  },
+  {
+    "id": "MSG-90021",
+    "ticket_id": "TK-2026-5407",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "طلب مشهد الضمان",
+    "sent_at": "2026-07-05T14:08:00Z"
+  },
+  {
+    "id": "MSG-90022",
+    "ticket_id": "TK-2026-5407",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "نامل تزويدنا بصورة الهوية الوطنية لاستكمال الطلب",
+    "sent_at": "2026-07-05T14:16:00Z"
+  },
+  {
+    "id": "MSG-90023",
+    "ticket_id": "TK-2026-5407",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "تم استلام المستندات وسيتم رفعها للجنة المختصة",
+    "sent_at": "2026-07-05T14:24:00Z"
+  },
+  {
+    "id": "MSG-90024",
+    "ticket_id": "TK-2026-5444",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "تحديث البيانات البنكية",
+    "sent_at": "2026-07-04T22:08:00Z"
+  },
+  {
+    "id": "MSG-90025",
+    "ticket_id": "TK-2026-5444",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "نامل تزويدنا بصورة الهوية الوطنية لاستكمال الطلب",
+    "sent_at": "2026-07-04T22:16:00Z"
+  },
+  {
+    "id": "MSG-90026",
+    "ticket_id": "TK-2026-5444",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "متى يتم الرد على الطلب؟",
+    "sent_at": "2026-07-04T22:24:00Z"
+  },
+  {
+    "id": "MSG-90027",
+    "ticket_id": "TK-2026-5481",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "تاخر صرف المساعدة",
+    "sent_at": "2026-07-05T13:08:00Z"
+  },
+  {
+    "id": "MSG-90028",
+    "ticket_id": "TK-2026-5481",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "نامل تزويدنا بصورة الهوية الوطنية لاستكمال الطلب",
+    "sent_at": "2026-07-05T13:16:00Z"
+  },
+  {
+    "id": "MSG-90029",
+    "ticket_id": "TK-2026-5481",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "نامل تزويدنا بصورة الهوية الوطنية لاستكمال الطلب",
+    "sent_at": "2026-07-05T13:24:00Z"
+  },
+  {
+    "id": "MSG-90030",
+    "ticket_id": "TK-2026-5518",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "استفسار عن فعالية",
+    "sent_at": "2026-07-21T04:08:00Z"
+  },
+  {
+    "id": "MSG-90031",
+    "ticket_id": "TK-2026-5518",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "شكرا لتواصلكم، جاري دراسة طلبكم وسنوافيكم بالتحديث",
+    "sent_at": "2026-07-21T04:16:00Z"
+  },
+  {
+    "id": "MSG-90032",
+    "ticket_id": "TK-2026-5518",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "شكرا لتواصلكم، جاري دراسة طلبكم وسنوافيكم بالتحديث",
+    "sent_at": "2026-07-21T04:24:00Z"
+  },
+  {
+    "id": "MSG-90033",
+    "ticket_id": "TK-2026-5555",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "سداد ايجار",
+    "sent_at": "2026-07-19T04:08:00Z"
+  },
+  {
+    "id": "MSG-90034",
+    "ticket_id": "TK-2026-5555",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "شكرا لتواصلكم، جاري دراسة طلبكم وسنوافيكم بالتحديث",
+    "sent_at": "2026-07-19T04:16:00Z"
+  },
+  {
+    "id": "MSG-90035",
+    "ticket_id": "TK-2026-5592",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "تاخر صرف المساعدة",
+    "sent_at": "2026-07-18T15:08:00Z"
+  },
+  {
+    "id": "MSG-90036",
+    "ticket_id": "TK-2026-5592",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "شكرا لتواصلكم، جاري دراسة طلبكم وسنوافيكم بالتحديث",
+    "sent_at": "2026-07-18T15:16:00Z"
+  },
+  {
+    "id": "MSG-90037",
+    "ticket_id": "TK-2026-5592",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "متى يتم الرد على الطلب؟",
+    "sent_at": "2026-07-18T15:24:00Z"
+  },
+  {
+    "id": "MSG-90038",
+    "ticket_id": "TK-2026-5629",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "سداد ايجار",
+    "sent_at": "2026-07-18T14:08:00Z"
+  },
+  {
+    "id": "MSG-90039",
+    "ticket_id": "TK-2026-5666",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "طلب مشهد الضمان",
+    "sent_at": "2026-07-21T20:08:00Z"
+  },
+  {
+    "id": "MSG-90040",
+    "ticket_id": "TK-2026-5666",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "متى يتم الرد على الطلب؟",
+    "sent_at": "2026-07-21T20:16:00Z"
+  },
+  {
+    "id": "MSG-90041",
+    "ticket_id": "TK-2026-5703",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "تحديث البيانات البنكية",
+    "sent_at": "2026-07-22T08:08:00Z"
+  },
+  {
+    "id": "MSG-90042",
+    "ticket_id": "TK-2026-5703",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "متى يتم الرد على الطلب؟",
+    "sent_at": "2026-07-22T08:16:00Z"
+  },
+  {
+    "id": "MSG-90043",
+    "ticket_id": "TK-2026-5740",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "سداد ايجار",
+    "sent_at": "2026-07-17T21:08:00Z"
+  },
+  {
+    "id": "MSG-90044",
+    "ticket_id": "TK-2026-5740",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "نامل تزويدنا بصورة الهوية الوطنية لاستكمال الطلب",
+    "sent_at": "2026-07-17T21:16:00Z"
+  },
+  {
+    "id": "MSG-90045",
+    "ticket_id": "TK-2026-5777",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "تحديث البيانات البنكية",
+    "sent_at": "2026-07-15T00:08:00Z"
+  },
+  {
+    "id": "MSG-90046",
+    "ticket_id": "TK-2026-5814",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "استفسار عن حالة الطلب",
+    "sent_at": "2026-07-20T16:08:00Z"
+  },
+  {
+    "id": "MSG-90047",
+    "ticket_id": "TK-2026-5851",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "طلب زيارة ميدانية",
+    "sent_at": "2026-07-09T17:08:00Z"
+  },
+  {
+    "id": "MSG-90048",
+    "ticket_id": "TK-2026-5851",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "متى يتم الرد على الطلب؟",
+    "sent_at": "2026-07-09T17:16:00Z"
+  },
+  {
+    "id": "MSG-90049",
+    "ticket_id": "TK-2026-5851",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "شكرا لتواصلكم، جاري دراسة طلبكم وسنوافيكم بالتحديث",
+    "sent_at": "2026-07-09T17:24:00Z"
+  },
+  {
+    "id": "MSG-90050",
+    "ticket_id": "TK-2026-5888",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "استكمال مستندات",
+    "sent_at": "2026-07-13T12:08:00Z"
+  },
+  {
+    "id": "MSG-90051",
+    "ticket_id": "TK-2026-5888",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "متى يتم الرد على الطلب؟",
+    "sent_at": "2026-07-13T12:16:00Z"
+  },
+  {
+    "id": "MSG-90052",
+    "ticket_id": "TK-2026-5925",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "طلب مشهد الضمان",
+    "sent_at": "2026-07-12T08:08:00Z"
+  },
+  {
+    "id": "MSG-90053",
+    "ticket_id": "TK-2026-5962",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "طلب مشهد الضمان",
+    "sent_at": "2026-07-07T03:08:00Z"
+  },
+  {
+    "id": "MSG-90054",
+    "ticket_id": "TK-2026-5999",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "استكمال مستندات",
+    "sent_at": "2026-07-23T01:08:00Z"
+  },
+  {
+    "id": "MSG-90055",
+    "ticket_id": "TK-2026-6036",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "كفالة يتيم مقيدة",
+    "sent_at": "2026-07-12T14:08:00Z"
+  },
+  {
+    "id": "MSG-90056",
+    "ticket_id": "TK-2026-6073",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "تعذر تسجيل الدخول",
+    "sent_at": "2026-07-12T16:08:00Z"
+  },
+  {
+    "id": "MSG-90057",
+    "ticket_id": "TK-2026-6073",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "متى يتم الرد على الطلب؟",
+    "sent_at": "2026-07-12T16:16:00Z"
+  },
+  {
+    "id": "MSG-90058",
+    "ticket_id": "TK-2026-6110",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "استفسار عن برنامج علم",
+    "sent_at": "2026-07-18T06:08:00Z"
+  },
+  {
+    "id": "MSG-90059",
+    "ticket_id": "TK-2026-6147",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "استفسار عن حالة الطلب",
+    "sent_at": "2026-07-14T06:08:00Z"
+  },
+  {
+    "id": "MSG-90060",
+    "ticket_id": "TK-2026-6147",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "متى يتم الرد على الطلب؟",
+    "sent_at": "2026-07-14T06:16:00Z"
+  },
+  {
+    "id": "MSG-90061",
+    "ticket_id": "TK-2026-6147",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "شكرا لتواصلكم، جاري دراسة طلبكم وسنوافيكم بالتحديث",
+    "sent_at": "2026-07-14T06:24:00Z"
+  },
+  {
+    "id": "MSG-90062",
+    "ticket_id": "TK-2026-6184",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "تاخر صرف المساعدة",
+    "sent_at": "2026-07-10T22:08:00Z"
+  },
+  {
+    "id": "MSG-90063",
+    "ticket_id": "TK-2026-6184",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "نامل تزويدنا بصورة الهوية الوطنية لاستكمال الطلب",
+    "sent_at": "2026-07-10T22:16:00Z"
+  },
+  {
+    "id": "MSG-90064",
+    "ticket_id": "TK-2026-6221",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "استفسار عن حالة الطلب",
+    "sent_at": "2026-07-16T15:08:00Z"
+  },
+  {
+    "id": "MSG-90065",
+    "ticket_id": "TK-2026-6221",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "تم استلام المستندات وسيتم رفعها للجنة المختصة",
+    "sent_at": "2026-07-16T15:16:00Z"
+  },
+  {
+    "id": "MSG-90066",
+    "ticket_id": "TK-2026-6221",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "نامل تزويدنا بصورة الهوية الوطنية لاستكمال الطلب",
+    "sent_at": "2026-07-16T15:24:00Z"
+  },
+  {
+    "id": "MSG-90067",
+    "ticket_id": "TK-2026-6258",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "تاخر صرف المساعدة",
+    "sent_at": "2026-07-17T22:08:00Z"
+  },
+  {
+    "id": "MSG-90068",
+    "ticket_id": "TK-2026-6295",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "طلب زيارة ميدانية",
+    "sent_at": "2026-07-19T16:08:00Z"
+  },
+  {
+    "id": "MSG-90069",
+    "ticket_id": "TK-2026-6332",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "تحديث البيانات البنكية",
+    "sent_at": "2026-07-06T07:08:00Z"
+  },
+  {
+    "id": "MSG-90070",
+    "ticket_id": "TK-2026-6332",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "متى يتم الرد على الطلب؟",
+    "sent_at": "2026-07-06T07:16:00Z"
+  },
+  {
+    "id": "MSG-90071",
+    "ticket_id": "TK-2026-6369",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "استفسار عن فعالية",
+    "sent_at": "2026-07-09T04:08:00Z"
+  },
+  {
+    "id": "MSG-90072",
+    "ticket_id": "TK-2026-6406",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "استفسار عن فعالية",
+    "sent_at": "2026-07-11T13:08:00Z"
+  },
+  {
+    "id": "MSG-90073",
+    "ticket_id": "TK-2026-6406",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "متى يتم الرد على الطلب؟",
+    "sent_at": "2026-07-11T13:16:00Z"
+  },
+  {
+    "id": "MSG-90074",
+    "ticket_id": "TK-2026-6443",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "كفالة يتيم مقيدة",
+    "sent_at": "2026-07-10T14:08:00Z"
+  },
+  {
+    "id": "MSG-90075",
+    "ticket_id": "TK-2026-6443",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "نامل تزويدنا بصورة الهوية الوطنية لاستكمال الطلب",
+    "sent_at": "2026-07-10T14:16:00Z"
+  },
+  {
+    "id": "MSG-90076",
+    "ticket_id": "TK-2026-6443",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "متى يتم الرد على الطلب؟",
+    "sent_at": "2026-07-10T14:24:00Z"
+  },
+  {
+    "id": "MSG-90077",
+    "ticket_id": "TK-2026-6480",
+    "direction": "inbound",
+    "sender": "beneficiary",
+    "body_ar": "استفسار عن حالة الطلب",
+    "sent_at": "2026-07-12T05:08:00Z"
+  },
+  {
+    "id": "MSG-90078",
+    "ticket_id": "TK-2026-6480",
+    "direction": "outbound",
+    "sender": "agent",
+    "body_ar": "نامل تزويدنا بصورة الهوية الوطنية لاستكمال الطلب",
+    "sent_at": "2026-07-12T05:16:00Z"
+  }
+]
