@@ -23,12 +23,16 @@ Run:  uvicorn backend.main:app --reload --port 8000
 Docs: http://localhost:8000/docs
 """
 import os
+import logging
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 
 from backend import store as db
 from backend.routers import beneficiary, crm, programs, finance
+
+logger = logging.getLogger("kayan")
 
 app = FastAPI(
     title="Kayan Orphan Care — AI Agent Platform (Mock)",
@@ -40,6 +44,15 @@ app = FastAPI(
 )
 app.add_middleware(CORSMiddleware, allow_origins=["*"],
                    allow_methods=["*"], allow_headers=["*"])
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.exception("Unhandled error on %s %s", request.method, request.url.path)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error", "error": str(exc)},
+    )
 
 app.include_router(beneficiary.router)
 app.include_router(crm.router)
