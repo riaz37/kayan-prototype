@@ -26,12 +26,12 @@ _MIN_REQUEST_INTERVAL = 0.2  # 200ms between requests = 5 RPM max
 
 
 def _get_client():
-    """Lazy-initialize the OpenAI client pointing to Gemini API."""
+    """Lazy-initialize the OpenAI client pointing to vLLM."""
     global _client
     if _client is None:
         _client = OpenAI(
             api_key=settings.llm_api_key or "none",
-            base_url=settings.llm_base_url,
+            base_url=settings.llm_base_url + "/v1",
         )
     return _client
 
