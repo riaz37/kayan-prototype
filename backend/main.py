@@ -126,4 +126,11 @@ async def proxy_webhook(request: Request):
     )
 
 
-# ---- frontend is served separately (see frontend/)
+# ---- serve frontend static files ----
+from fastapi.staticfiles import StaticFiles
+import pathlib
+
+FRONTEND_DIR = pathlib.Path(os.environ.get("FRONTEND_DIR", "/app/frontend-dist"))
+
+if FRONTEND_DIR.is_dir():
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")

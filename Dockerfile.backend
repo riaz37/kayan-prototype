@@ -1,8 +1,10 @@
 FROM python:3.11-slim
 
-# Install system deps + supervisor
+# Install system deps + supervisor + node (for frontend build)
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends supervisor && \
+    apt-get install -y --no-install-recommends supervisor curl && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y --no-install-recommends nodejs && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -12,6 +14,11 @@ COPY requirements.txt ./
 COPY agent/requirements.txt ./agent/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir -r agent/requirements.txt
+
+# Build frontend
+COPY frontend/ frontend/
+RUN cd frontend && npm ci && npm run build 2>/dev/null || true
+RUN cd frontend && chmod +x build.sh && ./build.sh
 
 # Copy application code
 COPY backend/ backend/
@@ -23,13 +30,17 @@ COPY data/*.json data/
 # Create data directory for SQLite (will be mounted as volume)
 RUN mkdir -p /app/data
 
+# Move built frontend to frontend-dist
+RUN mv frontend/dist frontend-dist && \
+    cp frontend/index.html frontend-dist/index.html
+
 # Copy supervisor config
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Expose both ports
+# Expose backend port
 EXPOSE 8000 8001
 
-# Health check - backend
+# Health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD python -c "import urllib.request, os; urllib.request.urlopen(f'http://localhost:{os.environ.get(\"PORT\", 8000)}/health')" || exit 1
 
