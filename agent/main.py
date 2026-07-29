@@ -133,7 +133,13 @@ async def webhook_receive(request: Request):
         reply = agent.handle_message(sender, text)
     except Exception as e:
         logger.error(f"Agent error: {e}")
-        reply = "عذراً، حدث خطأ تقني. يرجى المحاولة مرة أخرى أو التواصل مع خدمة المستفيدين."
+        # Detect user language from their message
+        import re as _re
+        has_arabic = bool(_re.search(r'[\u0600-\u06FF]', text))
+        if has_arabic:
+            reply = "عذراً، حدث خطأ تقني. يرجى المحاولة مرة أخرى أو التواصل مع خدمة المستفيدين."
+        else:
+            reply = "Sorry, a technical error occurred. Please try again or contact beneficiary services."
 
     logger.info(f"Reply to {sender}: {reply[:100]}")
 
@@ -234,7 +240,12 @@ async def agent_chat(req: ChatRequest):
         reply = agent.handle_message(phone, text)
     except Exception as e:
         logger.error(f"Agent error: {e}")
-        reply = "عذراً، حدث خطأ تقني. يرجى المحاولة مرة أخرى."
+        import re as _re
+        has_arabic = bool(_re.search(r'[\u0600-\u06FF]', text))
+        if has_arabic:
+            reply = "عذراً، حدث خطأ تقني. يرجى المحاولة مرة أخرى."
+        else:
+            reply = "Sorry, a technical error occurred. Please try again."
 
     # Get current context
     context = get_context(phone)

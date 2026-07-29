@@ -157,9 +157,9 @@ def handle_list_programs() -> dict:
 
 
 def handle_send_whatsapp(to: str, body_ar: str) -> dict:
-    return _post("/whatsapp/send", None)
-    # Note: /whatsapp/send uses query params in the mock, but we'll
-    # handle this via the whatsapp.py sender directly
+    import httpx as _h
+    resp = _h.post(f"{BACKEND}/whatsapp/send", params={"to": to, "body_ar": body_ar}, timeout=30)
+    return resp.json()
 
 
 def handle_send_template(to: str, template_id: str, params: dict) -> dict:

@@ -25,8 +25,7 @@ Docs: http://localhost:8000/docs
 import os
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse
+
 
 from backend import store as db
 from backend.routers import beneficiary, crm, programs, finance
@@ -127,16 +126,4 @@ async def proxy_webhook(request: Request):
     )
 
 
-# ---- serve the console UI at /app (same origin as the API, so no CORS issues)
-
-_FRONTEND = os.path.join(os.path.dirname(__file__), "..", "frontend")
-if os.path.isdir(_FRONTEND):
-    app.mount("/app", StaticFiles(directory=_FRONTEND, html=True), name="console")
-
-    @app.get("/", include_in_schema=False)
-    def _root():
-        return RedirectResponse("/app/")
-
-    @app.get("/console", include_in_schema=False)
-    def _console():
-        return RedirectResponse("/app/")
+# ---- frontend is served separately (see frontend/)

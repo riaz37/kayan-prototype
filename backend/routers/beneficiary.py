@@ -4,6 +4,7 @@ Mirrors the client's guide: account creation by phone + OTP, the 10-section
 data form, dependents, documents (incl. "لا يوجد" / "عدم الاهلية"), and the
 financial profile used for the needs assessment.
 """
+import json
 import random
 from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, HTTPException, Query
@@ -136,8 +137,9 @@ def create_file(body: CreateFileIn):
     file_no = db.next_id("file", "KY-")
     b = {
         "id": bid, "file_no": file_no, "case_type": body.case_type, "status": "draft",
-        "orphan_category_id": body.orphan_category_id, "eligibility_verified": True,
-        "created_at": db.now_iso(), "approved_at": None,
+        "orphan_category": body.orphan_category_id, "eligibility_verified": True,
+        "created_at": db.now_iso(), "updated_at": db.now_iso(),
+        "full_name_ar": body.full_name_ar, "phone": p, "city": body.city,
         "sections": {
             "SEC-BASIC": {"full_name_ar": body.full_name_ar, "national_id": body.national_id,
                           "birth_date": None, "gender": None, "marital_status": None,
@@ -156,24 +158,23 @@ def create_file(body: CreateFileIn):
                            "has_health_insurance": None, "monthly_medication_cost": None},
         },
     }
-    db.beneficiaries.append(b)
-    db.by_id["beneficiary"][bid] = b
-    db.accounts[p] = {"beneficiary_id": bid, "password_set": True, "created_at": db.now_iso()}
+    db.insert_beneficiary(b)
+    db.insert_account(p, bid)
 
     # seed the document checklist for this case type
     for dt in db.document_types:
         if body.case_type in dt["required_for"]:
-            db.documents.append({
+            db.insert_document({
                 "id": db.next_id("doc", "DOC-"), "beneficiary_id": bid,
                 "document_type_id": dt["id"], "name_ar": dt["name_ar"],
                 "mandatory": dt["mandatory"], "status": "missing",
-                "note_ar": None, "uploaded_at": None,
+                "created_at": db.now_iso(),
             })
-    db.financial_profiles.append({
-        "beneficiary_id": bid, "monthly_income_sar": 0.0, "income_breakdown": [],
-        "obligations": [], "total_obligations_sar": 0.0, "person_costs": [],
-        "total_person_costs_sar": 0.0, "household_size": 1, "net_monthly_sar": 0.0,
-        "per_capita_monthly_sar": 0.0, "need_score": 0.0,
+    db.insert_financial_profile({
+        "id": f"FP-{bid}", "beneficiary_id": bid,
+        "monthly_income": 0.0, "monthly_expenses": 0.0,
+        "obligations": [], "person_costs": [], "need_score": 0.0,
+        "created_at": db.now_iso(),
     })
     msg = db.render_template("TPL-REG-OK", file_no=file_no)
     db.send_notification("whatsapp", p, msg, kind="registration")
@@ -329,12 +330,12 @@ def add_dependent(beneficiary_id: str, body: DependentIn):
     if not b:
         raise HTTPException(404, "Beneficiary not found")
     d = {"id": db.next_id("dep", "DEP-"), "beneficiary_id": beneficiary_id,
-         "name_ar": body.name_ar, "relationship_ar": body.relationship_ar,
+         "name_ar": body.name_ar, "relationship": body.relationship_ar,
          "birth_date": body.birth_date, "gender": body.gender,
-         "is_orphan": "يتيم" in body.relationship_ar,
-         "education_stage": body.education_stage,
-         "has_special_needs": body.has_special_needs}
-    db.dependents.append(d)
+         "education": body.education_stage,
+         "special_needs": 1 if body.has_special_needs else 0,
+         "created_at": db.now_iso()}
+    db.insert_dependent(d)
     n = len(db.deps_for(beneficiary_id))
     b["sections"]["SEC-EXTRA"]["dependents_count"] = n
     f = db.finance_for(beneficiary_id)
@@ -383,18 +384,22 @@ class DocStatusIn(BaseModel):
 def set_document(beneficiary_id: str, document_type_id: str, body: DocStatusIn):
     if body.status not in ("uploaded", "verified", "rejected", "not_available", "ineligible", "missing"):
         raise HTTPException(422, "Invalid status")
-    d = next((x for x in db.documents if x["beneficiary_id"] == beneficiary_id
-              and x["document_type_id"] == document_type_id), None)
-    if not d:
+    conn = db._get_conn()
+    d_row = conn.execute(
+        "SELECT * FROM documents WHERE beneficiary_id = ? AND document_type_id = ?",
+        (beneficiary_id, document_type_id)).fetchone()
+    if not d_row:
         raise HTTPException(404, "Document not on this file's checklist")
+    d = dict(d_row)
     dt = db.by_id["document_type"].get(document_type_id, {})
     if body.status == "not_available" and not dt.get("na_allowed"):
         raise HTTPException(409, f"{dt.get('name_ar')} لا يقبل حالة لا يوجد — يجب رفع المستند")
     if body.status == "ineligible" and not dt.get("ineligible_allowed"):
         raise HTTPException(409, f"{dt.get('name_ar')} لا يقبل حالة عدم الاهلية — يجب رفع المستند")
+    conn.execute("UPDATE documents SET status=?, updated_at=? WHERE id=?",
+                (body.status, db.now_iso(), d["id"]))
+    conn.commit()
     d["status"] = body.status
-    d["note_ar"] = body.note_ar or {"not_available": "لا يوجد", "ineligible": "عدم الاهلية"}.get(body.status)
-    d["uploaded_at"] = db.now_iso() if body.status != "missing" else None
     return {"document": d, "completeness": db.file_completeness(beneficiary_id)}
 
 
@@ -428,8 +433,14 @@ def add_obligation(beneficiary_id: str, body: ObligationIn):
     ot = next((o for o in db.obligation_types if o["id"] == body.type_id), None)
     if not ot:
         raise HTTPException(404, "Unknown obligation type")
-    f["obligations"].append({"type_id": ot["id"], "name_ar": ot["name_ar"],
-                             "monthly_sar": body.monthly_sar, "documented": body.documented})
+    obligations = json.loads(f.get("obligations", "[]"))
+    obligations.append({"type_id": ot["id"], "name_ar": ot["name_ar"],
+                       "monthly_sar": body.monthly_sar, "documented": body.documented})
+    conn = db._get_conn()
+    conn.execute("UPDATE financial_profiles SET obligations=? WHERE id=?",
+                (json.dumps(obligations, ensure_ascii=False), f["id"]))
+    conn.commit()
+    f["obligations"] = obligations
     return _recalc(f)
 
 
@@ -451,19 +462,36 @@ def add_cost(beneficiary_id: str, body: CostIn):
         raise HTTPException(404, "Unknown cost type")
     if not ct["counted"]:
         raise HTTPException(409, "لا يتم احتساب المصاريف الكمالية او الترفيهية ضمن الفواتير المعتمدة")
-    f["person_costs"].append({"type_id": ct["id"], "name_ar": ct["name_ar"],
-                              "monthly_sar": body.monthly_sar})
+    person_costs = json.loads(f.get("person_costs", "[]"))
+    person_costs.append({"type_id": ct["id"], "name_ar": ct["name_ar"],
+                        "monthly_sar": body.monthly_sar})
+    conn = db._get_conn()
+    conn.execute("UPDATE financial_profiles SET person_costs=? WHERE id=?",
+                (json.dumps(person_costs, ensure_ascii=False), f["id"]))
+    conn.commit()
+    f["person_costs"] = person_costs
     return _recalc(f)
 
 
 def _recalc(f):
-    f["total_obligations_sar"] = round(sum(o["monthly_sar"] for o in f["obligations"]), 2)
-    f["total_person_costs_sar"] = round(sum(c["monthly_sar"] for c in f["person_costs"]), 2)
-    f["net_monthly_sar"] = round(f["monthly_income_sar"] - f["total_obligations_sar"]
-                                 - f["total_person_costs_sar"], 2)
-    hh = max(1, f["household_size"])
-    f["per_capita_monthly_sar"] = round(f["net_monthly_sar"] / hh, 2)
-    f["need_score"] = max(0, min(100, round(100 - (f["per_capita_monthly_sar"] / 15), 1)))
+    obligations = json.loads(f.get("obligations", "[]"))
+    person_costs = json.loads(f.get("person_costs", "[]"))
+    total_obligations = round(sum(o["monthly_sar"] for o in obligations), 2)
+    total_person_costs = round(sum(c["monthly_sar"] for c in person_costs), 2)
+    net_monthly = round(f.get("monthly_income", 0) - total_obligations - total_person_costs, 2)
+    hh = max(1, f.get("household_size", 1))
+    per_capita = round(net_monthly / hh, 2)
+    need_score = max(0, min(100, round(100 - (per_capita / 15), 1)))
+    conn = db._get_conn()
+    conn.execute("""UPDATE financial_profiles SET
+        obligations=?, person_costs=?, need_score=? WHERE id=?""",
+        (json.dumps(obligations, ensure_ascii=False),
+         json.dumps(person_costs, ensure_ascii=False),
+         need_score, f["id"]))
+    conn.commit()
+    f["obligations"] = obligations
+    f["person_costs"] = person_costs
+    f["need_score"] = need_score
     return f
 
 

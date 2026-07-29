@@ -27,18 +27,27 @@ def list_tickets(status: Optional[str] = Query(None, examples=["open"]),
                  channel: Optional[str] = Query(None, examples=["whatsapp"]),
                  beneficiary_id: Optional[str] = Query(None),
                  limit: int = Query(25, ge=1, le=100)):
-    rows = db.tickets
+    conn = db._get_conn()
+    query = "SELECT * FROM tickets WHERE 1=1"
+    params = []
     if status:
-        rows = [t for t in rows if t["status"] == status]
+        query += " AND status = ?"
+        params.append(status)
     if department_id:
-        rows = [t for t in rows if t["department_id"] == department_id]
+        query += " AND department_id = ?"
+        params.append(department_id)
     if channel:
-        rows = [t for t in rows if t["channel"] == channel]
+        query += " AND channel = ?"
+        params.append(channel)
     if beneficiary_id:
-        rows = [t for t in rows if t["beneficiary_id"] == beneficiary_id]
-    rows = sorted(rows, key=lambda t: t["last_update"], reverse=True)[:limit]
+        query += " AND beneficiary_id = ?"
+        params.append(beneficiary_id)
+    query += " ORDER BY updated_at DESC LIMIT ?"
+    params.append(limit)
+    rows = conn.execute(query, params).fetchall()
     out = []
-    for t in rows:
+    for r in rows:
+        t = dict(r)
         out.append({**t, "status_ar": db.status_ar(t["status"]),
                     "department_ar": db.by_id["department"].get(t["department_id"], {}).get("name_ar"),
                     "sla": db.ticket_sla(t)})
@@ -50,14 +59,21 @@ def list_tickets(status: Optional[str] = Query(None, examples=["open"]),
             description="Full ticket detail including the message log (سجل المحادثة), SLA remaining, "
                         "and the beneficiary's other tickets — the same context the agent screen shows.")
 def get_ticket(ticket_id: str):
-    t = db.by_id["ticket"].get(ticket_id)
-    if not t:
+    conn = db._get_conn()
+    row = conn.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,)).fetchone()
+    if not row:
         raise HTTPException(404, "Ticket not found")
-    prev = [x["id"] for x in db.tickets_for(t["beneficiary_id"]) if x["id"] != ticket_id]
+    t = dict(row)
+    prev = [r["id"] for r in conn.execute(
+        "SELECT id FROM tickets WHERE beneficiary_id = ? AND id != ?",
+        (t["beneficiary_id"], ticket_id)).fetchall()]
+    msgs = [dict(r) for r in conn.execute(
+        "SELECT * FROM ticket_messages WHERE ticket_id = ? ORDER BY sent_at",
+        (ticket_id,)).fetchall()]
     return {**t, "status_ar": db.status_ar(t["status"]),
             "department_ar": db.by_id["department"].get(t["department_id"], {}).get("name_ar"),
             "sla": db.ticket_sla(t),
-            "messages": db.messages_for(ticket_id),
+            "messages": msgs,
             "previous_tickets": prev}
 
 
@@ -86,22 +102,22 @@ def create_ticket(body: CreateTicketIn):
     tid = db.next_id("tkt", "TK-2026-")
     t = {
         "id": tid, "beneficiary_id": (b or {}).get("id"),
-        "customer_name_ar": (b or {}).get("sections", {}).get("SEC-BASIC", {}).get("full_name_ar")
-                            or "غير مسجل",
-        "whatsapp_number": db.norm_phone(body.phone) if body.phone else
-                           (b or {}).get("sections", {}).get("SEC-CONTACT", {}).get("whatsapp"),
-        "department_id": body.department_id, "subject_ar": body.subject_ar,
-        "status": "open", "channel": body.channel, "priority": body.priority,
-        "assigned_staff_id": None, "opened_at": db.now_iso(), "last_update": db.now_iso(),
-        "closed_at": None, "messages_count": 1 if body.first_message_ar else 0,
-        "linked_request_id": body.linked_request_id,
+        "subject_ar": body.subject_ar,
+        "channel": body.channel,
+        "phone": db.norm_phone(body.phone) if body.phone else
+                 (b or {}).get("sections", {}).get("SEC-CONTACT", {}).get("whatsapp"),
+        "department_id": body.department_id, "priority": body.priority,
+        "status": "open", "assigned_to": None,
+        "opened_at": db.now_iso(), "updated_at": db.now_iso(),
+        "first_message": body.first_message_ar,
     }
-    db.tickets.append(t)
-    db.by_id["ticket"][tid] = t
+    db.insert_ticket(t)
     if body.first_message_ar:
-        db.ticket_messages.append({
-            "id": db.next_id("msg", "MSG-"), "ticket_id": tid, "direction": "inbound",
-            "sender": "beneficiary", "body_ar": body.first_message_ar, "sent_at": db.now_iso()})
+        msg_id = db.next_id("msg", "MSG-")
+        db.insert_ticket_message({
+            "id": msg_id, "ticket_id": tid, "direction": "inbound",
+            "sender": "beneficiary", "body_ar": body.first_message_ar,
+            "sent_at": db.now_iso()})
     return {"ticket_id": tid, "status": "open", "sla": db.ticket_sla(t),
             "department_ar": dep["name_ar"],
             "reply_ar": f"تم فتح تذكرة برقم {tid} وسيتم التواصل معكم خلال {dep['sla_hours']} ساعة."}
@@ -118,16 +134,21 @@ class MoveTicketIn(BaseModel):
               description="Moves a ticket to another column (مفتوح / جاري العمل / بانتظار العميل / "
                           "تم الرد / مغلق).")
 def move_ticket(ticket_id: str, body: MoveTicketIn):
-    t = db.by_id["ticket"].get(ticket_id)
-    if not t:
+    conn = db._get_conn()
+    row = conn.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,)).fetchone()
+    if not row:
         raise HTTPException(404, "Ticket not found")
     valid = {s["id"] for s in db.ticket_statuses}
     if body.status not in valid:
         raise HTTPException(422, f"Invalid status. Valid: {sorted(valid)}")
+    t = dict(row)
     t["status"] = body.status
-    t["last_update"] = db.now_iso()
+    t["updated_at"] = db.now_iso()
     if body.status == "closed":
         t["closed_at"] = db.now_iso()
+    conn.execute("UPDATE tickets SET status=?, updated_at=?, closed_at=? WHERE id=?",
+                (body.status, t.get("updated_at"), t.get("closed_at"), ticket_id))
+    conn.commit()
     return {"ticket_id": ticket_id, "status": body.status,
             "status_ar": db.status_ar(body.status), "sla": db.ticket_sla(t)}
 
@@ -140,14 +161,16 @@ class AssignIn(BaseModel):
               summary="Assign a ticket to a staff member",
               description="Assigns the ticket to a member of فريق العمل.")
 def assign_ticket(ticket_id: str, body: AssignIn):
-    t = db.by_id["ticket"].get(ticket_id)
-    if not t:
+    conn = db._get_conn()
+    row = conn.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,)).fetchone()
+    if not row:
         raise HTTPException(404, "Ticket not found")
     s = db.by_id["staff"].get(body.staff_id)
     if not s:
         raise HTTPException(404, "Staff member not found")
-    t["assigned_staff_id"] = body.staff_id
-    t["last_update"] = db.now_iso()
+    conn.execute("UPDATE tickets SET assigned_to=?, updated_at=? WHERE id=?",
+                (body.staff_id, db.now_iso(), ticket_id))
+    conn.commit()
     return {"ticket_id": ticket_id, "assigned_to_ar": s["name_ar"], "role_ar": s["role_ar"]}
 
 
@@ -162,21 +185,27 @@ class ReplyIn(BaseModel):
                          "'replied'. If the WhatsApp 24h window has expired the response warns that "
                          "only a template message may be sent.")
 def reply_ticket(ticket_id: str, body: ReplyIn):
-    t = db.by_id["ticket"].get(ticket_id)
-    if not t:
+    conn = db._get_conn()
+    row = conn.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,)).fetchone()
+    if not row:
         raise HTTPException(404, "Ticket not found")
-    m = {"id": db.next_id("msg", "MSG-"), "ticket_id": ticket_id, "direction": "outbound",
+    t = dict(row)
+    msg_id = db.next_id("msg", "MSG-")
+    m = {"id": msg_id, "ticket_id": ticket_id, "direction": "outbound",
          "sender": body.sender, "body_ar": body.body_ar, "sent_at": db.now_iso()}
-    db.ticket_messages.append(m)
-    t["messages_count"] = t.get("messages_count", 0) + 1
-    t["status"] = "replied"
-    t["last_update"] = db.now_iso()
+    db.insert_ticket_message(m)
+    conn.execute("UPDATE tickets SET status='replied', updated_at=? WHERE id=?",
+                (db.now_iso(), ticket_id))
+    conn.commit()
     warn = None
     if t["channel"] == "whatsapp":
-        sess = next((s for s in db.whatsapp_sessions
-                     if db.norm_phone(s["wa_number"]) == db.norm_phone(t["whatsapp_number"])), None)
-        if sess and not db.wa_window(sess)["open"]:
-            warn = "نافذة الواتساب (24 ساعة) منتهية — يلزم استخدام رسالة قالب معتمدة."
+        sess_row = conn.execute(
+            "SELECT * FROM whatsapp_sessions WHERE phone = ? ORDER BY last_message_at DESC LIMIT 1",
+            (t["phone"],)).fetchone()
+        if sess_row:
+            sess = dict(sess_row)
+            if not db.wa_window(sess)["open"]:
+                warn = "نافذة الواتساب (24 ساعة) منتهية — يلزم استخدام رسالة قالب معتمدة."
     return {"message": m, "ticket_status": "replied", "warning_ar": warn}
 
 
@@ -185,19 +214,26 @@ def reply_ticket(ticket_id: str, body: ReplyIn):
             description="Returns the board grouped into columns exactly as the admin panel renders it "
                         "(مفتوح، جاري العمل، بانتظار العميل، تم الرد) with per-column counts and cards.")
 def kanban(department_id: Optional[str] = Query(None, examples=["DEP-BEN"])):
+    conn = db._get_conn()
+    query = "SELECT * FROM tickets"
+    params = []
+    if department_id:
+        query += " WHERE department_id = ?"
+        params.append(department_id)
+    rows = conn.execute(query, params).fetchall()
+    tickets_list = [dict(r) for r in rows]
     cols = []
-    rows = db.tickets if not department_id else [t for t in db.tickets if t["department_id"] == department_id]
     for st in sorted([s for s in db.ticket_statuses if s["kanban"]], key=lambda s: s["order"]):
-        cards = [{"id": t["id"], "customer_name_ar": t["customer_name_ar"],
+        cards = [{"id": t["id"], "customer_name_ar": t.get("customer_name_ar") or "غير مسجل",
                   "subject_ar": t["subject_ar"],
                   "department_ar": db.by_id["department"].get(t["department_id"], {}).get("name_ar"),
                   "priority": t["priority"], "channel": t["channel"],
                   "sla_remaining_ar": db.ticket_sla(t)["remaining_ar"],
-                  "last_update": t["last_update"]}
-                 for t in rows if t["status"] == st["id"]]
+                  "last_update": t["updated_at"]}
+                 for t in tickets_list if t["status"] == st["id"]]
         cols.append({"status": st["id"], "title_ar": st["name_ar"],
                      "count": len(cards), "cards": cards})
-    summary = {s["name_ar"]: len([t for t in rows if t["status"] == s["id"]])
+    summary = {s["name_ar"]: len([t for t in tickets_list if t["status"] == s["id"]])
                for s in db.ticket_statuses}
     return {"columns": cols, "summary_ar": summary}
 
@@ -207,25 +243,33 @@ def kanban(department_id: Optional[str] = Query(None, examples=["DEP-BEN"])):
             description="Totals by status, today's tickets, closure rate, average response time and "
                         "the busiest department — the metric strip from the admin panel.")
 def stats():
-    total = len(db.tickets)
-    by_status = {s["id"]: len([t for t in db.tickets if t["status"] == s["id"]])
-                 for s in db.ticket_statuses}
-    today = len([t for t in db.tickets
-                 if db.parse(t["opened_at"]).date() == db.now().date()])
+    conn = db._get_conn()
+    total = conn.execute("SELECT COUNT(*) as cnt FROM tickets").fetchone()["cnt"]
+    by_status = {}
+    for s in db.ticket_statuses:
+        cnt = conn.execute("SELECT COUNT(*) as cnt FROM tickets WHERE status = ?",
+                          (s["id"],)).fetchone()["cnt"]
+        by_status[s["id"]] = cnt
+    today = conn.execute("SELECT COUNT(*) as cnt FROM tickets WHERE date(opened_at) = date('now')",
+                        ).fetchone()["cnt"]
     closed = by_status.get("closed", 0)
-    dep_counts = {}
-    for t in db.tickets:
-        dep_counts[t["department_id"]] = dep_counts.get(t["department_id"], 0) + 1
+    dep_rows = conn.execute("SELECT department_id, COUNT(*) as cnt FROM tickets GROUP BY department_id",
+                           ).fetchall()
+    dep_counts = {r["department_id"]: r["cnt"] for r in dep_rows}
     top = max(dep_counts, key=dep_counts.get) if dep_counts else None
     durations = []
-    for t in db.tickets:
-        ms = db.messages_for(t["id"])
+    ticket_ids = [r["id"] for r in conn.execute("SELECT id FROM tickets").fetchall()]
+    for tid in ticket_ids:
+        ms = db.messages_for(tid)
         first_in = next((m for m in ms if m["direction"] == "inbound"), None)
         first_out = next((m for m in ms if m["direction"] == "outbound"), None)
         if first_in and first_out:
             durations.append((db.parse(first_out["sent_at"]) - db.parse(first_in["sent_at"])).total_seconds())
     avg_h = round(sum(durations) / len(durations) / 3600, 1) if durations else 0.0
-    breached = len([t for t in db.tickets if db.ticket_sla(t)["breached"]])
+    breached = 0
+    for r in conn.execute("SELECT * FROM tickets").fetchall():
+        if db.ticket_sla(dict(r))["breached"]:
+            breached += 1
     return {
         "total": total,
         "by_status": by_status,
@@ -235,7 +279,8 @@ def stats():
         "avg_first_response_hours": avg_h,
         "sla_breached": breached,
         "top_department_ar": db.by_id["department"].get(top, {}).get("name_ar"),
-        "by_channel": {c: len([t for t in db.tickets if t["channel"] == c])
+        "by_channel": {c: conn.execute("SELECT COUNT(*) as cnt FROM tickets WHERE channel = ?",
+                                       (c,)).fetchone()["cnt"]
                        for c in ("whatsapp", "call", "portal")},
     }
 
@@ -270,18 +315,24 @@ class WaInboundIn(BaseModel):
 def wa_inbound(body: WaInboundIn):
     p = db.norm_phone(body.from_number)
     b = db.beneficiary_by_phone(p)
-    sess = next((s for s in db.whatsapp_sessions if db.norm_phone(s["wa_number"]) == p), None)
-    if sess:
-        sess["last_inbound_at"] = db.now_iso()
-        sess["window_expires_at"] = (db.now() + timedelta(hours=24)).replace(microsecond=0).isoformat() + "Z"
-        sess["status"] = "open"
-        sess["messages"] = sess.get("messages", 0) + 1
+    conn = db._get_conn()
+    sess_row = conn.execute(
+        "SELECT * FROM whatsapp_sessions WHERE phone = ? ORDER BY last_message_at DESC LIMIT 1",
+        (p,)).fetchone()
+    if sess_row:
+        sess = dict(sess_row)
+        new_expiry = (db.now() + timedelta(hours=24)).replace(microsecond=0).isoformat() + "Z"
+        conn.execute("UPDATE whatsapp_sessions SET last_message_at=?, window_expires_at=? WHERE id=?",
+                    (db.now_iso(), new_expiry, sess["id"]))
+        conn.commit()
+        sess["window_expires_at"] = new_expiry
+        sess["last_message_at"] = db.now_iso()
     else:
-        sess = {"id": db.next_id("wa", "WA-"), "wa_number": p,
-                "beneficiary_id": (b or {}).get("id"), "opened_at": db.now_iso(),
+        sess = {"id": db.next_id("wa", "WA-"), "phone": p,
+                "beneficiary_id": (b or {}).get("id"),
                 "window_expires_at": (db.now() + timedelta(hours=24)).replace(microsecond=0).isoformat() + "Z",
-                "status": "open", "last_inbound_at": db.now_iso(), "messages": 1}
-        db.whatsapp_sessions.append(sess)
+                "last_message_at": db.now_iso(), "direction": "inbound"}
+        db.insert_whatsapp_session(sess)
     ctx = _context_for(b)
     return {"session_id": sess["id"], "window": db.wa_window(sess),
             "known_beneficiary": bool(b), "context": ctx,
@@ -299,9 +350,14 @@ def wa_inbound(body: WaInboundIn):
 def wa_send(to: str = Query(..., examples=["966500287602"]),
             body_ar: str = Query(..., examples=["تم استلام طلبكم"])):
     p = db.norm_phone(to)
-    sess = next((s for s in db.whatsapp_sessions if db.norm_phone(s["wa_number"]) == p), None)
-    if sess and not db.wa_window(sess)["open"]:
-        raise HTTPException(409, "نافذة المحادثة (24 ساعة) منتهية — استخدم رسالة قالب معتمدة")
+    conn = db._get_conn()
+    sess_row = conn.execute(
+        "SELECT * FROM whatsapp_sessions WHERE phone = ? ORDER BY last_message_at DESC LIMIT 1",
+        (p,)).fetchone()
+    if sess_row:
+        sess = dict(sess_row)
+        if not db.wa_window(sess)["open"]:
+            raise HTTPException(409, "نافذة المحادثة (24 ساعة) منتهية — استخدم رسالة قالب معتمدة")
     n = db.send_notification("whatsapp", p, body_ar, kind="free_form")
     return {"sent": True, "notification": n}
 
@@ -340,7 +396,7 @@ def wa_templates():
                         "(الوقت المتبقي).")
 def wa_session(phone: str):
     p = db.norm_phone(phone)
-    sess = next((s for s in db.whatsapp_sessions if db.norm_phone(s["wa_number"]) == p), None)
+    sess = next((s for s in db.whatsapp_sessions if db.norm_phone(s.get("phone", s.get("wa_number", ""))) == p), None)
     if not sess:
         raise HTTPException(404, "No session for this number")
     return {**sess, "window": db.wa_window(sess)}

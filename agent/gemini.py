@@ -4,6 +4,7 @@ Handles the conversation flow: user message → Gemini → tool calls → reply.
 """
 import json
 import logging
+import time
 from typing import Optional
 from google import genai
 from google.genai import types
@@ -20,6 +21,10 @@ MODEL = "gemini-3.5-flash-lite"
 
 MAX_TOOL_ROUNDS = 10
 
+# Rate limiting
+_last_request_time = 0
+_MIN_REQUEST_INTERVAL = 0.2  # 200ms between requests = 5 RPM max
+
 
 def _get_client():
     """Lazy-initialize the Gemini client."""
@@ -27,6 +32,16 @@ def _get_client():
     if _client is None:
         _client = genai.Client(api_key=settings.gemini_api_key)
     return _client
+
+
+def _rate_limit():
+    """Enforce minimum interval between API calls."""
+    global _last_request_time
+    now = time.time()
+    elapsed = now - _last_request_time
+    if elapsed < _MIN_REQUEST_INTERVAL:
+        time.sleep(_MIN_REQUEST_INTERVAL - elapsed)
+    _last_request_time = time.time()
 
 
 def handle_message(phone: str, user_text: str) -> str:
@@ -52,6 +67,7 @@ def handle_message(phone: str, user_text: str) -> str:
     # 4. Call Gemini with tools (loop for tool calls)
     for round_num in range(MAX_TOOL_ROUNDS):
         try:
+            _rate_limit()
             response = _get_client().models.generate_content(
                 model=MODEL,
                 contents=history,

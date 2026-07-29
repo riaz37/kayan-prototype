@@ -264,7 +264,7 @@ const Field = ({ label, value, mono }) => (
 );
 
 /* ---------------------------------------------- API client */
-const API_BASE = ""; // same origin — FastAPI serves this app
+const API_BASE = "http://localhost:8000";
 let SNAP = null;
 
 async function loadSnapshot() {
@@ -424,11 +424,12 @@ const TRANSLATIONS = {
   },
 };
 
-let _lang = "ar";
+let _lang = localStorage.getItem("kayan-lang") || "ar";
 const _langListeners = new Set();
 
 function setLang(lang) {
   _lang = lang;
+  localStorage.setItem("kayan-lang", lang);
   document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   document.documentElement.lang = lang;
   _langListeners.forEach(fn => fn(lang));

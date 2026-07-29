@@ -17,9 +17,16 @@ cat <<BANNER
 
   جمعية كيان — نظام إدارة المستفيدين
 
-  Console (UI)  ->  http://localhost:8000/app/
+  Console (UI)  ->  http://localhost:3000
   API docs      ->  http://localhost:8000/docs
   OpenAPI spec  ->  http://localhost:8000/openapi.json
 
 BANNER
-PYTHONPATH=. uvicorn backend.main:app --reload --port 8000
+
+# Start backend in background, frontend in foreground
+PYTHONPATH=. uvicorn backend.main:app --reload --port 8000 &
+BACKEND_PID=$!
+sleep 1
+
+(cd frontend && python3 -m http.server 3000)
+wait $BACKEND_PID

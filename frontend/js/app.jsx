@@ -143,7 +143,7 @@ function App() {
   const [live, setLive] = useState(false);
 
   useEffect(() => {
-    fetch("/health").then(r => setLive(r.ok)).catch(() => setLive(false));
+    A2.get("/health").then(r => setLive(r.live)).catch(() => setLive(false));
   }, []);
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [page]);
 

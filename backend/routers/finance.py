@@ -31,45 +31,57 @@ class EnrollIn(BaseModel):
                          "disbursement schedule. Returns 409 if the request was not accepted or is "
                          "already enrolled.")
 def create_enrollment(body: EnrollIn):
-    sr = db.by_id["support_request"].get(body.support_request_id)
-    if not sr:
+    conn = db._get_conn()
+    sr_row = conn.execute("SELECT * FROM support_requests WHERE id = ?",
+                         (body.support_request_id,)).fetchone()
+    if not sr_row:
         raise HTTPException(404, "Support request not found")
+    sr = dict(sr_row)
     dec = db.decision_for(body.support_request_id)
     if not dec or dec["decision"] != "accepted":
         raise HTTPException(409, "Only accepted requests can be enrolled")
-    if any(e["support_request_id"] == body.support_request_id for e in db.enrollments):
+    existing = conn.execute("SELECT COUNT(*) as cnt FROM enrollments WHERE support_request_id = ?",
+                           (body.support_request_id,)).fetchone()["cnt"]
+    if existing > 0:
         raise HTTPException(409, "This request is already enrolled")
-    if dec["approved_amount_sar"] <= 0:
+    approved_amount = dec.get("amount", 0)
+    if approved_amount <= 0:
         raise HTTPException(409, "Approved amount is zero — nothing to disburse")
 
     months = body.months if body.type == "monthly_recurring" else 1
-    monthly = round(dec["approved_amount_sar"] / months, 2)
+    monthly = round(approved_amount / months, 2)
     start = db.parse((body.start_date + "T00:00:00Z") if body.start_date else db.now_iso())
     eid = db.next_id("enr", "ENR-")
     en = {"id": eid, "beneficiary_id": sr["beneficiary_id"], "program_id": sr["program_id"],
-          "request_type_id": sr["request_type_id"], "support_request_id": sr["id"],
-          "decision_id": dec["id"], "type": body.type,
-          "monthly_amount_sar": monthly if body.type == "monthly_recurring" else 0.0,
-          "total_approved_sar": dec["approved_amount_sar"],
+          "support_request_id": sr["id"], "type": body.type,
+          "monthly_amount": monthly if body.type == "monthly_recurring" else 0.0,
+          "total_approved": approved_amount,
           "start_date": start.date().isoformat(),
           "end_date": (start + timedelta(days=30 * months)).date().isoformat(),
-          "status": "active"}
-    db.enrollments.append(en)
-    db.by_id["enrollment"][eid] = en
+          "status": "active", "enrolled_at": db.now_iso()}
+    conn.execute(
+        """INSERT INTO enrollments (id, beneficiary_id, program_id, status, enrolled_at)
+           VALUES (?,?,?,?,?)""",
+        (eid, en["beneficiary_id"], en["program_id"], en["status"], en["enrolled_at"]))
+    conn.commit()
 
     created = []
     for m in range(months):
         due = start + timedelta(days=30 * m)
         did = db.next_id("dis", "DIS-")
-        d = {"id": did, "enrollment_id": eid, "beneficiary_id": sr["beneficiary_id"],
-             "program_id": sr["program_id"], "amount_sar": monthly,
-             "due_date": due.date().isoformat(), "status": "scheduled", "approved_by": None}
-        db.disbursements.append(d)
-        db.by_id["disbursement"][did] = d
+        d = {"id": did, "beneficiary_id": sr["beneficiary_id"],
+             "program_id": sr["program_id"], "amount": monthly,
+             "due_date": due.date().isoformat(), "status": "scheduled"}
+        conn.execute(
+            """INSERT INTO disbursements (id, beneficiary_id, program_id, amount, due_date, status, created_at)
+               VALUES (?,?,?,?,?,?,?)""",
+            (d["id"], d["beneficiary_id"], d["program_id"], d["amount"],
+             d["due_date"], d["status"], db.now_iso()))
+        conn.commit()
         created.append(d)
     return {"enrollment": en, "disbursements_created": len(created),
             "schedule": created,
-            "reply_ar": f"تم اعتماد صرف {dec['approved_amount_sar']} ريال "
+            "reply_ar": f"تم اعتماد صرف {approved_amount} ريال "
                         f"{'على ' + str(months) + ' دفعات شهرية' if months > 1 else 'دفعة واحدة'} "
                         f"ضمن {db.program_name(sr['program_id'])}."}
 
@@ -266,8 +278,8 @@ def history(beneficiary_id: str):
         "beneficiary": {"id": b["id"], "file_no": b["file_no"], "status": b["status"],
                         "case_type": b["case_type"],
                         "name_ar": b["sections"]["SEC-BASIC"]["full_name_ar"],
-                        "category_ar": db.by_id["orphan_category"].get(
-                            b["orphan_category_id"], {}).get("name_ar"),
+                         "category_ar": db.by_id.get("orphan_category", {}).get(
+                             b.get("orphan_category", ""), {}).get("name_ar"),
                         "city": b["sections"]["SEC-HOUSING"].get("city"),
                         "created_at": b["created_at"], "approved_at": b.get("approved_at")},
         "completeness": {"pct": comp["completion_pct"],
@@ -305,7 +317,7 @@ def history(beneficiary_id: str):
             description="Primary lookup for both channels — resolves a caller to their file. Phone "
                         "matching accepts 05…, 9665…, +9665… formats.")
 def search_beneficiary(q: str = Query(..., examples=["0501234567"]),
-                       limit: int = Query(5, ge=1, le=25)):
+                       limit: int = Query(5, ge=1, le=200)):
     ql = q.strip()
     phone = db.norm_phone(ql)
     hits = []
