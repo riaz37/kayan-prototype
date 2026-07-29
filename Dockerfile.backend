@@ -32,6 +32,7 @@ RUN mkdir -p /app/data
 
 # Verify reference data is present
 RUN ls /app/reference-data/ | head -5
+RUN echo "Build $(date +%s)" > /tmp/build-stamp
 
 # Move built frontend to frontend-dist
 RUN mv frontend/dist frontend-dist && \
