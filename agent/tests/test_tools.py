@@ -1,6 +1,6 @@
 """
 Local test script for the Kayan WhatsApp Agent.
-Tests tool handlers against the live backend without requiring Gemini API keys.
+Tests tool handlers against the live backend without requiring LLM API keys.
 Run: python3 -m agent.tests.test_tools
 """
 import json

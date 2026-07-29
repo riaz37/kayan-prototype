@@ -264,7 +264,9 @@ const Field = ({ label, value, mono }) => (
 );
 
 /* ---------------------------------------------- API client */
-const API_BASE = "http://localhost:8000";
+const API_BASE = window.location.hostname === "localhost"
+  ? "http://localhost:8000"
+  : "https://kayan-prototype-production.up.railway.app";
 let SNAP = null;
 
 async function loadSnapshot() {
@@ -332,7 +334,7 @@ const TRANSLATIONS = {
     demoMode: "وضع العرض",
     // Agent Test
     agentTestTitle: "اختبار الوكيل الذكي",
-    agentTestSub: "محاكاة محادثة واتساب مع وكيل Gemini",
+    agentTestSub: "محاكاة محادثة واتساب مع وكيل Qwen",
     reset: "إعادة تعيين",
     phoneNumber: "رقم الجوال:",
     registeredBeneficiary: "مستفيد مسجل",
@@ -388,7 +390,7 @@ const TRANSLATIONS = {
     demoMode: "Demo Mode",
     // Agent Test
     agentTestTitle: "AI Agent Test",
-    agentTestSub: "Simulate WhatsApp chat with Gemini agent",
+    agentTestSub: "Simulate WhatsApp chat with Qwen agent",
     reset: "Reset",
     phoneNumber: "Phone Number:",
     registeredBeneficiary: "Registered",

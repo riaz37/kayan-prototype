@@ -223,7 +223,7 @@ def _send_reply(to: str, text: str):
 async def agent_chat(req: ChatRequest):
     """
     Test the agent from the browser.
-    Bypasses Meta webhook — sends message directly to Gemini agent.
+    Bypasses Meta webhook — sends message directly to the LLM agent.
     """
     phone = req.from_number
     text = req.text_ar
@@ -270,7 +270,7 @@ def root():
     return {
         "service": "Kayan WhatsApp Agent",
         "version": "1.0.0",
-        "agent": "Gemini 2.5 Flash",
+        "agent": "Qwen 3.6 27B (vLLM)",
         "backend": settings.backend_url,
         "webhook": "/webhook",
         "health": "/health",

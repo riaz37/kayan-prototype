@@ -62,7 +62,7 @@ In Meta Developer Console, update the webhook URL:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `GEMINI_API_KEY` | Yes | Google Gemini API key |
+| `LLM_API_KEY` | No | API key for the LLM endpoint (empty for local) |
 | `WHATSAPP_ACCESS_TOKEN` | Yes | Meta WhatsApp Cloud API token |
 | `WHATSAPP_PHONE_NUMBER_ID` | Yes | WhatsApp business phone number ID |
 | `WHATSAPP_VERIFY_TOKEN` | Yes | Webhook verification token |

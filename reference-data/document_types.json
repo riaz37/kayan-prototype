@@ -1,0 +1,97 @@
+[
+  {
+    "id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "required_for": [
+      "CT-IND",
+      "CT-FOSTER"
+    ],
+    "mandatory": true
+  },
+  {
+    "id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "required_for": [
+      "CT-IND",
+      "CT-FOSTER"
+    ],
+    "mandatory": true
+  },
+  {
+    "id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "required_for": [
+      "CT-IND",
+      "CT-FOSTER"
+    ],
+    "mandatory": true
+  },
+  {
+    "id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "required_for": [
+      "CT-IND",
+      "CT-FOSTER"
+    ],
+    "mandatory": true
+  },
+  {
+    "id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "required_for": [
+      "CT-IND",
+      "CT-FOSTER"
+    ],
+    "mandatory": true,
+    "na_allowed": true,
+    "na_note_ar": "في حال عدم التوفر يرفق صورة مكتوب عليها: لا يوجد"
+  },
+  {
+    "id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "required_for": [
+      "CT-IND",
+      "CT-FOSTER"
+    ],
+    "mandatory": true,
+    "ineligible_allowed": true,
+    "na_note_ar": "في حال عدم الانطباق يرفق صورة توضح: عدم الاهلية"
+  },
+  {
+    "id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "required_for": [
+      "CT-IND",
+      "CT-FOSTER"
+    ],
+    "mandatory": true,
+    "ineligible_allowed": true,
+    "na_note_ar": "في حال عدم الانطباق يرفق صورة توضح: عدم الاهلية"
+  },
+  {
+    "id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "required_for": [
+      "CT-IND",
+      "CT-FOSTER"
+    ],
+    "mandatory": true
+  },
+  {
+    "id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "required_for": [
+      "CT-IND",
+      "CT-FOSTER"
+    ],
+    "mandatory": false
+  },
+  {
+    "id": "DOC-CUSTODY",
+    "name_ar": "صك حضانة / وثيقة الاحتضان",
+    "required_for": [
+      "CT-FOSTER"
+    ],
+    "mandatory": true
+  }
+]

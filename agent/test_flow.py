@@ -2,7 +2,7 @@
 """
 Kayan WhatsApp Agent - Full Testing Flow
 Tests all 6 agent roles with proper RPM delays (6s between requests)
-Model: Gemini 3.5 Flash Lite (15 RPM limit)
+Model: Qwen 3.6 27B (vLLM)
 """
 
 import requests
@@ -63,7 +63,7 @@ def check_requests(phone):
 print("=" * 60)
 print("🧪 KAYAN WHATSAPP AGENT - FULL TEST FLOW")
 print("=" * 60)
-print(f"Model: Gemini 3.5 Flash Lite")
+print(f"Model: Qwen 3.6 27B (vLLM)")
 print(f"RPM Limit: 15 requests/minute")
 print(f"Delay between requests: {DELAY}s")
 print("=" * 60)

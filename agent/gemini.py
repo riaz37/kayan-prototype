@@ -1,23 +1,22 @@
 """
-Gemini agent loop with tool calling.
-Handles the conversation flow: user message → Gemini → tool calls → reply.
+LLM agent loop with tool calling (OpenAI-compatible API).
+Handles the conversation flow: user message → LLM → tool calls → reply.
+Supports primary + fallback models for reliability.
 """
 import json
 import logging
 import time
 from typing import Optional
-from google import genai
-from google.genai import types
+from openai import OpenAI
 
 from agent.config import settings
 from agent.prompts import SYSTEM_PROMPT
-from agent.tools import TOOL_DECLARATIONS, execute_tool
+from agent.tools import TOOLS_OPENAI, execute_tool
 from agent import sessions
 
 logger = logging.getLogger(__name__)
 
 _client = None
-MODEL = "gemini-3.5-flash-lite"
 
 MAX_TOOL_ROUNDS = 10
 
@@ -27,10 +26,13 @@ _MIN_REQUEST_INTERVAL = 0.2  # 200ms between requests = 5 RPM max
 
 
 def _get_client():
-    """Lazy-initialize the Gemini client."""
+    """Lazy-initialize the OpenAI client pointing to Gemini API."""
     global _client
     if _client is None:
-        _client = genai.Client(api_key=settings.gemini_api_key)
+        _client = OpenAI(
+            api_key=settings.llm_api_key or "none",
+            base_url=settings.llm_base_url,
+        )
     return _client
 
 
@@ -44,9 +46,96 @@ def _rate_limit():
     _last_request_time = time.time()
 
 
+def _call_llm(messages: list, model: str = None):
+    """Call LLM with fallback model support."""
+    model = model or settings.llm_model
+    try:
+        _rate_limit()
+        return _get_client().chat.completions.create(
+            model=model,
+            messages=messages,
+            tools=TOOLS_OPENAI,
+            temperature=0.3,
+            max_tokens=4096,
+        )
+    except Exception as e:
+        logger.warning(f"Primary model {model} failed: {e}")
+        if model != settings.llm_fallback_model:
+            logger.info(f"Trying fallback model: {settings.llm_fallback_model}")
+            _rate_limit()
+            return _get_client().chat.completions.create(
+                model=settings.llm_fallback_model,
+                messages=messages,
+                tools=TOOLS_OPENAI,
+                temperature=0.3,
+                max_tokens=4096,
+            )
+        raise
+
+
+def _convert_history(history: list, system_msg: Optional[str] = None) -> list:
+    """Convert Gemini-style history to OpenAI message format."""
+    messages = []
+
+    if system_msg:
+        messages.append({"role": "system", "content": system_msg})
+
+    for msg in history:
+        role = msg.get("role", "")
+        parts = msg.get("parts", [])
+
+        if role == "user":
+            # Check if this is a function_response (tool result)
+            for part in parts:
+                if isinstance(part, dict) and "function_response" in part:
+                    fr = part["function_response"]
+                    messages.append({
+                        "role": "tool",
+                        "tool_call_id": fr.get("name", ""),
+                        "content": json.dumps(fr.get("response", {}), ensure_ascii=False),
+                    })
+                    return  # function_response is always a standalone message
+
+            # Regular user message
+            text = " ".join(
+                p.get("text", "") for p in parts if isinstance(p, dict) and "text" in p
+            )
+            if text:
+                messages.append({"role": "user", "content": text})
+
+        elif role == "model":
+            # Check if this contains function_call (tool call)
+            has_tool_call = False
+            for part in parts:
+                if isinstance(part, dict) and "function_call" in part:
+                    has_tool_call = True
+                    fc = part["function_call"]
+                    messages.append({
+                        "role": "assistant",
+                        "content": None,
+                        "tool_calls": [{
+                            "id": f"call_{fc.get('name', 'unknown')}",
+                            "type": "function",
+                            "function": {
+                                "name": fc.get("name", ""),
+                                "arguments": json.dumps(fc.get("args", {}), ensure_ascii=False),
+                            },
+                        }],
+                    })
+
+            if not has_tool_call:
+                text = " ".join(
+                    p.get("text", "") for p in parts if isinstance(p, dict) and "text" in p
+                )
+                if text:
+                    messages.append({"role": "assistant", "content": text})
+
+    return messages
+
+
 def handle_message(phone: str, user_text: str) -> str:
     """
-    Process an incoming user message through the Gemini agent loop.
+    Process an incoming user message through the LLM agent loop.
     Returns the agent's Arabic text reply.
     """
     # 1. Load conversation history
@@ -60,38 +149,58 @@ def handle_message(phone: str, user_text: str) -> str:
     # 3. Build context injection
     context = sessions.get_context(phone)
     context_msg = _build_context_message(phone, context)
-    if context_msg:
-        history.insert(0, {"role": "user", "parts": [{"text": context_msg}]})
-        history.insert(1, {"role": "model", "parts": [{"text": "تم استلام السياق. جاهز للخدمة."}]})
 
-    # 4. Call Gemini with tools (loop for tool calls)
+    # 4. Convert to OpenAI format
+    messages = _convert_history(history, system_msg=SYSTEM_PROMPT)
+
+    # Insert context at the beginning (after system message)
+    if context_msg:
+        messages.insert(1, {"role": "user", "content": context_msg})
+        messages.insert(2, {"role": "assistant", "content": "تم استلام السياق. جاهز للخدمة."})
+
+    # 5. Call LLM with tools (loop for tool calls)
     for round_num in range(MAX_TOOL_ROUNDS):
         try:
-            _rate_limit()
-            response = _get_client().models.generate_content(
-                model=MODEL,
-                contents=history,
-                config=types.GenerateContentConfig(
-                    tools=TOOL_DECLARATIONS,
-                    system_instruction=SYSTEM_PROMPT,
-                    temperature=0.3,
-                ),
-            )
+            response = _call_llm(messages)
         except Exception as e:
-            logger.error(f"Gemini API error: {e}")
+            logger.error(f"LLM API error (all models failed): {e}")
             return "عذراً، حدث خطأ تقني. يرجى المحاولة مرة أخرى."
 
-        # Check if response has function calls
-        candidate = response.candidates[0] if response.candidates else None
-        if not candidate or not candidate.content:
+        choice = response.choices[0] if response.choices else None
+        if not choice or not choice.message:
             return "عذراً، لم أتمكن من فهم طلبك. يرجى إعادة الصياغة."
 
-        has_tool_call = False
-        for part in candidate.content.parts:
-            if part.function_call:
-                has_tool_call = True
-                tool_name = part.function_call.name
-                tool_args = dict(part.function_call.args) if part.function_call.args else {}
+        message = choice.message
+
+        # Handle reasoning models (Qwen, DeepSeek) that put thinking in reasoning field
+        # If content is None but reasoning exists, use reasoning as the content
+        if message.content is None and hasattr(message, 'reasoning') and message.reasoning:
+            message.content = message.reasoning
+
+        # Check if response has tool calls
+        if message.tool_calls:
+            # Add assistant message with tool calls to history
+            assistant_msg = {
+                "role": "assistant",
+                "content": message.content,
+                "tool_calls": [{
+                    "id": tc.id,
+                    "type": "function",
+                    "function": {
+                        "name": tc.function.name,
+                        "arguments": tc.function.arguments,
+                    },
+                } for tc in message.tool_calls],
+            }
+            messages.append(assistant_msg)
+
+            # Execute each tool call
+            for tc in message.tool_calls:
+                tool_name = tc.function.name
+                try:
+                    tool_args = json.loads(tc.function.arguments)
+                except json.JSONDecodeError:
+                    tool_args = {}
 
                 logger.info(f"Tool call: {tool_name}({json.dumps(tool_args, ensure_ascii=False)[:200]})")
 
@@ -99,31 +208,19 @@ def handle_message(phone: str, user_text: str) -> str:
                 tool_result = execute_tool(tool_name, tool_args)
                 logger.info(f"Tool result: {json.dumps(tool_result, ensure_ascii=False)[:300]}")
 
-                # Add function call and result to history
-                history.append({
-                    "role": "model",
-                    "parts": [part],
-                })
-                history.append({
-                    "role": "user",
-                    "parts": [{
-                        "function_response": {
-                            "name": tool_name,
-                            "response": tool_result,
-                        }
-                    }],
+                # Add tool result to messages
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tc.id,
+                    "content": json.dumps(tool_result, ensure_ascii=False),
                 })
 
                 # Update session context based on tool calls
                 _update_session_from_tool(phone, tool_name, tool_args, tool_result)
 
-        if not has_tool_call:
-            # Extract text reply
-            reply_text = ""
-            for part in candidate.content.parts:
-                if part.text:
-                    reply_text += part.text
-
+        else:
+            # No tool calls — extract text reply
+            reply_text = message.content or ""
             if reply_text:
                 sessions.add_to_history(phone, "model", [{"text": reply_text}])
                 return reply_text.strip()

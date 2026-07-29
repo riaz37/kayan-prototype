@@ -76,7 +76,7 @@ def main():
 ║                                                              ║
 ║        🤖 Kayan WhatsApp AI Agent - Live Demo                ║
 ║                                                              ║
-║        Model: Gemini 3.5 Flash Lite                          ║
+║        Model: Qwen 3.6 27B (vLLM)                          ║
 ║        Language: Arabic (Saudi)                               ║
 ║        Tools: 25 backend API tools                           ║
 ║                                                              ║

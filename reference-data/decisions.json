@@ -1,0 +1,14 @@
+[
+  {
+    "id": "accepted",
+    "name_ar": "قبول الطلب"
+  },
+  {
+    "id": "docs_required",
+    "name_ar": "طلب استكمال مستندات"
+  },
+  {
+    "id": "declined",
+    "name_ar": "الاعتذار"
+  }
+]

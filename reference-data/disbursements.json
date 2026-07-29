@@ -1,0 +1,142 @@
+[
+  {
+    "id": "DIS-60001",
+    "enrollment_id": "ENR-50001",
+    "beneficiary_id": "BEN-1040",
+    "program_id": "PRG-QOL",
+    "amount_sar": 8103.22,
+    "due_date": "2026-08-22",
+    "status": "pending_approval",
+    "approved_by": null
+  },
+  {
+    "id": "DIS-60002",
+    "enrollment_id": "ENR-50002",
+    "beneficiary_id": "BEN-1017",
+    "program_id": "PRG-ILM",
+    "amount_sar": 221.88,
+    "due_date": "2026-06-23",
+    "status": "paid",
+    "approved_by": "STF-06"
+  },
+  {
+    "id": "DIS-60003",
+    "enrollment_id": "ENR-50003",
+    "beneficiary_id": "BEN-1035",
+    "program_id": "PRG-TRN",
+    "amount_sar": 7500.43,
+    "due_date": "2026-05-16",
+    "status": "paid",
+    "approved_by": "STF-06"
+  },
+  {
+    "id": "DIS-60004",
+    "enrollment_id": "ENR-50004",
+    "beneficiary_id": "BEN-1003",
+    "program_id": "PRG-ILM",
+    "amount_sar": 252.03,
+    "due_date": "2026-08-18",
+    "status": "scheduled",
+    "approved_by": null
+  },
+  {
+    "id": "DIS-60005",
+    "enrollment_id": "ENR-50005",
+    "beneficiary_id": "BEN-1033",
+    "program_id": "PRG-QOL",
+    "amount_sar": 282.88,
+    "due_date": "2026-05-21",
+    "status": "paid",
+    "approved_by": "STF-06"
+  },
+  {
+    "id": "DIS-60006",
+    "enrollment_id": "ENR-50006",
+    "beneficiary_id": "BEN-1029",
+    "program_id": "PRG-HSG",
+    "amount_sar": 94526.57,
+    "due_date": "2026-07-15",
+    "status": "paid",
+    "approved_by": "STF-06"
+  },
+  {
+    "id": "DIS-60007",
+    "enrollment_id": "ENR-50007",
+    "beneficiary_id": "BEN-1006",
+    "program_id": "PRG-HSG",
+    "amount_sar": 1996.45,
+    "due_date": "2026-06-07",
+    "status": "paid",
+    "approved_by": "STF-06"
+  },
+  {
+    "id": "DIS-60008",
+    "enrollment_id": "ENR-50008",
+    "beneficiary_id": "BEN-1010",
+    "program_id": "PRG-VAL",
+    "amount_sar": 544.07,
+    "due_date": "2026-04-04",
+    "status": "paid",
+    "approved_by": "STF-06"
+  },
+  {
+    "id": "DIS-60009",
+    "enrollment_id": "ENR-50009",
+    "beneficiary_id": "BEN-1031",
+    "program_id": "PRG-QOL",
+    "amount_sar": 6918.95,
+    "due_date": "2026-05-28",
+    "status": "paid",
+    "approved_by": "STF-06"
+  },
+  {
+    "id": "DIS-60010",
+    "enrollment_id": "ENR-50010",
+    "beneficiary_id": "BEN-1018",
+    "program_id": "PRG-VAL",
+    "amount_sar": 300.66,
+    "due_date": "2026-07-16",
+    "status": "paid",
+    "approved_by": "STF-06"
+  },
+  {
+    "id": "DIS-60011",
+    "enrollment_id": "ENR-50011",
+    "beneficiary_id": "BEN-1011",
+    "program_id": "PRG-QOL",
+    "amount_sar": 826.95,
+    "due_date": "2026-05-23",
+    "status": "paid",
+    "approved_by": "STF-06"
+  },
+  {
+    "id": "DIS-60012",
+    "enrollment_id": "ENR-50012",
+    "beneficiary_id": "BEN-1026",
+    "program_id": "PRG-VAL",
+    "amount_sar": 633.46,
+    "due_date": "2026-05-26",
+    "status": "paid",
+    "approved_by": "STF-06"
+  },
+  {
+    "id": "DIS-60013",
+    "enrollment_id": "ENR-50013",
+    "beneficiary_id": "BEN-1026",
+    "program_id": "PRG-TRN",
+    "amount_sar": 2291.94,
+    "due_date": "2026-03-12",
+    "status": "paid",
+    "approved_by": "STF-06"
+  },
+  {
+    "id": "DIS-60014",
+    "enrollment_id": "ENR-50014",
+    "beneficiary_id": "BEN-1038",
+    "program_id": "PRG-TRN",
+    "amount_sar": 956.47,
+    "due_date": "2026-07-23",
+    "status": "pending_approval",
+    "approved_by": null
+  }
+]

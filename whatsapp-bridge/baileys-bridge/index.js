@@ -27,7 +27,7 @@ const logger = pino({ level: 'warn' });
 let sock = null;
 
 /**
- * Send message to Gemini agent
+ * Send message to LLM agent
  */
 async function sendToAgent(phone, message) {
     return new Promise((resolve, reject) => {

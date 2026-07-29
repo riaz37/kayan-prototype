@@ -1,7 +1,7 @@
 """
 WhatsApp Bridge - Connects piwapp to Kayan AI Agent
 
-This module bridges WhatsApp Web (via piwapp) to the existing Gemini agent.
+This module bridges WhatsApp Web (via piwapp) to the existing LLM agent.
 """
 
 import asyncio
@@ -46,7 +46,7 @@ def load_creds(path: Path) -> AuthenticationCreds:
 
 
 async def send_to_agent(phone: str, message: str) -> str:
-    """Send message to Gemini agent and get response."""
+    """Send message to LLM agent and get response."""
     try:
         async with httpx.AsyncClient(timeout=60.0) as http:
             payload = {

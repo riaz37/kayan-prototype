@@ -1,6 +1,6 @@
 """
 SQLite-backed conversation session store.
-Per-phone conversation history + context for the Gemini agent.
+Per-phone conversation history + context for the LLM agent.
 Persists across server restarts.
 """
 import json
@@ -115,7 +115,7 @@ def _save_session(phone: str, sess: dict):
 
 
 def get_history(phone: str) -> list[dict]:
-    """Get Gemini-formatted conversation history for a phone."""
+    """Get conversation history for a phone."""
     sess = get_session(phone)
     return sess["history"][-MAX_HISTORY:]
 

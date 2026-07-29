@@ -1,0 +1,32 @@
+[
+  {
+    "id": "PRG-ILM",
+    "name_ar": "برنامج علم",
+    "name_en": "Ilm (Education) Program",
+    "description_ar": "دعم التعليم العام والعالي والمستلزمات والاجهزة التعليمية"
+  },
+  {
+    "id": "PRG-TRN",
+    "name_ar": "برنامج التاهيل والتدريب",
+    "name_en": "Rehabilitation and Training Program",
+    "description_ar": "التدريب المهني والتمكين الوظيفي ودعم المشاريع الصغيرة"
+  },
+  {
+    "id": "PRG-QOL",
+    "name_ar": "برنامج جودة حياة",
+    "name_en": "Quality of Life Program",
+    "description_ar": "الارشاد النفسي والاجتماعي والاسري والدعم العلاجي والمناسبات"
+  },
+  {
+    "id": "PRG-HSG",
+    "name_ar": "برنامج سكني",
+    "name_en": "Housing Program",
+    "description_ar": "دعم الايجار والتملك والترميم والتاثيث والاحتياجات المعيشية"
+  },
+  {
+    "id": "PRG-VAL",
+    "name_ar": "برنامج قيمي",
+    "name_en": "Values Program",
+    "description_ar": "البرامج التربوية والتوعوية والدينية والفعاليات الوطنية والتطوع"
+  }
+]

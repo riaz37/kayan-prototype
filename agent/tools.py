@@ -1,11 +1,10 @@
 """
-Tool definitions and handlers for the Gemini agent.
+Tool definitions and handlers for the LLM agent.
 Each tool maps to a backend API endpoint. Tool declarations follow the
-Gemini function calling schema. Handlers make HTTP calls to the backend.
+OpenAI function calling schema (for vLLM/Qwen). Handlers make HTTP calls to the backend.
 """
 from typing import Optional
 import httpx
-from google.genai import types
 from agent.config import settings
 
 BACKEND = settings.backend_url
@@ -168,326 +167,6 @@ def handle_send_template(to: str, template_id: str, params: dict) -> dict:
     })
 
 
-# ============================================================ Tool Declarations (Gemini schema)
-
-TOOL_DECLARATIONS = [
-    types.Tool(function_declarations=[
-        types.FunctionDeclaration(
-            name="check_phone",
-            description="Check if a phone number is already registered in the system. Use this first when a new user contacts us.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "phone": types.Schema(type=types.Type.STRING, description="Phone number (e.g. 0501234567)"),
-                },
-                required=["phone"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="send_otp",
-            description="Send an OTP verification code to a phone number. Use after confirming the user wants to register.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "phone": types.Schema(type=types.Type.STRING, description="Phone number"),
-                },
-                required=["phone"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="verify_otp",
-            description="Verify the OTP code the user received. Use after they provide the code.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "phone": types.Schema(type=types.Type.STRING, description="Phone number"),
-                    "code": types.Schema(type=types.Type.STRING, description="The OTP code received"),
-                },
-                required=["phone", "code"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="check_eligibility",
-            description="Check if a user is eligible for Kayan's services. Kayan serves الأيتام ذوو الظروف الخاصة (مجهولو الأبوين). Always ask this before creating a file.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "orphan_category_id": types.Schema(
-                        type=types.Type.STRING,
-                        description="Orphan category: OC-UNK (مجهول الأبوين), OC-MARTYR (شهيد), OC-DISABLED (معاق), OC-PRISONER (سجين), OC-DIVERGENT (مفقود)",
-                    ),
-                },
-                required=["orphan_category_id"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="create_file",
-            description="Create a new beneficiary file. Use after verifying identity and eligibility.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "phone": types.Schema(type=types.Type.STRING, description="Phone number"),
-                    "case_type": types.Schema(type=types.Type.STRING, description="CT-IND for independent, CT-FOSTER for foster family"),
-                    "orphan_category_id": types.Schema(type=types.Type.STRING, description="Orphan category ID"),
-                    "full_name_ar": types.Schema(type=types.Type.STRING, description="Full Arabic name (رباعي)"),
-                    "city": types.Schema(type=types.Type.STRING, description="City name"),
-                },
-                required=["phone", "case_type", "orphan_category_id", "full_name_ar", "city"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="get_file",
-            description="Get a beneficiary's full file including all sections.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "beneficiary_id": types.Schema(type=types.Type.STRING, description="Beneficiary ID (e.g. BEN-1001)"),
-                },
-                required=["beneficiary_id"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="update_section",
-            description="Update one section of the beneficiary's data form. Each section has specific fields. Use get_completeness first to know which sections are missing.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "beneficiary_id": types.Schema(type=types.Type.STRING, description="Beneficiary ID"),
-                    "section_id": types.Schema(
-                        type=types.Type.STRING,
-                        description="Section ID: SEC-BASIC, SEC-EXTRA, SEC-JOIN, SEC-BANK, SEC-CONTACT, SEC-EDU, SEC-HOUSING, SEC-HEALTH",
-                    ),
-                    "values": types.Schema(type=types.Type.OBJECT, description="Key-value pairs of fields to update"),
-                },
-                required=["beneficiary_id", "section_id", "values"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="get_completeness",
-            description="Check what is still missing from a beneficiary's file. Returns missing fields, missing documents, and completion percentage. Use this to know what to ask for next.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "beneficiary_id": types.Schema(type=types.Type.STRING, description="Beneficiary ID"),
-                },
-                required=["beneficiary_id"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="submit_file",
-            description="Submit the beneficiary file for review. Only works when file is 100% complete. Use after get_completeness shows ready_to_submit=true.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "beneficiary_id": types.Schema(type=types.Type.STRING, description="Beneficiary ID"),
-                },
-                required=["beneficiary_id"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="add_dependent",
-            description="Add a household member (تابع) to the beneficiary's file. Household size affects the need assessment.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "beneficiary_id": types.Schema(type=types.Type.STRING, description="Beneficiary ID"),
-                    "name_ar": types.Schema(type=types.Type.STRING, description="Dependent's Arabic name"),
-                    "relationship_ar": types.Schema(type=types.Type.STRING, description="Relationship (الزوجة، الابن، الابنة، الأخ، الأخت)"),
-                    "is_orphan": types.Schema(type=types.Type.BOOLEAN, description="Whether the dependent is an orphan"),
-                    "has_special_needs": types.Schema(type=types.Type.BOOLEAN, description="Whether the dependent has special needs"),
-                },
-                required=["beneficiary_id", "name_ar", "relationship_ar"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="list_dependents",
-            description="List all dependents/household members for a beneficiary.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "beneficiary_id": types.Schema(type=types.Type.STRING, description="Beneficiary ID"),
-                },
-                required=["beneficiary_id"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="update_document",
-            description="Update the status of a document in the checklist. Use 'uploaded' if user uploaded it, 'not_available' if they don't have it, 'ineligible' if it doesn't apply.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "beneficiary_id": types.Schema(type=types.Type.STRING, description="Beneficiary ID"),
-                    "document_type_id": types.Schema(
-                        type=types.Type.STRING,
-                        description="Document type ID (e.g. DOC-NATID, DOC-SALARY, DOC-RENT, DOC-BANK, DOC-PHOTO)",
-                    ),
-                    "status": types.Schema(
-                        type=types.Type.STRING,
-                        description="Status: uploaded, not_available, ineligible, missing, rejected, verified",
-                    ),
-                },
-                required=["beneficiary_id", "document_type_id", "status"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="get_financial_profile",
-            description="Get the beneficiary's financial profile including income, obligations, and need score.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "beneficiary_id": types.Schema(type=types.Type.STRING, description="Beneficiary ID"),
-                },
-                required=["beneficiary_id"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="add_obligation",
-            description="Add a monthly financial obligation (إيجار، قرض، صرف عائلي). These are deducted when calculating the need score.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "beneficiary_id": types.Schema(type=types.Type.STRING, description="Beneficiary ID"),
-                    "obligation_type_id": types.Schema(
-                        type=types.Type.STRING,
-                        description="Type: OBL-RENT (إيجار), OBL-LOAN (قرض), OBL-MAINTENANCE (صيانة), OBL-EDUCATION (تعليم)",
-                    ),
-                    "amount_sar": types.Schema(type=types.Type.NUMBER, description="Monthly amount in SAR"),
-                    "description_ar": types.Schema(type=types.Type.STRING, description="Optional description"),
-                },
-                required=["beneficiary_id", "obligation_type_id", "amount_sar"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="add_person_cost",
-            description="Add a per-person monthly living cost (مصاريف شخصية). These affect the need score calculation.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "beneficiary_id": types.Schema(type=types.Type.STRING, description="Beneficiary ID"),
-                    "person_cost_type_id": types.Schema(
-                        type=types.Type.STRING,
-                        description="Type: PC-FOOD (طعام), PC-HEALTH (صحة), PC-EDUCATION (تعليم), PC-TRANSPORT (مواصلات)",
-                    ),
-                    "amount_sar": types.Schema(type=types.Type.NUMBER, description="Monthly amount in SAR"),
-                    "description_ar": types.Schema(type=types.Type.STRING, description="Optional description"),
-                },
-                required=["beneficiary_id", "person_cost_type_id", "amount_sar"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="search_request_types",
-            description="Search for the right support request type using free text. Maps natural language like 'محتاج مساعدة بالإيجار' to the correct program and request type.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "q": types.Schema(type=types.Type.STRING, description="Free text search (Arabic or English)"),
-                },
-                required=["q"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="create_support_request",
-            description="Submit a support request (طلب دعم). Only works if the beneficiary file is approved. Ask for a detailed case description.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "beneficiary_id": types.Schema(type=types.Type.STRING, description="Beneficiary ID"),
-                    "request_type_id": types.Schema(type=types.Type.STRING, description="Request type ID from search_request_types"),
-                    "case_description_ar": types.Schema(type=types.Type.STRING, description="Detailed Arabic description of the case"),
-                    "requested_amount_sar": types.Schema(type=types.Type.NUMBER, description="Requested amount in SAR if applicable"),
-                },
-                required=["beneficiary_id", "request_type_id", "case_description_ar"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="get_support_request",
-            description="Get details of a support request including casework status and committee decision.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "request_id": types.Schema(type=types.Type.STRING, description="Support request ID (e.g. SR-25001)"),
-                },
-                required=["request_id"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="add_request_detail",
-            description="Append more detail to an existing support request. Never overwrites existing detail.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "request_id": types.Schema(type=types.Type.STRING, description="Support request ID"),
-                    "detail_ar": types.Schema(type=types.Type.STRING, description="Additional detail in Arabic"),
-                },
-                required=["request_id", "detail_ar"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="search_faqs",
-            description="Search the beneficiary FAQ. Use this BEFORE improvising an answer about procedures, documents, or how-to questions.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "q": types.Schema(type=types.Type.STRING, description="Search query in Arabic or English"),
-                },
-                required=["q"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="create_ticket",
-            description="Open a CRM ticket when you cannot resolve the query yourself or when a human must act. Use for escalations and complex issues.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "subject_ar": types.Schema(type=types.Type.STRING, description="Ticket subject in Arabic"),
-                    "channel": types.Schema(type=types.Type.STRING, description="Channel: whatsapp, call, portal"),
-                    "phone": types.Schema(type=types.Type.STRING, description="Phone number"),
-                    "beneficiary_id": types.Schema(type=types.Type.STRING, description="Beneficiary ID if known"),
-                    "department_id": types.Schema(
-                        type=types.Type.STRING,
-                        description="Department: DEP-BEN (خدمات المستفيدين), DEP-FIN (المالية), DEP-IT (تقنية), DEP-KAF (الكفالات), DEP-EVT (الفعاليات), DEP-RES (البحث الاجتماعي)",
-                    ),
-                    "priority": types.Schema(type=types.Type.STRING, description="Priority: low, medium, high"),
-                    "first_message_ar": types.Schema(type=types.Type.STRING, description="First message from the user"),
-                },
-                required=["subject_ar", "channel"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="get_beneficiary_history",
-            description="Get the complete 360-degree record of a beneficiary: file, household, finances, requests, disbursements, tickets.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "beneficiary_id": types.Schema(type=types.Type.STRING, description="Beneficiary ID"),
-                },
-                required=["beneficiary_id"],
-            ),
-        ),
-        types.FunctionDeclaration(
-            name="list_programs",
-            description="List all association programs available for support requests.",
-            parameters=types.Schema(type=types.Type.OBJECT, properties={}),
-        ),
-        types.FunctionDeclaration(
-            name="send_template_message",
-            description="Send an approved WhatsApp template message. Use this when the 24-hour session window has expired.",
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "to": types.Schema(type=types.Type.STRING, description="Recipient phone number"),
-                    "template_id": types.Schema(
-                        type=types.Type.STRING,
-                        description="Template: TPL-OTP, TPL-REG-OK, TPL-DOCS, TPL-ACCEPT, TPL-DECLINE, TPL-VISIT, TPL-PAY",
-                    ),
-                    "params": types.Schema(type=types.Type.OBJECT, description="Template parameters as key-value pairs"),
-                },
-                required=["to", "template_id"],
-            ),
-        ),
-    ]),
-]
-
 
 # ============================================================ Tool Router
 
@@ -528,3 +207,397 @@ def execute_tool(name: str, args: dict) -> dict:
         return handler(**args)
     except Exception as e:
         return {"error": str(e)}
+
+
+# ============================================================ Tool Declarations (OpenAI schema)
+
+TOOLS_OPENAI = [
+    {
+        "type": "function",
+        "function": {
+            "name": "check_phone",
+            "description": "Check if a phone number is already registered in the system. Use this first when a new user contacts us.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "phone": {"type": "string", "description": "Phone number (e.g. 0501234567)"},
+                },
+                "required": ["phone"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "send_otp",
+            "description": "Send an OTP verification code to a phone number. Use after confirming the user wants to register.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "phone": {"type": "string", "description": "Phone number"},
+                },
+                "required": ["phone"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "verify_otp",
+            "description": "Verify the OTP code the user received. Use after they provide the code.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "phone": {"type": "string", "description": "Phone number"},
+                    "code": {"type": "string", "description": "The OTP code received"},
+                },
+                "required": ["phone", "code"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "check_eligibility",
+            "description": "Check if a user is eligible for Kayan's services. Kayan serves الأيتام ذوو الظروف الخاصة (مجهولو الأبوين). Always ask this before creating a file.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "orphan_category_id": {
+                        "type": "string",
+                        "description": "Orphan category: OC-UNK (مجهول الأبوين), OC-MARTYR (شهيد), OC-DISABLED (معاق), OC-PRISONER (سجين), OC-DIVERGENT (مفقود)",
+                    },
+                },
+                "required": ["orphan_category_id"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "create_file",
+            "description": "Create a new beneficiary file. Use after verifying identity and eligibility.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "phone": {"type": "string", "description": "Phone number"},
+                    "case_type": {"type": "string", "description": "CT-IND for independent, CT-FOSTER for foster family"},
+                    "orphan_category_id": {"type": "string", "description": "Orphan category ID"},
+                    "full_name_ar": {"type": "string", "description": "Full Arabic name (رباعي)"},
+                    "city": {"type": "string", "description": "City name"},
+                },
+                "required": ["phone", "case_type", "orphan_category_id", "full_name_ar", "city"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_file",
+            "description": "Get a beneficiary's full file including all sections.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "beneficiary_id": {"type": "string", "description": "Beneficiary ID (e.g. BEN-1001)"},
+                },
+                "required": ["beneficiary_id"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "update_section",
+            "description": "Update one section of the beneficiary's data form. Each section has specific fields. Use get_completeness first to know which sections are missing.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "beneficiary_id": {"type": "string", "description": "Beneficiary ID"},
+                    "section_id": {
+                        "type": "string",
+                        "description": "Section ID: SEC-BASIC, SEC-EXTRA, SEC-JOIN, SEC-BANK, SEC-CONTACT, SEC-EDU, SEC-HOUSING, SEC-HEALTH",
+                    },
+                    "values": {"type": "object", "description": "Key-value pairs of fields to update"},
+                },
+                "required": ["beneficiary_id", "section_id", "values"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_completeness",
+            "description": "Check what is still missing from a beneficiary's file. Returns missing fields, missing documents, and completion percentage. Use this to know what to ask for next.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "beneficiary_id": {"type": "string", "description": "Beneficiary ID"},
+                },
+                "required": ["beneficiary_id"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "submit_file",
+            "description": "Submit the beneficiary file for review. Only works when file is 100% complete. Use after get_completeness shows ready_to_submit=true.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "beneficiary_id": {"type": "string", "description": "Beneficiary ID"},
+                },
+                "required": ["beneficiary_id"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "add_dependent",
+            "description": "Add a household member (تابع) to the beneficiary's file. Household size affects the need assessment.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "beneficiary_id": {"type": "string", "description": "Beneficiary ID"},
+                    "name_ar": {"type": "string", "description": "Dependent's Arabic name"},
+                    "relationship_ar": {"type": "string", "description": "Relationship (الزوجة، الابن، الابنة، الأخ، الأخت)"},
+                    "is_orphan": {"type": "boolean", "description": "Whether the dependent is an orphan"},
+                    "has_special_needs": {"type": "boolean", "description": "Whether the dependent has special needs"},
+                },
+                "required": ["beneficiary_id", "name_ar", "relationship_ar"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "list_dependents",
+            "description": "List all dependents/household members for a beneficiary.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "beneficiary_id": {"type": "string", "description": "Beneficiary ID"},
+                },
+                "required": ["beneficiary_id"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "update_document",
+            "description": "Update the status of a document in the checklist. Use 'uploaded' if user uploaded it, 'not_available' if they don't have it, 'ineligible' if it doesn't apply.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "beneficiary_id": {"type": "string", "description": "Beneficiary ID"},
+                    "document_type_id": {
+                        "type": "string",
+                        "description": "Document type ID (e.g. DOC-NATID, DOC-SALARY, DOC-RENT, DOC-BANK, DOC-PHOTO)",
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Status: uploaded, not_available, ineligible, missing, rejected, verified",
+                    },
+                },
+                "required": ["beneficiary_id", "document_type_id", "status"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_financial_profile",
+            "description": "Get the beneficiary's financial profile including income, obligations, and need score.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "beneficiary_id": {"type": "string", "description": "Beneficiary ID"},
+                },
+                "required": ["beneficiary_id"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "add_obligation",
+            "description": "Add a monthly financial obligation (إيجار، قرض، صرف عائلي). These are deducted when calculating the need score.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "beneficiary_id": {"type": "string", "description": "Beneficiary ID"},
+                    "obligation_type_id": {
+                        "type": "string",
+                        "description": "Type: OBL-RENT (إيجار), OBL-LOAN (قرض), OBL-MAINTENANCE (صيانة), OBL-EDUCATION (تعليم)",
+                    },
+                    "amount_sar": {"type": "number", "description": "Monthly amount in SAR"},
+                    "description_ar": {"type": "string", "description": "Optional description"},
+                },
+                "required": ["beneficiary_id", "obligation_type_id", "amount_sar"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "add_person_cost",
+            "description": "Add a per-person monthly living cost (مصاريف شخصية). These affect the need score calculation.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "beneficiary_id": {"type": "string", "description": "Beneficiary ID"},
+                    "person_cost_type_id": {
+                        "type": "string",
+                        "description": "Type: PC-FOOD (طعام), PC-HEALTH (صحة), PC-EDUCATION (تعليم), PC-TRANSPORT (مواصلات)",
+                    },
+                    "amount_sar": {"type": "number", "description": "Monthly amount in SAR"},
+                    "description_ar": {"type": "string", "description": "Optional description"},
+                },
+                "required": ["beneficiary_id", "person_cost_type_id", "amount_sar"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "search_request_types",
+            "description": "Search for the right support request type using free text. Maps natural language like 'محتاج مساعدة بالإيجار' to the correct program and request type.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "q": {"type": "string", "description": "Free text search (Arabic or English)"},
+                },
+                "required": ["q"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "create_support_request",
+            "description": "Submit a support request (طلب دعم). Only works if the beneficiary file is approved. Ask for a detailed case description.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "beneficiary_id": {"type": "string", "description": "Beneficiary ID"},
+                    "request_type_id": {"type": "string", "description": "Request type ID from search_request_types"},
+                    "case_description_ar": {"type": "string", "description": "Detailed Arabic description of the case"},
+                    "requested_amount_sar": {"type": "number", "description": "Requested amount in SAR if applicable"},
+                },
+                "required": ["beneficiary_id", "request_type_id", "case_description_ar"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_support_request",
+            "description": "Get details of a support request including casework status and committee decision.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "request_id": {"type": "string", "description": "Support request ID (e.g. SR-25001)"},
+                },
+                "required": ["request_id"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "add_request_detail",
+            "description": "Append more detail to an existing support request. Never overwrites existing detail.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "request_id": {"type": "string", "description": "Support request ID"},
+                    "detail_ar": {"type": "string", "description": "Additional detail in Arabic"},
+                },
+                "required": ["request_id", "detail_ar"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "search_faqs",
+            "description": "Search the beneficiary FAQ. Use this BEFORE improvising an answer about procedures, documents, or how-to questions.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "q": {"type": "string", "description": "Search query in Arabic or English"},
+                },
+                "required": ["q"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "create_ticket",
+            "description": "Open a CRM ticket when you cannot resolve the query yourself or when a human must act. Use for escalations and complex issues.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "subject_ar": {"type": "string", "description": "Ticket subject in Arabic"},
+                    "channel": {"type": "string", "description": "Channel: whatsapp, call, portal"},
+                    "phone": {"type": "string", "description": "Phone number"},
+                    "beneficiary_id": {"type": "string", "description": "Beneficiary ID if known"},
+                    "department_id": {
+                        "type": "string",
+                        "description": "Department: DEP-BEN (خدمات المستفيدين), DEP-FIN (المالية), DEP-IT (تقنية), DEP-KAF (الكفالات), DEP-EVT (الفعاليات), DEP-RES (البحث الاجتماعي)",
+                    },
+                    "priority": {"type": "string", "description": "Priority: low, medium, high"},
+                    "first_message_ar": {"type": "string", "description": "First message from the user"},
+                },
+                "required": ["subject_ar", "channel"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_beneficiary_history",
+            "description": "Get the complete 360-degree record of a beneficiary: file, household, finances, requests, disbursements, tickets.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "beneficiary_id": {"type": "string", "description": "Beneficiary ID"},
+                },
+                "required": ["beneficiary_id"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "list_programs",
+            "description": "List all association programs available for support requests.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "send_template_message",
+            "description": "Send an approved WhatsApp template message. Use this when the 24-hour session window has expired.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "to": {"type": "string", "description": "Recipient phone number"},
+                    "template_id": {
+                        "type": "string",
+                        "description": "Template: TPL-OTP, TPL-REG-OK, TPL-DOCS, TPL-ACCEPT, TPL-DECLINE, TPL-VISIT, TPL-PAY",
+                    },
+                    "params": {"type": "object", "description": "Template parameters as key-value pairs"},
+                },
+                "required": ["to", "template_id"],
+            },
+        },
+    },
+]
