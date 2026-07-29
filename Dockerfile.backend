@@ -1,10 +1,8 @@
 FROM python:3.11-slim
 
-# Install system deps + supervisor + node (for frontend build)
+# Install system deps + supervisor
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends supervisor curl && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y --no-install-recommends nodejs && \
+    apt-get install -y --no-install-recommends supervisor && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -15,10 +13,6 @@ COPY agent/requirements.txt ./agent/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir -r agent/requirements.txt
 
-# Build frontend
-COPY frontend/ frontend/
-RUN cd frontend && npm ci && chmod +x build.sh && ./build.sh
-
 # Copy application code
 COPY backend/ backend/
 COPY agent/ agent/
@@ -28,14 +22,6 @@ COPY data/*.json reference-data/
 
 # Create data directory for SQLite (will be mounted as volume)
 RUN mkdir -p /app/data
-
-# Verify reference data is present
-RUN ls /app/reference-data/ | head -5
-RUN echo "Build $(date +%s)" > /tmp/build-stamp
-
-# Move built frontend to frontend-dist
-RUN mv frontend/dist frontend-dist && \
-    cp frontend/index.html frontend-dist/index.html
 
 # Copy supervisor config
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
