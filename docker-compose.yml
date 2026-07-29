@@ -1,0 +1,40 @@
+services:
+  backend-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: kayan-backend-agent
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+      - "${AGENT_PORT:-8001}:8001"
+    volumes:
+      - kayan-data:/app/data
+      - ./.env:/app/.env:ro
+    environment:
+      - PORT=8000
+      - BACKEND_URL=http://localhost:8000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: kayan-frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - PORT=3000
+    depends_on:
+      backend-agent:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  kayan-data:
+    driver: local

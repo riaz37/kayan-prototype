@@ -1,0 +1,30 @@
+FROM node:20-alpine AS build
+
+RUN apk add --no-cache bash
+
+WORKDIR /app
+
+# Install dependencies
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+
+# Copy source and build
+COPY frontend/ .
+RUN chmod +x build.sh && ./build.sh
+
+# --- Production stage ---
+FROM nginx:alpine
+
+# Copy built assets
+COPY --from=build /app/dist/ /usr/share/nginx/html/dist/
+COPY --from=build /app/fonts/ /usr/share/nginx/html/fonts/
+COPY --from=build /app/vendor/ /usr/share/nginx/html/vendor/
+COPY --from=build /app/index.html /usr/share/nginx/html/index.html
+
+# Copy startup script
+COPY frontend/nginx-start.sh /nginx-start.sh
+RUN chmod +x /nginx-start.sh
+
+EXPOSE 3000
+
+CMD ["/nginx-start.sh"]

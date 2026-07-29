@@ -1,0 +1,36 @@
+FROM python:3.11-slim
+
+# Install system deps + supervisor
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends supervisor && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install Python dependencies
+COPY requirements.txt ./
+COPY agent/requirements.txt ./agent/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir -r agent/requirements.txt
+
+# Copy application code
+COPY backend/ backend/
+COPY agent/ agent/
+
+# Copy reference data (JSON seed files)
+COPY data/*.json data/
+
+# Create data directory for SQLite (will be mounted as volume)
+RUN mkdir -p /app/data
+
+# Copy supervisor config
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Expose both ports
+EXPOSE 8000 8001
+
+# Health check - backend
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD python -c "import urllib.request, os; urllib.request.urlopen(f'http://localhost:{os.environ.get(\"PORT\", 8000)}/health')" || exit 1
+
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

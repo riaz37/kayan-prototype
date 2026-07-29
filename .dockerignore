@@ -1,0 +1,51 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.mypy_cache
+
+# Node
+node_modules
+frontend/node_modules
+whatsapp-bridge/baileys-bridge/node_modules
+*.log
+
+# Build artifacts
+frontend/dist
+frontend/.cache
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docs (not needed in container)
+docs/
+openapi/
+scripts/
+*.md
+LICENSE
+
+# Temp files
+/tmp
+*.tmp
+
+# Env files (mounted at runtime)
+.env
+.env.*
+!.env.example
+
+# SQLite WAL files (created at runtime)
+data/*.db-shm
+data/*.db-wal
+data/*.db-journal
