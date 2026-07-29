@@ -24,8 +24,8 @@ RUN cd frontend && chmod +x build.sh && ./build.sh
 COPY backend/ backend/
 COPY agent/ agent/
 
-# Copy reference data (JSON seed files)
-COPY data/*.json data/
+# Copy reference data (JSON seed files) to separate dir (volume mounts at /app/data/)
+COPY data/*.json reference-data/
 
 # Create data directory for SQLite (will be mounted as volume)
 RUN mkdir -p /app/data

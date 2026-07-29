@@ -5,7 +5,8 @@ Reference data loaded from JSON (static). Transactional data persisted in SQLite
 import json, os, sqlite3
 from datetime import datetime, timedelta
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
+REF_DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "reference-data")
+DATA_DIR = os.path.join(os.environ.get("DATA_DIR", os.path.join(os.path.dirname(__file__), "..", "data")))
 DB_PATH = os.path.join(DATA_DIR, "kayan.db")
 
 _conn = None
@@ -22,7 +23,7 @@ def _get_conn():
 
 
 def _load(name):
-    with open(os.path.join(DATA_DIR, name), encoding="utf-8") as f:
+    with open(os.path.join(REF_DATA_DIR, name), encoding="utf-8") as f:
         return json.load(f)
 
 
