@@ -30,6 +30,9 @@ COPY data/*.json reference-data/
 # Create data directory for SQLite (will be mounted as volume)
 RUN mkdir -p /app/data
 
+# Verify reference data is present
+RUN ls /app/reference-data/ | head -5
+
 # Move built frontend to frontend-dist
 RUN mv frontend/dist frontend-dist && \
     cp frontend/index.html frontend-dist/index.html
