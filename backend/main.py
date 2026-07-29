@@ -78,7 +78,7 @@ def api_info():
 # ---- proxy /agent/* to the agent server (port 8001)
 import httpx
 
-AGENT_URL = os.environ.get("AGENT_URL", "http://127.0.0.1:8001")
+AGENT_URL = os.environ.get("AGENT_URL", "http://127.0.0.1:8002")
 
 @app.api_route("/agent/{path:path}", methods=["GET", "POST", "PUT", "DELETE"], include_in_schema=False)
 async def proxy_agent(path: str, request: Request):
