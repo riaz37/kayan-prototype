@@ -18,7 +18,6 @@ FROM nginx:alpine
 # Copy built assets
 COPY --from=build /app/dist/ /usr/share/nginx/html/dist/
 COPY --from=build /app/fonts/ /usr/share/nginx/html/fonts/
-COPY --from=build /app/vendor/ /usr/share/nginx/html/vendor/
 COPY --from=build /app/index.html /usr/share/nginx/html/index.html
 
 # Copy startup script
