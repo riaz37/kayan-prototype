@@ -110,15 +110,15 @@ def list_disbursements(beneficiary_id: str,
     if status:
         rows = [d for d in rows if d["status"] == status]
     rows = sorted(rows, key=lambda d: d["due_date"])
-    paid = round(sum(d["amount_sar"] for d in rows if d["status"] == "paid"), 2)
+    paid = round(sum(d["amount"] for d in rows if d["status"] == "paid"), 2)
     upcoming = [d for d in rows if d["status"] != "paid"]
     nxt = upcoming[0] if upcoming else None
     return {"beneficiary_id": beneficiary_id, "count": len(rows),
             "total_paid_sar": paid,
-            "total_upcoming_sar": round(sum(d["amount_sar"] for d in upcoming), 2),
+            "total_upcoming_sar": round(sum(d["amount"] for d in upcoming), 2),
             "next_disbursement": nxt, "disbursements": rows,
             "reply_ar": (f"اجمالي المصروف لكم {paid} ريال." +
-                         (f" الدفعة القادمة {nxt['amount_sar']} ريال بتاريخ {nxt['due_date']}."
+                         (f" الدفعة القادمة {nxt['amount']} ريال بتاريخ {nxt['due_date']}."
                           if nxt else " لا توجد دفعات قادمة حاليا."))}
 
 
@@ -156,17 +156,16 @@ def pay_disbursement(disbursement_id: str):
         raise HTTPException(409, "لا يوجد ايبان مسجل في ملف المستفيد — يجب تحديث البيانات البنكية اولا")
     import random as _r
     p = {"id": db.next_id("pay", "PAY-"), "disbursement_id": disbursement_id,
-         "beneficiary_id": d["beneficiary_id"], "amount_sar": d["amount_sar"],
-         "method": "bank_transfer", "iban": bank["iban"], "bank_name": bank["bank_name"],
-         "paid_at": db.now_iso(), "reference": f"KYN{_r.randint(100000, 999999)}",
-         "status": "settled"}
+         "beneficiary_id": d["beneficiary_id"], "amount": d["amount"],
+         "method": "bank_transfer", "reference": f"KYN{_r.randint(100000, 999999)}",
+         "paid_at": db.now_iso()}
     db.payments.append(p)
     d["status"] = "paid"
-    msg = db.render_template("TPL-PAY", amount=d["amount_sar"],
+    msg = db.render_template("TPL-PAY", amount=d["amount"],
                              reason=db.program_name(d["program_id"]))
     db.send_notification("sms", b["sections"]["SEC-CONTACT"]["mobile"], msg, kind="payment")
     return {"payment": p, "disbursement": d,
-            "reply_ar": f"تم صرف مبلغ {d['amount_sar']} ريال الى حسابكم البنكي برقم مرجعي {p['reference']}."}
+            "reply_ar": f"تم صرف مبلغ {d['amount']} ريال الى حسابكم البنكي برقم مرجعي {p['reference']}."}
 
 
 @router.get("/beneficiary/{beneficiary_id}/payments", tags=[T_FIN],
@@ -177,7 +176,7 @@ def list_payments(beneficiary_id: str):
         raise HTTPException(404, "Beneficiary not found")
     rows = sorted(db.payments_for(beneficiary_id), key=lambda p: p["paid_at"], reverse=True)
     return {"beneficiary_id": beneficiary_id, "count": len(rows),
-            "total_sar": round(sum(p["amount_sar"] for p in rows), 2), "payments": rows}
+            "total_sar": round(sum(p["amount"] for p in rows), 2), "payments": rows}
 
 
 @router.get("/finance/disbursement-run", tags=[T_FIN],
@@ -192,9 +191,9 @@ def disbursement_run(days: int = Query(30, ge=1, le=120)):
     by_prog = {}
     for d in rows:
         k = db.program_name(d["program_id"])
-        by_prog[k] = round(by_prog.get(k, 0) + d["amount_sar"], 2)
+        by_prog[k] = round(by_prog.get(k, 0) + d["amount"], 2)
     return {"window_days": days, "count": len(rows),
-            "total_sar": round(sum(d["amount_sar"] for d in rows), 2),
+            "total_sar": round(sum(d["amount"] for d in rows), 2),
             "by_program_ar": by_prog, "disbursements": rows[:50]}
 
 
@@ -267,8 +266,8 @@ def history(beneficiary_id: str):
         reqs.append({"id": r["id"], "program_ar": db.program_name(r["program_id"]),
                      "title_ar": r["title_ar"], "stage": r["stage"],
                      "requested_amount_sar": r["requested_amount_sar"],
-                     "decision_ar": d["decision_ar"] if d else None,
-                     "approved_amount_sar": d["approved_amount_sar"] if d else None,
+                     "decision_ar": d["decision"] if d else None,
+                     "approved_amount_sar": d["amount"] if d else None,
                      "created_at": r["created_at"]})
     pays = db.payments_for(beneficiary_id)
     disb = db.disbursements_for(beneficiary_id)
@@ -296,11 +295,11 @@ def history(beneficiary_id: str):
         "enrollments": [{**e, "program_ar": db.program_name(e["program_id"])}
                         for e in db.enrollments_for(beneficiary_id)],
         "disbursements": {"count": len(disb),
-                          "paid_sar": round(sum(d["amount_sar"] for d in disb if d["status"] == "paid"), 2),
-                          "upcoming_sar": round(sum(d["amount_sar"] for d in disb if d["status"] != "paid"), 2),
+                          "paid_sar": round(sum(d["amount"] for d in disb if d["status"] == "paid"), 2),
+                          "upcoming_sar": round(sum(d["amount"] for d in disb if d["status"] != "paid"), 2),
                           "rows": sorted(disb, key=lambda d: d["due_date"])},
         "payments": {"count": len(pays),
-                     "total_sar": round(sum(p["amount_sar"] for p in pays), 2),
+                     "total_sar": round(sum(p["amount"] for p in pays), 2),
                      "rows": sorted(pays, key=lambda p: p["paid_at"], reverse=True)[:10]},
         "sponsorships": [s for s in db.sponsorships if s["beneficiary_id"] == beneficiary_id],
         "tickets": [{"id": t["id"], "subject_ar": t["subject_ar"], "status_ar": db.status_ar(t["status"]),
@@ -348,7 +347,7 @@ def overview():
         k = db.program_name(d["program_id"])
         prog_totals.setdefault(k, {"scheduled_sar": 0.0, "paid_sar": 0.0})
         key = "paid_sar" if d["status"] == "paid" else "scheduled_sar"
-        prog_totals[k][key] = round(prog_totals[k][key] + d["amount_sar"], 2)
+        prog_totals[k][key] = round(prog_totals[k][key] + d.get("amount", d.get("amount", 0)), 2)
     dec_counts = {}
     for d in db.committee_decisions:
         dec_counts[d["decision"]] = dec_counts.get(d["decision"], 0) + 1
@@ -362,7 +361,7 @@ def overview():
         "programs": {p["name_ar"]: len([r for r in db.support_requests if r["program_id"] == p["id"]])
                      for p in db.programs},
         "disbursements_by_program_ar": prog_totals,
-        "payments_total_sar": round(sum(p["amount_sar"] for p in db.payments), 2),
+        "payments_total_sar": round(sum(p["amount"] for p in db.payments), 2),
         "sponsorships": {"count": len(db.sponsorships),
                          "monthly_sar": round(sum(s["monthly_amount_sar"] for s in db.sponsorships), 2)},
         "channels": {"tickets": len(db.tickets), "calls": len(db.call_sessions),

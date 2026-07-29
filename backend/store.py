@@ -106,10 +106,16 @@ def _init_db():
             beneficiary_id TEXT,
             program_id TEXT,
             request_type_id TEXT,
+            title_ar TEXT,
             description_ar TEXT,
+            case_description_ar TEXT,
+            internal_classification TEXT,
+            channel TEXT,
+            requested_amount_sar REAL,
+            amount REAL,
             status TEXT DEFAULT 'submitted',
             stage TEXT DEFAULT 'new',
-            amount REAL,
+            decision TEXT,
             created_at TEXT,
             updated_at TEXT
         );
@@ -188,11 +194,12 @@ def _init_db():
             phone TEXT,
             beneficiary_id TEXT,
             department_id TEXT,
-            priority TEXT DEFAULT 'normal',
+            priority TEXT DEFAULT 'medium',
             status TEXT DEFAULT 'open',
             assigned_to TEXT,
             opened_at TEXT,
             updated_at TEXT,
+            closed_at TEXT,
             first_message TEXT
         );
 
@@ -296,6 +303,10 @@ by_id = {
     "document_type": _index(document_types),
     "orphan_category": _index(orphan_categories),
     "form_section": _index(form_sections),
+    "support_request": {},
+    "disbursement": {},
+    "event": {},
+    "ticket": {},
 }
 
 

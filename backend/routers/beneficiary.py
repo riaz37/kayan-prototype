@@ -254,7 +254,7 @@ def update_section(beneficiary_id: str, section_id: str, body: UpdateSectionIn):
         if f:
             srcs = b["sections"].get("SEC-EXTRA", {}).get("income_sources") or []
             salary = b["sections"].get("SEC-EDU", {}).get("monthly_salary") or 0
-            other = sum(s.get("amount_sar", 0) for s in srcs
+            other = sum(s.get("amount", 0) for s in srcs
                         if s.get("type") != "راتب")
             f["income_breakdown"] = srcs
             f["monthly_income_sar"] = round(float(salary) + float(other), 2)

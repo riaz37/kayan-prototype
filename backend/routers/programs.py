@@ -146,8 +146,8 @@ def list_requests(beneficiary_id: str):
         d = db.decision_for(r["id"])
         out.append({**r, "program_ar": db.program_name(r["program_id"]),
                     "decision": d["decision"] if d else None,
-                    "decision_ar": d["decision_ar"] if d else None,
-                    "approved_amount_sar": d["approved_amount_sar"] if d else None})
+                    "decision_ar": d["decision"] if d else None,
+                    "approved_amount_sar": d["amount"] if d else None})
     return {"beneficiary_id": beneficiary_id, "count": len(out), "requests": out}
 
 
