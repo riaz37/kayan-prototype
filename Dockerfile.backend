@@ -17,8 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 
 # Build frontend
 COPY frontend/ frontend/
-RUN cd frontend && npm ci && npm run build 2>/dev/null || true
-RUN cd frontend && chmod +x build.sh && ./build.sh
+RUN cd frontend && npm ci && chmod +x build.sh && ./build.sh
 
 # Copy application code
 COPY backend/ backend/
