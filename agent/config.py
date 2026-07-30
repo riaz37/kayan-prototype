@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     port: int = 8002
 
     llm_api_key: str = ""
-    llm_base_url: str = "https://openrouter.ai/api/v1"
+    llm_base_url: str = "https://openrouter.ai/api"
     llm_model: str = "qwen/qwen3-30b-a3b"
     llm_fallback_model: str = ""
 
