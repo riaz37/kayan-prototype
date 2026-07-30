@@ -327,10 +327,14 @@ def search_beneficiary(q: str = Query(..., examples=["0501234567"]),
                 or ql == b["id"] or ql == b["file_no"] \
                 or ql == (basic.get("national_id") or "") \
                 or (len(ql) > 2 and ql in (basic.get("full_name_ar") or "")):
+            comp = db.file_completeness(b["id"])
             hits.append({"id": b["id"], "file_no": b["file_no"],
                          "name_ar": basic["full_name_ar"], "status": b["status"],
+                         "case_type": b.get("case_type"),
                          "city": b["sections"]["SEC-HOUSING"].get("city"),
-                         "mobile": c.get("mobile")})
+                         "mobile": c.get("mobile"),
+                         "completion_pct": comp["completion_pct"] if comp else 0,
+                         "dependents": len(db.deps_for(b["id"]))})
     return {"query": q, "count": len(hits), "results": hits[:limit]}
 
 

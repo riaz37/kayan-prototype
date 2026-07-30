@@ -48,8 +48,14 @@ def list_tickets(status: Optional[str] = Query(None, examples=["open"]),
     out = []
     for r in rows:
         t = dict(r)
+        cust_name = None
+        if t.get("beneficiary_id"):
+            b = db.get_beneficiary(t["beneficiary_id"])
+            if b:
+                cust_name = b.get("sections", {}).get("SEC-BASIC", {}).get("full_name_ar")
         out.append({**t, "status_ar": db.status_ar(t["status"]),
                     "department_ar": db.by_id["department"].get(t["department_id"], {}).get("name_ar"),
+                    "customer_name_ar": cust_name or "غير مسجل",
                     "sla": db.ticket_sla(t)})
     return {"count": len(out), "tickets": out}
 
@@ -70,8 +76,15 @@ def get_ticket(ticket_id: str):
     msgs = [dict(r) for r in conn.execute(
         "SELECT * FROM ticket_messages WHERE ticket_id = ? ORDER BY sent_at",
         (ticket_id,)).fetchall()]
+    cust_name = None
+    if t.get("beneficiary_id"):
+        b = db.get_beneficiary(t["beneficiary_id"])
+        if b:
+            cust_name = b.get("sections", {}).get("SEC-BASIC", {}).get("full_name_ar")
     return {**t, "status_ar": db.status_ar(t["status"]),
             "department_ar": db.by_id["department"].get(t["department_id"], {}).get("name_ar"),
+            "customer_name_ar": cust_name or "غير مسجل",
+            "whatsapp_number": t.get("phone") or "",
             "sla": db.ticket_sla(t),
             "messages": msgs,
             "previous_tickets": prev}
@@ -222,9 +235,16 @@ def kanban(department_id: Optional[str] = Query(None, examples=["DEP-BEN"])):
         params.append(department_id)
     rows = conn.execute(query, params).fetchall()
     tickets_list = [dict(r) for r in rows]
+    # Pre-load beneficiary names for all tickets
+    ben_names = {}
+    for t in tickets_list:
+        bid = t.get("beneficiary_id")
+        if bid and bid not in ben_names:
+            b = db.get_beneficiary(bid)
+            ben_names[bid] = b.get("sections", {}).get("SEC-BASIC", {}).get("full_name_ar") if b else None
     cols = []
     for st in sorted([s for s in db.ticket_statuses if s["kanban"]], key=lambda s: s["order"]):
-        cards = [{"id": t["id"], "customer_name_ar": t.get("customer_name_ar") or "غير مسجل",
+        cards = [{"id": t["id"], "customer_name_ar": ben_names.get(t.get("beneficiary_id")) or "غير مسجل",
                   "subject_ar": t["subject_ar"],
                   "department_ar": db.by_id["department"].get(t["department_id"], {}).get("name_ar"),
                   "priority": t["priority"], "channel": t["channel"],

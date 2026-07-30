@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     port: int = 8001
 
     llm_api_key: str = ""
-    llm_base_url: str = "https://christine-matters-eight-nikon.trycloudflare.com"
+    llm_base_url: str = "https://reviewer-mac-cartridge-closer.trycloudflare.com"
     llm_model: str = "qwen"
     llm_fallback_model: str = ""
 

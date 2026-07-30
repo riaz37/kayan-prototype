@@ -278,8 +278,25 @@ function TicketsPage({ openTicket }) {
 
 /* ============================================================ Ticket detail */
 function TicketSheet({ id, onClose }) {
-  const t = A.useApi(id ? `/crm/tickets/${id}` : "", s => s.ticket_details?.[id], [id]);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const t = A.useApi(id ? `/crm/tickets/${id}` : "", s => s.ticket_details?.[id], [id, refreshKey]);
   const d = t.data;
+  const [replyText, setReplyText] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const sendReply = async () => {
+    if (!replyText.trim() || !id) return;
+    setSending(true);
+    try {
+      await A.post(`/crm/tickets/${id}/reply`, { body_ar: replyText.trim(), sender: "agent" });
+      setReplyText("");
+      setRefreshKey(k => k + 1);
+    } catch (e) {
+      console.error("Reply failed:", e);
+    }
+    setSending(false);
+  };
+
   if (!id) return null;
   return (
     <Sheet open={!!id} onClose={onClose} title={d ? d.subject_ar : "…"}
@@ -341,8 +358,12 @@ function TicketSheet({ id, onClose }) {
               {!d.messages?.length && <Empty icon={I.chat} title="لا توجد رسائل" />}
             </div>
             <div className="border-t border-line p-4 flex gap-2">
-              <Input placeholder="اكتب ردًا…" className="flex-1" />
-              <Button><Icon d={I.arrow} className="w-4 h-4 flip" /> إرسال</Button>
+              <Input placeholder="اكتب ردًا…" className="flex-1"
+                     value={replyText} onChange={e => setReplyText(e.target.value)}
+                     onKeyDown={e => e.key === "Enter" && sendReply()} />
+              <Button onClick={sendReply} disabled={sending || !replyText.trim()}>
+                <Icon d={I.arrow} className="w-4 h-4 flip" /> {sending ? "جاري الإرسال…" : "إرسال"}
+              </Button>
             </div>
           </Card>
         </div>
