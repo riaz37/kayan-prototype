@@ -2,7 +2,7 @@
    Kayan console — UI primitives (shadcn-flavoured) + API client
    Exposed on window.UI / window.API for the other bundles.
    ============================================================ */
-const { useState, useEffect, useMemo, useRef, createElement: h } = React;
+const { useState, useEffect, useMemo, useRef, useCallback, createElement: h } = React;
 
 /* ---------------------------------------------- utils */
 const cx = (...a) => a.filter(Boolean).join(" ");
@@ -312,13 +312,19 @@ async function patch(path, body) {
 
 function useApi(path, fallbackKey, deps = []) {
   const [state, setState] = useState({ loading: true, data: null, live: false });
+  const refreshKey = useRef(0);
   useEffect(() => {
     let dead = false;
     setState(s => ({ ...s, loading: true }));
     get(path, fallbackKey).then(r => { if (!dead) setState({ loading: false, ...r }); });
     return () => { dead = true; };
-  }, deps);
-  return state;
+  }, [...deps, refreshKey.current]);
+  const refresh = useCallback(() => {
+    refreshKey.current += 1;
+    setState(s => ({ ...s, loading: true }));
+    get(path, fallbackKey).then(r => setState({ loading: false, ...r }));
+  }, [path, fallbackKey]);
+  return { ...state, refresh };
 }
 
 /* ---------------------------------------------- translations */

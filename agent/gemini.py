@@ -56,8 +56,7 @@ def _call_llm(messages: list, model: str = None):
             messages=messages,
             tools=TOOLS_OPENAI,
             temperature=0.3,
-            max_tokens=4096,
-            extra_body={"chat_template_kwargs": {"enable_thinking": False}},
+            max_tokens=1024,
         )
     except Exception as e:
         logger.warning(f"Primary model {model} failed: {e}")
@@ -69,8 +68,36 @@ def _call_llm(messages: list, model: str = None):
                 messages=messages,
                 tools=TOOLS_OPENAI,
                 temperature=0.3,
-                max_tokens=4096,
-                extra_body={"chat_template_kwargs": {"enable_thinking": False}},
+                max_tokens=1024,
+            )
+        raise
+
+
+def _call_llm_stream(messages: list, model: str = None):
+    """Call LLM with streaming enabled."""
+    model = model or settings.llm_model
+    try:
+        _rate_limit()
+        return _get_client().chat.completions.create(
+            model=model,
+            messages=messages,
+            tools=TOOLS_OPENAI,
+            temperature=0.3,
+            max_tokens=1024,
+            stream=True,
+        )
+    except Exception as e:
+        logger.warning(f"Primary model {model} failed: {e}")
+        if model != settings.llm_fallback_model:
+            logger.info(f"Trying fallback model: {settings.llm_fallback_model}")
+            _rate_limit()
+            return _get_client().chat.completions.create(
+                model=settings.llm_fallback_model,
+                messages=messages,
+                tools=TOOLS_OPENAI,
+                temperature=0.3,
+                max_tokens=1024,
+                stream=True,
             )
         raise
 
