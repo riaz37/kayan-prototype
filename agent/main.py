@@ -6,6 +6,7 @@ Follows official Meta Cloud API documentation.
 import json
 import logging
 import os
+import time
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -26,6 +27,25 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="Kayan WhatsApp Agent", version="1.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"],
                    allow_methods=["*"], allow_headers=["*"])
+
+# Deduplication: track processed message_ids to avoid retry duplicates
+_processed_messages: dict[str, float] = {}  # message_id -> timestamp
+DEDUP_TTL = 300  # 5 minutes
+
+
+def _is_duplicate(message_id: str) -> bool:
+    """Check if message was already processed. Cleans old entries."""
+    now = time.time()
+    # Clean old entries
+    expired = [k for k, v in _processed_messages.items() if now - v > DEDUP_TTL]
+    for k in expired:
+        del _processed_messages[k]
+    # Check duplicate
+    if message_id and message_id in _processed_messages:
+        return True
+    if message_id:
+        _processed_messages[message_id] = now
+    return False
 
 
 class ChatRequest(BaseModel):
@@ -89,10 +109,7 @@ async def webhook_receive(request: Request):
 
     logger.info(f"Webhook payload: {json.dumps(payload, ensure_ascii=False)[:500]}")
 
-    # 4. Acknowledge immediately (Meta expects fast response)
-    # We'll process asynchronously in a real production setup
-
-    # 5. Extract message
+    # 4. Extract message
     msg = extract_message(payload)
     if not msg:
         # Not a message (status update, echo, etc.)
@@ -105,6 +122,11 @@ async def webhook_receive(request: Request):
 
     if not sender:
         return {"status": "ignored"}
+
+    # 5. Deduplication — skip if already processed (Meta retries webhooks)
+    if _is_duplicate(message_id):
+        logger.info(f"Duplicate message {message_id} from {sender} — skipping")
+        return {"status": "ok", "action": "duplicate"}
 
     logger.info(f"Inbound from {sender}: [{msg_type}] {text[:100]}")
 
