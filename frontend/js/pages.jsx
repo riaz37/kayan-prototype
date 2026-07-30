@@ -283,6 +283,8 @@ function TicketSheet({ id, onClose }) {
   const d = t.data;
   const [replyText, setReplyText] = useState("");
   const [sending, setSending] = useState(false);
+  const [showCount, setShowCount] = useState(15);
+  const chatRef = useRef(null);
 
   const sendReply = async () => {
     if (!replyText.trim() || !id) return;
@@ -296,6 +298,14 @@ function TicketSheet({ id, onClose }) {
     }
     setSending(false);
   };
+
+  const allMsgs = d?.messages || [];
+  const visibleMsgs = allMsgs.slice(-showCount);
+  const hasMore = allMsgs.length > showCount;
+
+  useEffect(() => {
+    if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
+  }, [visibleMsgs.length]);
 
   if (!id) return null;
   return (
@@ -338,31 +348,55 @@ function TicketSheet({ id, onClose }) {
           </div>
 
           <Card>
-            <CardHead title="سجل المحادثة" sub={`${d.messages?.length || 0} رسالة`} />
-            <div className="px-5 pb-5 space-y-3">
-              {(d.messages || []).map(m => {
+            <CardHead title="سجل المحادثة" sub={`${allMsgs.length} رسالة`} />
+            <div ref={chatRef} className="px-4 pb-3 space-y-1 overflow-y-auto" style={{ maxHeight: "400px" }}>
+              {hasMore && (
+                <button onClick={() => setShowCount(c => c + 30)}
+                        className="w-full py-2 text-[12px] text-brand-600 hover:text-brand-700 font-medium rounded-lg hover:bg-brand-50 transition-colors">
+                  تحميل رسائل سابقة ({allMsgs.length - showCount} متبقي)
+                </button>
+              )}
+              {visibleMsgs.map((m, i) => {
                 const inbound = m.direction === "inbound";
+                const prev = visibleMsgs[i - 1];
+                const showSender = !prev || prev.direction !== m.direction;
+                const showDate = !prev || new Date(m.sent_at).toDateString() !== new Date(prev.sent_at).toDateString();
                 return (
-                  <div key={m.id} className={cx("flex", inbound ? "justify-start" : "justify-end")}>
-                    <div className={cx("max-w-[78%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed",
-                      inbound ? "bg-line-soft text-ink rounded-tr-sm"
-                              : "bg-brand-600 text-white rounded-tl-sm")}>
-                      <p>{m.body_ar}</p>
-                      <p className={cx("text-[10.5px] mt-1.5", inbound ? "text-ink-soft" : "text-brand-100")}>
-                        {inbound ? "المستفيد" : m.sender === "bot" ? "الوكيل الذكي" : "الموظف"} · {timeAgo(m.sent_at)}
-                      </p>
+                  <React.Fragment key={i}>
+                    {showDate && (
+                      <div className="flex items-center gap-3 my-3">
+                        <div className="flex-1 h-px bg-line" />
+                        <span className="text-[10.5px] text-ink-muted font-medium px-2">{dateAr(m.sent_at)}</span>
+                        <div className="flex-1 h-px bg-line" />
+                      </div>
+                    )}
+                    <div className={cx("flex", inbound ? "justify-start" : "justify-end", !showSender && "mt-0.5")}>
+                      <div className={cx("max-w-[85%] rounded-xl px-3 py-2 text-[12.5px] leading-relaxed",
+                        inbound ? "bg-line-soft text-ink rounded-tr-sm"
+                                : "bg-brand-600 text-white rounded-tl-sm")}>
+                        {showSender && (
+                          <p className={cx("text-[10px] font-medium mb-0.5",
+                            inbound ? "text-ink-soft" : "text-brand-100")}>
+                            {inbound ? "المستفيد" : m.sender === "bot" ? "الوكيل الذكي" : "الموظف"}
+                          </p>
+                        )}
+                        <p className="whitespace-pre-wrap">{m.body_ar}</p>
+                        <p className={cx("text-[9.5px] mt-1", inbound ? "text-ink-muted" : "text-brand-200")}>
+                          {new Date(m.sent_at).toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" })}
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  </React.Fragment>
                 );
               })}
-              {!d.messages?.length && <Empty icon={I.chat} title="لا توجد رسائل" />}
+              {!allMsgs.length && <Empty icon={I.chat} title="لا توجد رسائل" />}
             </div>
-            <div className="border-t border-line p-4 flex gap-2">
+            <div className="border-t border-line p-3 flex gap-2">
               <Input placeholder="اكتب ردًا…" className="flex-1"
                      value={replyText} onChange={e => setReplyText(e.target.value)}
                      onKeyDown={e => e.key === "Enter" && sendReply()} />
               <Button onClick={sendReply} disabled={sending || !replyText.trim()}>
-                <Icon d={I.arrow} className="w-4 h-4 flip" /> {sending ? "جاري الإرسال…" : "إرسال"}
+                <Icon d={I.arrow} className="w-4 h-4 flip" /> {sending ? "جاري…" : "إرسال"}
               </Button>
             </div>
           </Card>
