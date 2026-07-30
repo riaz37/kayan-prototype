@@ -9,8 +9,8 @@ import json
 import time
 import sys
 
-WEBHOOK_URL = "http://localhost:8000/webhook"
-AGENT_URL = "http://localhost:8000/agent"
+WEBHOOK_URL = "http://localhost:8001/webhook"
+AGENT_URL = "http://localhost:8001/agent"
 DELAY = 8  # seconds between messages
 
 def send_and_show(phone, name, text, step, description):

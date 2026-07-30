@@ -6,8 +6,8 @@ class Settings(BaseSettings):
     whatsapp_access_token: str = ""
     whatsapp_phone_number_id: str = ""
     whatsapp_app_secret: str = ""
-    backend_url: str = "http://localhost:8000"
-    port: int = 8001
+    backend_url: str = "http://localhost:8001"
+    port: int = 8002
 
     llm_api_key: str = ""
     llm_base_url: str = "https://reviewer-mac-cartridge-closer.trycloudflare.com"

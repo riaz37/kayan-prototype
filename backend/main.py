@@ -88,7 +88,7 @@ def api_info():
     }
 
 
-# ---- proxy /agent/* to the agent server (port 8001)
+# ---- proxy /agent/* to the agent server (port 8002)
 import httpx
 
 AGENT_URL = os.environ.get("AGENT_URL", "http://127.0.0.1:8002")

@@ -27,7 +27,7 @@ RUN mkdir -p /app/data
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Expose backend port
-EXPOSE 8000 8001
+EXPOSE 8001 8002
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
