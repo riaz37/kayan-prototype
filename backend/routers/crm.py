@@ -86,21 +86,30 @@ def get_ticket(ticket_id: str):
     if t.get("phone"):
         import httpx as _httpx, os as _os
         agent_url = _os.environ.get("AGENT_URL", "http://127.0.0.1:8002")
-        try:
-            resp = _httpx.get(f"{agent_url}/agent/session/{t['phone']}/history", timeout=10)
-            raw = resp.json().get("history", [])
-            for h in raw:
-                role = h.get("role", "")
-                parts = h.get("parts", [])
-                text = " ".join(p.get("text", "") for p in parts if p.get("text"))
-                if text:
-                    wa_history.append({
-                        "direction": "inbound" if role == "user" else "outbound",
-                        "sender": "beneficiary" if role == "user" else "agent",
-                        "body_ar": text,
-                    })
-        except Exception:
-            pass
+        phone = t["phone"]
+        # Try multiple phone formats to match session key
+        digits = "".join(c for c in phone if c.isdigit())
+        candidates = [phone, digits, "88" + digits, "966" + digits.lstrip("0")]
+        history_data = []
+        for candidate in candidates:
+            try:
+                resp = _httpx.get(f"{agent_url}/agent/session/{candidate}/history", timeout=10)
+                raw = resp.json().get("history", [])
+                if raw:
+                    history_data = raw
+                    break
+            except Exception:
+                continue
+        for h in history_data:
+            role = h.get("role", "")
+            parts = h.get("parts", [])
+            text = " ".join(p.get("text", "") for p in parts if p.get("text"))
+            if text:
+                wa_history.append({
+                    "direction": "inbound" if role == "user" else "outbound",
+                    "sender": "beneficiary" if role == "user" else "agent",
+                    "body_ar": text,
+                })
     # Merge: ticket_messages (explicit CRM messages) + wa_history (agent conversation)
     all_msgs = msgs + wa_history
     all_msgs.sort(key=lambda m: m.get("sent_at", ""))
