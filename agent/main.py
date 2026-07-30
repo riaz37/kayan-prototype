@@ -257,6 +257,22 @@ async def agent_chat(req: ChatRequest):
     )
 
 
+@app.post("/agent/send-text", tags=["agent"])
+async def agent_send_text(payload: dict):
+    """Send a WhatsApp text message from backend CRM."""
+    to = payload.get("to", "")
+    text = payload.get("text", "")
+    if not to or not text:
+        return {"error": "missing 'to' or 'text'"}
+    try:
+        result = send_text(to, text)
+        logger.info(f"CRM send_text to {to}: {result}")
+        return {"ok": True, "result": result}
+    except Exception as e:
+        logger.error(f"CRM send_text failed: {e}")
+        return {"ok": False, "error": str(e)}
+
+
 @app.post("/agent/session/{phone}/reset", tags=["agent"])
 async def agent_session_reset(phone: str):
     """Reset a session — clears history and context."""

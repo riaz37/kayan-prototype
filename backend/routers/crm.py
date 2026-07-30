@@ -193,10 +193,9 @@ class ReplyIn(BaseModel):
 
 
 @router.post("/crm/tickets/{ticket_id}/reply", tags=[T_CRM],
-             summary="Post a reply on a ticket",
-             description="Adds an outbound message to the conversation and moves the ticket to "
-                         "'replied'. If the WhatsApp 24h window has expired the response warns that "
-                         "only a template message may be sent.")
+             summary="Post a reply on a ticket and send via WhatsApp",
+             description="Adds an outbound message to the conversation, sends it via WhatsApp, "
+                         "and moves the ticket to 'replied'.")
 def reply_ticket(ticket_id: str, body: ReplyIn):
     conn = db._get_conn()
     row = conn.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,)).fetchone()
@@ -211,7 +210,16 @@ def reply_ticket(ticket_id: str, body: ReplyIn):
                 (db.now_iso(), ticket_id))
     conn.commit()
     warn = None
-    if t["channel"] == "whatsapp":
+    wa_sent = False
+    if t["channel"] == "whatsapp" and t.get("phone"):
+        import httpx as _httpx, os as _os
+        agent_url = _os.environ.get("AGENT_URL", "http://127.0.0.1:8002")
+        try:
+            resp = _httpx.post(f"{agent_url}/agent/send-text",
+                               json={"to": t["phone"], "text": body.body_ar}, timeout=30)
+            wa_sent = resp.json().get("ok", False)
+        except Exception as e:
+            warn = f"WhatsApp send failed: {e}"
         sess_row = conn.execute(
             "SELECT * FROM whatsapp_sessions WHERE phone = ? ORDER BY last_message_at DESC LIMIT 1",
             (t["phone"],)).fetchone()
@@ -219,7 +227,7 @@ def reply_ticket(ticket_id: str, body: ReplyIn):
             sess = dict(sess_row)
             if not db.wa_window(sess)["open"]:
                 warn = "نافذة الواتساب (24 ساعة) منتهية — يلزم استخدام رسالة قالب معتمدة."
-    return {"message": m, "ticket_status": "replied", "warning_ar": warn}
+    return {"message": m, "ticket_status": "replied", "whatsapp_sent": wa_sent, "warning_ar": warn}
 
 
 @router.get("/crm/kanban", tags=[T_CRM],
