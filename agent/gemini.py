@@ -57,6 +57,7 @@ def _call_llm(messages: list, model: str = None):
             tools=TOOLS_OPENAI,
             temperature=0.3,
             max_tokens=4096,
+            extra_body={"chat_template_kwargs": {"enable_thinking": False}},
         )
     except Exception as e:
         logger.warning(f"Primary model {model} failed: {e}")
@@ -69,6 +70,7 @@ def _call_llm(messages: list, model: str = None):
                 tools=TOOLS_OPENAI,
                 temperature=0.3,
                 max_tokens=4096,
+                extra_body={"chat_template_kwargs": {"enable_thinking": False}},
             )
         raise
 
