@@ -81,12 +81,35 @@ def get_ticket(ticket_id: str):
         b = db.get_beneficiary(t["beneficiary_id"])
         if b:
             cust_name = b.get("sections", {}).get("SEC-BASIC", {}).get("full_name_ar")
+    # Fetch WhatsApp conversation history from agent session
+    wa_history = []
+    if t.get("phone"):
+        import httpx as _httpx, os as _os
+        agent_url = _os.environ.get("AGENT_URL", "http://127.0.0.1:8002")
+        try:
+            resp = _httpx.get(f"{agent_url}/agent/session/{t['phone']}/history", timeout=10)
+            raw = resp.json().get("history", [])
+            for h in raw:
+                role = h.get("role", "")
+                parts = h.get("parts", [])
+                text = " ".join(p.get("text", "") for p in parts if p.get("text"))
+                if text:
+                    wa_history.append({
+                        "direction": "inbound" if role == "user" else "outbound",
+                        "sender": "beneficiary" if role == "user" else "agent",
+                        "body_ar": text,
+                    })
+        except Exception:
+            pass
+    # Merge: ticket_messages (explicit CRM messages) + wa_history (agent conversation)
+    all_msgs = msgs + wa_history
+    all_msgs.sort(key=lambda m: m.get("sent_at", ""))
     return {**t, "status_ar": db.status_ar(t["status"]),
             "department_ar": db.by_id["department"].get(t["department_id"], {}).get("name_ar"),
             "customer_name_ar": cust_name or "غير مسجل",
             "whatsapp_number": t.get("phone") or "",
             "sla": db.ticket_sla(t),
-            "messages": msgs,
+            "messages": all_msgs,
             "previous_tickets": prev}
 
 

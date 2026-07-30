@@ -273,6 +273,14 @@ async def agent_send_text(payload: dict):
         return {"ok": False, "error": str(e)}
 
 
+@app.get("/agent/session/{phone}/history", tags=["agent"])
+async def agent_session_history(phone: str):
+    """Get WhatsApp conversation history for a phone."""
+    from agent.sessions import get_session
+    sess = get_session(phone)
+    return {"phone": phone, "history": sess.get("history", [])}
+
+
 @app.post("/agent/session/{phone}/reset", tags=["agent"])
 async def agent_session_reset(phone: str):
     """Reset a session — clears history and context."""
