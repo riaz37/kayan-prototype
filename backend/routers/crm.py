@@ -238,8 +238,10 @@ def reply_ticket(ticket_id: str, body: ReplyIn):
     m = {"id": msg_id, "ticket_id": ticket_id, "direction": "outbound",
          "sender": body.sender, "body_ar": body.body_ar, "sent_at": db.now_iso()}
     db.insert_ticket_message(m)
-    conn.execute("UPDATE tickets SET status='replied', updated_at=? WHERE id=?",
-                (db.now_iso(), ticket_id))
+    # Auto-transition: open/in_progress → waiting_customer
+    new_status = "waiting_customer" if t["status"] in ("open", "in_progress") else t["status"]
+    conn.execute("UPDATE tickets SET status=?, updated_at=? WHERE id=?",
+                (new_status, db.now_iso(), ticket_id))
     conn.commit()
     warn = None
     wa_sent = False
@@ -259,7 +261,7 @@ def reply_ticket(ticket_id: str, body: ReplyIn):
             sess = dict(sess_row)
             if not db.wa_window(sess)["open"]:
                 warn = "نافذة الواتساب (24 ساعة) منتهية — يلزم استخدام رسالة قالب معتمدة."
-    return {"message": m, "ticket_status": "replied", "whatsapp_sent": wa_sent, "warning_ar": warn}
+    return {"message": m, "ticket_status": new_status, "whatsapp_sent": wa_sent, "warning_ar": warn}
 
 
 @router.get("/crm/kanban", tags=[T_CRM],
@@ -376,6 +378,14 @@ def wa_inbound(body: WaInboundIn):
     p = db.norm_phone(body.from_number)
     b = db.beneficiary_by_phone(p)
     conn = db._get_conn()
+    # Auto-transition: waiting_customer → in_progress when customer responds
+    open_ticket = conn.execute(
+        "SELECT id FROM tickets WHERE phone = ? AND status = 'waiting_customer' ORDER BY updated_at DESC LIMIT 1",
+        (p,)).fetchone()
+    if open_ticket:
+        conn.execute("UPDATE tickets SET status='in_progress', updated_at=? WHERE id=?",
+                    (db.now_iso(), open_ticket["id"]))
+        conn.commit()
     sess_row = conn.execute(
         "SELECT * FROM whatsapp_sessions WHERE phone = ? ORDER BY last_message_at DESC LIMIT 1",
         (p,)).fetchone()

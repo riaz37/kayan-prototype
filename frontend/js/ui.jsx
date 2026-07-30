@@ -265,7 +265,7 @@ const Field = ({ label, value, mono }) => (
 
 /* ---------------------------------------------- API client */
 const API_BASE = window.location.hostname === "localhost"
-  ? "http://localhost:8000"
+  ? "https://kayan-prototype-production.up.railway.app"
   : "https://kayan-prototype-production.up.railway.app";
 let SNAP = null;
 
@@ -292,6 +292,17 @@ async function get(path, fallbackKey) {
 async function post(path, body) {
   const r = await fetch(API_BASE + path, {
     method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+
+/** PATCH to an API endpoint. */
+async function patch(path, body) {
+  const r = await fetch(API_BASE + path, {
+    method: "PATCH",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify(body),
   });
@@ -455,4 +466,4 @@ function t(key) {
 window.UI = { cx, nf, money, num, dateAr, timeAgo, Icon, I, Card, CardHead, Button, Badge, TONE,
   STATUS_TONE, FILE_STATUS_AR, STAGE_AR, Input, Select, Progress, Ring, Avatar, Stat, Table, Td,
   Tabs, Sheet, Empty, Skeleton, Field, t, useLang, setLang, getLang };
-window.API = { get, post, useApi, loadSnapshot };
+window.API = { get, post, patch, useApi, loadSnapshot };

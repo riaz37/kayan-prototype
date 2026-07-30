@@ -145,6 +145,29 @@ function KanbanPage({ openTicket }) {
   const kb = A.useApi(`/crm/kanban${dept ? `?department_id=${dept}` : ""}`, "kanban", [dept]);
   const deps = A.useApi("/crm/departments", "departments");
   const cols = kb.data?.columns || [];
+  const [dragId, setDragId] = useState(null);
+
+  const handleDragStart = (e, ticketId) => {
+    setDragId(ticketId);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = async (e, targetStatus) => {
+    e.preventDefault();
+    if (!dragId) return;
+    try {
+      await A.patch(`/crm/tickets/${dragId}/status`, { status: targetStatus });
+      setDragId(null);
+      kb.refresh?.();
+    } catch (err) {
+      console.error("Status update failed:", err);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -166,11 +189,17 @@ function KanbanPage({ openTicket }) {
               </div>
               <span className="text-[11.5px] tabular text-ink-muted bg-line-soft rounded-md px-1.5 py-0.5">{col.count}</span>
             </div>
-            <div className="space-y-2.5 min-h-[120px]">
+            <div className="space-y-2.5 min-h-[120px] rounded-xl p-1 transition-colors"
+                 onDragOver={handleDragOver}
+                 onDrop={(e) => handleDrop(e, col.status)}
+                 style={{ background: dragId ? "rgba(99,102,241,0.04)" : "transparent" }}>
               {col.cards.map(c => (
-                <button key={c.id} onClick={() => openTicket(c.id)}
-                  className="w-full text-right bg-white border border-line rounded-xl p-3.5 shadow-card
-                             hover:shadow-pop hover:border-brand-200 transition-all group">
+                <button key={c.id}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, c.id)}
+                  onClick={() => openTicket(c.id)}
+                  className={cx("w-full text-right bg-white border rounded-xl p-3.5 shadow-card transition-all group text-left",
+                    dragId === c.id ? "opacity-50 border-brand-300" : "border-line hover:shadow-pop hover:border-brand-200")}>
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <span className="text-[11px] tabular text-ink-soft">{c.id}</span>
                     {c.priority === "high" && <Badge tone="rose">عاجل</Badge>}
@@ -299,6 +328,16 @@ function TicketSheet({ id, onClose }) {
     setSending(false);
   };
 
+  const closeTicket = async () => {
+    if (!id) return;
+    try {
+      await A.patch(`/crm/tickets/${id}/status`, { status: "closed" });
+      setRefreshKey(k => k + 1);
+    } catch (e) {
+      console.error("Close failed:", e);
+    }
+  };
+
   const allMsgs = d?.messages || [];
   const visibleMsgs = allMsgs.slice(-showCount);
   const hasMore = allMsgs.length > showCount;
@@ -323,6 +362,12 @@ function TicketSheet({ id, onClose }) {
                 <Field label="رقم الواتساب" value={d.whatsapp_number} mono />
                 <Field label="تاريخ الفتح" value={dateAr(d.opened_at)} />
               </dl>
+              {d.status !== "closed" && (
+                <button onClick={closeTicket}
+                  className="mt-3 w-full py-2 text-[12px] font-medium text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors">
+                  إغلاق التذكرة
+                </button>
+              )}
             </Card>
             <div className="space-y-4">
               <Card className={cx("p-4", d.sla?.breached && "border-rose-200 bg-rose-50/40")}>
