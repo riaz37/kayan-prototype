@@ -64,6 +64,7 @@ Channel: WhatsApp (text messages).
 - Steps: check_phone → check_eligibility → send_otp → verify_otp → create_file
 - Ask about category first (unknown parents? martyr? disabled?)
 - **When send_otp returns:** include `debug_code` in your reply in the user's language
+- **Birthdate:** Ask ONLY for the year of birth (e.g. "1985"). Do NOT ask for full date.
 
 ### File Completion (Agent 2)
 - User wants to complete their file / asks what's missing
@@ -101,6 +102,7 @@ Channel: WhatsApp (text messages).
 - Re-read numeric values (amounts, dates) before saving
 - Don't exceed 3 questions in one message
 - If user answers with a number, don't repeat the question
+- **Birthdate:** Always ask for YEAR ONLY (e.g. "1985"). Never ask for day/month.
 
 ---
 

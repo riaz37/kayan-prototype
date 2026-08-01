@@ -536,61 +536,101 @@ function BeneficiarySheet({ id, onClose }) {
     { id: "activity", label: "النشاط" },
   ];
 
+  const missingDocNames = c.missing_documents?.map(x => x.name_ar) || [];
+  const missingSectionNames = [...new Set((c.missing_fields || []).map(x => x.section_ar))];
+
   return (
-    <Sheet open={!!id} onClose={onClose} title={b.name_ar || "…"}
-           sub={b.file_no ? `${b.file_no} · ${b.category_ar || ""}` : ""} width="max-w-3xl">
+    <Sheet open={!!id} onClose={onClose} width="max-w-3xl">
       {!d ? <Skeleton className="h-64" /> : (
-        <div className="space-y-4">
-          {/* header cards */}
-          <div className="grid sm:grid-cols-3 gap-4">
-            <Card className="p-4 flex items-center gap-4">
-              <Ring value={c.pct ?? 0} />
-              <div className="min-w-0">
-                <p className="text-[12px] text-ink-muted">اكتمال الملف</p>
-                <Badge tone={STATUS_TONE[b.status]} dot className="mt-1">{FILE_STATUS_AR[b.status]}</Badge>
+        <div className="space-y-5">
+          {/* Beneficiary header */}
+          <div className="flex items-start gap-4 pb-1">
+            <Avatar name={b.name_ar} size={48} />
+            <div className="min-w-0 flex-1">
+              <h2 className="text-[17px] font-bold text-ink leading-snug">{b.name_ar || "—"}</h2>
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                {b.file_no && <span className="text-[12.5px] font-mono text-ink-muted">{b.file_no}</span>}
+                {b.category_ar && <span className="text-[12.5px] text-ink-soft">· {b.category_ar}</span>}
               </div>
+              <div className="flex items-center gap-2 mt-1.5">
+                <Badge tone={STATUS_TONE[b.status]} dot>{FILE_STATUS_AR[b.status]}</Badge>
+                {b.city && <span className="text-[11.5px] text-ink-soft">{b.city}</span>}
+              </div>
+            </div>
+          </div>
+
+          {/* Stats cards */}
+          <div className="grid grid-cols-3 gap-3">
+            <Card className="p-4">
+              <p className="text-[11.5px] text-ink-muted font-medium">إجمالي المصروف</p>
+              <p className="text-[22px] font-bold tabular text-ink mt-1">{money(d.payments?.total_sar)}</p>
+              <p className="text-[11px] text-ink-soft mt-1">قادم: {money(d.disbursements?.upcoming_sar)}</p>
             </Card>
             <Card className="p-4">
-              <p className="text-[12px] text-ink-muted">درجة الاحتياج</p>
-              <p className="text-[26px] font-semibold tabular text-ink mt-0.5">{f.need_score ?? "—"}</p>
+              <p className="text-[11.5px] text-ink-muted font-medium">درجة الاحتياج</p>
+              <p className="text-[22px] font-bold tabular text-ink mt-1">{f.need_score ?? "—"}</p>
               <Progress value={f.need_score || 0} tone={f.need_score > 70 ? "rose" : "amber"} className="mt-2" />
             </Card>
-            <Card className="p-4">
-              <p className="text-[12px] text-ink-muted">إجمالي المصروف</p>
-              <p className="text-[20px] font-semibold tabular text-ink mt-0.5">{money(d.payments?.total_sar)}</p>
-              <p className="text-[11.5px] text-ink-soft mt-1">قادم: {money(d.disbursements?.upcoming_sar)}</p>
+            <Card className="p-4 flex items-center justify-between">
+              <div>
+                <p className="text-[11.5px] text-ink-muted font-medium">اكتمال الملف</p>
+                <p className="text-[13px] text-ink-soft mt-1">{Math.round(c.pct ?? 0)}%</p>
+              </div>
+              <Ring value={c.pct ?? 0} size={56} stroke={5} />
             </Card>
           </div>
 
-          {/* missing alert */}
-          {(c.missing_documents?.length > 0 || c.missing_fields?.length > 0) && (
-            <Card className="border-amber-200 bg-amber-50/50 p-4">
+          {/* Missing documents / sections alert */}
+          {(missingDocNames.length > 0 || missingSectionNames.length > 0) && (
+            <Card className="border border-amber-200 bg-amber-50/60 p-4">
               <div className="flex gap-3">
-                <Icon d={I.alert} className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <div className="min-w-0">
-                  <p className="text-[13px] font-medium text-amber-900">الملف يحتاج استكمال</p>
-                  {c.missing_documents?.length > 0 && (
-                    <p className="text-[12.5px] text-amber-800 mt-1">
-                      مستندات ناقصة: {c.missing_documents.map(x => x.name_ar).join("، ")}
-                    </p>
+                <div className="shrink-0 mt-0.5">
+                  <Icon d={I.alert} className="w-4 h-4 text-amber-600" />
+                </div>
+                <div className="min-w-0 space-y-2.5">
+                  <p className="text-[13px] font-semibold text-amber-900">الملف يحتاج استكمال</p>
+                  {missingDocNames.length > 0 && (
+                    <div>
+                      <p className="text-[11.5px] text-amber-700 font-medium mb-1.5">مستندات ناقصة</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {missingDocNames.map((name, i) => (
+                          <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 text-[11px] font-medium">
+                            <Icon d={I.alert} className="w-3 h-3 opacity-60" />
+                            {name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   )}
-                  {c.missing_fields?.length > 0 && (
-                    <p className="text-[12.5px] text-amber-800 mt-0.5">
-                      أقسام ناقصة: {[...new Set(c.missing_fields.map(x => x.section_ar))].join("، ")}
-                    </p>
+                  {missingSectionNames.length > 0 && (
+                    <div>
+                      <p className="text-[11.5px] text-amber-700 font-medium mb-1.5">أقسام ناقصة</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {missingSectionNames.map((name, i) => (
+                          <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 text-[11px] font-medium">
+                            {name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
             </Card>
           )}
 
+          {/* Tabs */}
           <Tabs tabs={tabs} value={tab} onChange={setTab} />
 
+          {/* Tab content */}
           {tab === "overview" && (
             <div className="grid sm:grid-cols-2 gap-4">
-              <Card className="p-4">
-                <p className="text-[12px] font-medium text-ink mb-3">البيانات الأساسية</p>
-                <dl className="grid grid-cols-2 gap-3">
+              <Card className="p-5">
+                <p className="text-[13px] font-semibold text-ink mb-4 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-500"></span>
+                  البيانات الأساسية
+                </p>
+                <dl className="space-y-3">
                   <Field label="رقم الملف" value={b.file_no} mono />
                   <Field label="نوع الملف" value={b.case_type === "CT-FOSTER" ? "أسرة بديلة" : "مستفيد مستقل"} />
                   <Field label="الفئة" value={b.category_ar} />
@@ -599,9 +639,12 @@ function BeneficiarySheet({ id, onClose }) {
                   <Field label="تاريخ الاعتماد" value={b.approved_at ? dateAr(b.approved_at) : "—"} />
                 </dl>
               </Card>
-              <Card className="p-4">
-                <p className="text-[12px] font-medium text-ink mb-3">الوضع المالي</p>
-                <dl className="grid grid-cols-2 gap-3">
+              <Card className="p-5">
+                <p className="text-[13px] font-semibold text-ink mb-4 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  الوضع المالي
+                </p>
+                <dl className="space-y-3">
                   <Field label="الدخل الشهري" value={money(f.monthly_income_sar)} mono />
                   <Field label="الالتزامات" value={money(f.total_obligations_sar)} mono />
                   <Field label="تكاليف المعيشة" value={money(f.total_person_costs_sar)} mono />
@@ -655,12 +698,18 @@ function BeneficiarySheet({ id, onClose }) {
           {tab === "money" && (
             <div className="space-y-4">
               <div className="grid grid-cols-3 gap-3">
-                <Card className="p-4"><p className="text-[11.5px] text-ink-muted">مصروف</p>
-                  <p className="text-[19px] font-semibold tabular text-emerald-600 mt-0.5">{money(d.disbursements?.paid_sar)}</p></Card>
-                <Card className="p-4"><p className="text-[11.5px] text-ink-muted">قادم</p>
-                  <p className="text-[19px] font-semibold tabular text-ink mt-0.5">{money(d.disbursements?.upcoming_sar)}</p></Card>
-                <Card className="p-4"><p className="text-[11.5px] text-ink-muted">عدد الدفعات</p>
-                  <p className="text-[19px] font-semibold tabular text-ink mt-0.5">{d.disbursements?.count ?? 0}</p></Card>
+                <Card className="p-4">
+                  <p className="text-[11.5px] text-ink-muted font-medium">مصروف</p>
+                  <p className="text-[19px] font-bold tabular text-emerald-600 mt-1">{money(d.disbursements?.paid_sar)}</p>
+                </Card>
+                <Card className="p-4">
+                  <p className="text-[11.5px] text-ink-muted font-medium">قادم</p>
+                  <p className="text-[19px] font-bold tabular text-ink mt-1">{money(d.disbursements?.upcoming_sar)}</p>
+                </Card>
+                <Card className="p-4">
+                  <p className="text-[11.5px] text-ink-muted font-medium">عدد الدفعات</p>
+                  <p className="text-[19px] font-bold tabular text-ink mt-1">{d.disbursements?.count ?? 0}</p>
+                </Card>
               </div>
               <Card>
                 <CardHead title="جدول الصرف" />

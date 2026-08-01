@@ -247,6 +247,8 @@ def update_section(beneficiary_id: str, section_id: str, body: UpdateSectionIn):
     if unknown:
         raise HTTPException(422, f"Fields not in {section_id}: {unknown}. Allowed: {sorted(allowed)}")
     b["sections"].setdefault(section_id, {}).update(body.values)
+    b["updated_at"] = db.now_iso()
+    db.insert_beneficiary(b)
 
     # keep the financial profile in sync when income-bearing fields change
     if section_id in ("SEC-EXTRA", "SEC-EDU"):
@@ -338,6 +340,8 @@ def add_dependent(beneficiary_id: str, body: DependentIn):
     db.insert_dependent(d)
     n = len(db.deps_for(beneficiary_id))
     b["sections"]["SEC-EXTRA"]["dependents_count"] = n
+    b["updated_at"] = db.now_iso()
+    db.insert_beneficiary(b)
     f = db.finance_for(beneficiary_id)
     if f:
         f["household_size"] = 1 + n

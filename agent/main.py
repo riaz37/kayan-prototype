@@ -316,7 +316,7 @@ def root():
     return {
         "service": "Kayan WhatsApp Agent",
         "version": "1.0.0",
-        "agent": "Qwen 3.6 27B (vLLM)",
+        "agent": "DeepSeek V4 Flash",
         "backend": settings.backend_url,
         "webhook": "/webhook",
         "health": "/health",
