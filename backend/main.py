@@ -144,8 +144,7 @@ def admin_seed():
     import subprocess, sys
     r = subprocess.run([sys.executable, "backend/seed_production.py"], capture_output=True, text=True, timeout=120)
     if r.returncode == 0:
-        from store import _warm_indices
-        _warm_indices()
+        db._warm_indices()
     return {"status": "ok" if r.returncode == 0 else "error", "output": r.stdout + r.stderr}
 
 
@@ -154,4 +153,4 @@ def admin_seed():
 
 @app.get("/health-version")
 def health_version():
-    return {"version": getattr(store, "API_VERSION", "unknown")}
+    return {"version": getattr(db, "API_VERSION", "unknown")}
