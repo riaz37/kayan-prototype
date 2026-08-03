@@ -311,6 +311,7 @@ function TicketSheet({ id, onClose }) {
   const t = A.useApi(id ? `/crm/tickets/${id}` : "", s => s.ticket_details?.[id], [id, refreshKey]);
   const d = t.data;
   const [replyText, setReplyText] = useState("");
+  const [sendToWhatsApp, setSendToWhatsApp] = useState(true);
   const [sending, setSending] = useState(false);
   const [showCount, setShowCount] = useState(15);
   const chatRef = useRef(null);
@@ -319,7 +320,7 @@ function TicketSheet({ id, onClose }) {
     if (!replyText.trim() || !id) return;
     setSending(true);
     try {
-      await A.post(`/crm/tickets/${id}/reply`, { body_ar: replyText.trim(), sender: "agent" });
+      await A.post(`/crm/tickets/${id}/reply`, { body_ar: replyText.trim(), sender: "agent", send_to_whatsapp: sendToWhatsApp });
       setReplyText("");
       setRefreshKey(k => k + 1);
     } catch (e) {
@@ -418,15 +419,16 @@ function TicketSheet({ id, onClose }) {
                     <div className={cx("flex", inbound ? "justify-start" : "justify-end", !showSender && "mt-0.5")}>
                       <div className={cx("max-w-[85%] rounded-xl px-3 py-2 text-[12.5px] leading-relaxed",
                         inbound ? "bg-line-soft text-ink rounded-tr-sm"
+                                : m.is_internal ? "bg-amber-50 text-amber-900 border border-amber-200 rounded-tl-sm"
                                 : "bg-brand-600 text-white rounded-tl-sm")}>
                         {showSender && (
                           <p className={cx("text-[10px] font-medium mb-0.5",
-                            inbound ? "text-ink-soft" : "text-brand-100")}>
-                            {inbound ? "المستفيد" : m.sender === "bot" ? "الوكيل الذكي" : "الموظف"}
+                            inbound ? "text-ink-soft" : m.is_internal ? "text-amber-600" : "text-brand-100")}>
+                            {inbound ? "المستفيد" : m.is_internal ? "ملاحظة داخلية" : m.sender === "bot" ? "الوكيل الذكي" : "الموظف"}
                           </p>
                         )}
                         <p className="whitespace-pre-wrap">{m.body_ar}</p>
-                        <p className={cx("text-[9.5px] mt-1", inbound ? "text-ink-muted" : "text-brand-200")}>
+                        <p className={cx("text-[9.5px] mt-1", inbound ? "text-ink-muted" : m.is_internal ? "text-amber-500" : "text-brand-200")}>
                           {new Date(m.sent_at).toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" })}
                         </p>
                       </div>
@@ -436,13 +438,24 @@ function TicketSheet({ id, onClose }) {
               })}
               {!allMsgs.length && <Empty icon={I.chat} title="لا توجد رسائل" />}
             </div>
-            <div className="border-t border-line p-3 flex gap-2">
-              <Input placeholder="اكتب ردًا…" className="flex-1"
-                     value={replyText} onChange={e => setReplyText(e.target.value)}
-                     onKeyDown={e => e.key === "Enter" && sendReply()} />
-              <Button onClick={sendReply} disabled={sending || !replyText.trim()}>
-                <Icon d={I.arrow} className="w-4 h-4 flip" /> {sending ? "جاري…" : "إرسال"}
-              </Button>
+            <div className="border-t border-line p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <button onClick={() => setSendToWhatsApp(!sendToWhatsApp)}
+                  className={cx("relative w-9 h-5 rounded-full transition-colors", sendToWhatsApp ? "bg-brand-600" : "bg-line-soft")}>
+                  <span className={cx("absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform", sendToWhatsApp && "translate-x-4")} />
+                </button>
+                <span className="text-[11px] text-ink-muted">
+                  {sendToWhatsApp ? "إرسال عبر واتساب" : "ملاحظة داخلية فقط"}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <Input placeholder={sendToWhatsApp ? "اكتب ردًا للمستفيد…" : "اكتب ملاحظة داخلية…"} className="flex-1"
+                       value={replyText} onChange={e => setReplyText(e.target.value)}
+                       onKeyDown={e => e.key === "Enter" && sendReply()} />
+                <Button onClick={sendReply} disabled={sending || !replyText.trim()}>
+                  <Icon d={I.arrow} className="w-4 h-4 flip" /> {sending ? "جاري…" : "إرسال"}
+                </Button>
+              </div>
             </div>
           </Card>
         </div>

@@ -222,6 +222,7 @@ def assign_ticket(ticket_id: str, body: AssignIn):
 class ReplyIn(BaseModel):
     body_ar: str = Field(..., examples=["تم استلام طلبكم وجاري دراسته"])
     sender: str = Field("agent", examples=["agent", "bot"])
+    send_to_whatsapp: bool = Field(True, description="If false, stores as internal note only")
 
 
 @router.post("/crm/tickets/{ticket_id}/reply", tags=[T_CRM],
@@ -236,7 +237,8 @@ def reply_ticket(ticket_id: str, body: ReplyIn):
     t = dict(row)
     msg_id = db.next_id("msg", "MSG-")
     m = {"id": msg_id, "ticket_id": ticket_id, "direction": "outbound",
-         "sender": body.sender, "body_ar": body.body_ar, "sent_at": db.now_iso()}
+         "sender": body.sender, "body_ar": body.body_ar, "sent_at": db.now_iso(),
+         "is_internal": not body.send_to_whatsapp}
     db.insert_ticket_message(m)
     # Auto-transition: open/in_progress → waiting_customer
     new_status = "waiting_customer" if t["status"] in ("open", "in_progress") else t["status"]
@@ -245,7 +247,7 @@ def reply_ticket(ticket_id: str, body: ReplyIn):
     conn.commit()
     warn = None
     wa_sent = False
-    if t["channel"] == "whatsapp" and t.get("phone"):
+    if body.send_to_whatsapp and t["channel"] == "whatsapp" and t.get("phone"):
         import httpx as _httpx, os as _os
         agent_url = _os.environ.get("AGENT_URL", "http://127.0.0.1:8002")
         try:
@@ -261,6 +263,8 @@ def reply_ticket(ticket_id: str, body: ReplyIn):
             sess = dict(sess_row)
             if not db.wa_window(sess)["open"]:
                 warn = "نافذة الواتساب (24 ساعة) منتهية — يلزم استخدام رسالة قالب معتمدة."
+    elif not body.send_to_whatsapp:
+        warn = "ملاحظة داخلية — لم تُرسل للمستفيد"
     return {"message": m, "ticket_status": new_status, "whatsapp_sent": wa_sent, "warning_ar": warn}
 
 
