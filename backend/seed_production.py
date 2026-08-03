@@ -69,7 +69,8 @@ def seed_database():
         phone = gen_phone()
         city = random.choice(CITIES)
         district = random.choice(DISTRICTS)
-        status = random.choice(["draft", "submitted", "under_review", "approved", "approved", "approved"])
+        fully_complete = i < 6
+        status = "approved" if fully_complete else random.choice(["draft", "submitted", "under_review", "approved", "approved"])
         case_type = random.choice(["CT-NEW", "CT-NEW", "CT-FOSTER"])
         orphan_cat = random.choice(["OC-UNKNOWN-PARENTS", "OC-DECEASED", "OC-DISABLED"])
 
@@ -78,41 +79,43 @@ def seed_database():
                           "birth_date": gen_birth_date(), "gender": random.choice(["M", "F"]),
                           "marital_status": random.choice(["single", "married", "divorced", "widowed"]),
                           "orphan_category_id": orphan_cat, "nationality": "SA"},
-            "SEC-CONTACT": {"mobile": phone, "alt_mobile": f"05{random.randint(10000000, 99999999)}" if random.random() > 0.5 else None,
-                            "email": f"{first.lower()}.{last.lower()}@email.com" if random.random() > 0.6 else None,
+            "SEC-CONTACT": {"mobile": phone, "alt_mobile": f"05{random.randint(10000000, 99999999)}",
+                            "email": f"{first.lower()}.{last.lower()}@email.com",
                             "whatsapp": phone},
             "SEC-HOUSING": {"city": city, "district": district,
                             "housing_type": random.choice(["rented", "owned", "family", "government"]),
                             "ownership_proof_type": random.choice(["title_deed", "rental_contract", "gov_letter"]),
-                            "rooms": random.randint(1, 6), "monthly_rent": random.randint(500, 5000) if random.random() > 0.3 else 0,
+                            "rooms": random.randint(1, 6), "monthly_rent": random.randint(500, 5000),
                             "monthly_bills": random.randint(100, 500)},
-            "SEC-EDU": {"education_level": random.choice(["primary", "intermediate", "secondary", "university", None]),
+            "SEC-EDU": {"education_level": random.choice(["primary", "intermediate", "secondary", "university"]),
                         "employment_status": random.choice(["employed", "unemployed", "self_employed", "retired"]),
-                        "employer": None, "monthly_salary": random.randint(2000, 12000) if random.random() > 0.4 else 0},
-            "SEC-HEALTH": {"chronic_conditions": random.choice([None, None, "diabetes", "hypertension"]),
-                           "disability": random.choice([None, None, None, "physical"]),
-                           "has_health_insurance": random.choice([True, False]),
-                           "monthly_medication_cost": random.randint(0, 1000) if random.random() > 0.5 else 0},
-            "SEC-EXTRA": {"dependents_count": random.randint(0, 8),
-                          "income_sources": random.choice([[], ["salary"], ["salary", "rental"], ["business"]]),
-                          "has_social_security": random.choice([True, False]),
-                          "has_citizen_account": random.choice([True, False])},
+                        "employer": "شركة أرامكو" if fully_complete else None,
+                        "monthly_salary": random.randint(2000, 12000)},
+            "SEC-HEALTH": {"chronic_conditions": random.choice(["diabetes", "hypertension", "none"]),
+                           "disability": random.choice(["none", "physical"]),
+                           "has_health_insurance": True,
+                           "monthly_medication_cost": random.randint(0, 1000)},
+            "SEC-EXTRA": {"dependents_count": random.randint(1, 6),
+                          "income_sources": random.choice([["salary"], ["salary", "rental"], ["business"]]),
+                          "has_social_security": True,
+                          "has_citizen_account": True},
             "SEC-JOIN": {"join_reason": random.choice(["loss_of_breadwinner", "disability", "poverty", "natural_disaster"]),
                          "referral_source": random.choice(["government", "self", "charity", "social_media"]),
-                         "previous_support": random.choice([None, "some_charity", "government_aid"])},
+                         "previous_support": "some_charity"},
             "SEC-BANK": {"bank_name": random.choice(["alinma", "alrajhi", "snb", "Riyad Bank"]),
-                         "iban": f"SA{random.randint(10, 99)}{random.randint(1000000000, 9999999999)}{random.randint(1000, 9999)}" if random.random() > 0.2 else None,
+                         "iban": f"SA{random.randint(10, 99)}{random.randint(1000000000, 9999999999)}{random.randint(1000, 9999)}",
                          "account_holder_name": full_name},
-            "SEC-ORPHAN": {"father_deceased_date": gen_date(3650) if random.random() > 0.3 else None,
-                           "father_death_cause": random.choice(["natural", "accident", "illness", None]),
+            "SEC-ORPHAN": {"father_deceased_date": gen_date(3650),
+                           "father_death_cause": random.choice(["natural", "accident", "illness"]),
                            "mother_status": random.choice(["alive", "deceased", "remarried", "absent"]),
-                           "has_guardian": random.choice([True, False])}
+                           "has_guardian": True}
         }
 
         created = gen_datetime(90)
         b = {"id": bid, "file_no": file_no, "status": status, "case_type": case_type,
              "orphan_category": orphan_cat, "city": city, "full_name_ar": full_name,
-             "phone": phone, "sections": sections, "created_at": created, "updated_at": gen_datetime(3)}
+             "phone": phone, "sections": sections, "created_at": created, "updated_at": gen_datetime(3),
+             "fully_complete": fully_complete}
         beneficiaries.append(b)
 
         conn.execute("""INSERT INTO beneficiaries (id, file_no, status, case_type, orphan_category, city, full_name_ar, phone, sections, created_at, updated_at)
@@ -142,15 +145,17 @@ def seed_database():
 
     doc_count = 0
     doc_types = ["DOC-NAT-ID", "DOC-PASSPORT", "DOC-BIRTH-CERT", "DOC-DEATH-CERT", "DOC-HOUSING", "DOC-INCOME", "DOC-MEDICAL", "DOC-EDU-CERT", "DOC-BANK-STMT", "DOC-PHOTO"]
+    doc_names = ["صورة الهوية", "جواز السفر", "شهادة الميلاد", "شهادة الوفاة", "عقد إيجار", "كشف حساب بنكي", "تقرير طبي", "شهادة مدرسية", "صورة شخصية"]
     for b in beneficiaries:
-        for j in range(random.randint(3, 8)):
+        for j in range(random.randint(5, 8)):
             doc_count += 1
+            mandatory = 1 if j < 5 else 0
+            status = "verified" if (b["fully_complete"] or random.random() > 0.3) else random.choice(["uploaded", "missing"])
             conn.execute("""INSERT INTO documents (id, beneficiary_id, document_type_id, name_ar, mandatory, status, file_path, created_at)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                         (gen_id("doc", doc_count), b["id"], random.choice(doc_types),
-                          random.choice(["صورة الهوية", "شهادة الميلاد", "شهادة الوفاة", "عقد إيجار", "كشف حساب بنكي", "شهادة مدرسية", "تقرير طبي"]),
-                          random.choice([1, 1, 1, 0]), random.choice(["missing", "uploaded", "verified"]),
-                          f"/docs/{gen_id('doc', doc_count)}.pdf" if random.random() > 0.4 else None, gen_datetime(60)))
+                         (gen_id("doc", doc_count), b["id"], doc_types[j % len(doc_types)],
+                          doc_names[j % len(doc_names)], mandatory, status,
+                          f"/docs/{gen_id('doc', doc_count)}.pdf", gen_datetime(60)))
     print(f"Created {doc_count} documents")
 
     for b in beneficiaries:
