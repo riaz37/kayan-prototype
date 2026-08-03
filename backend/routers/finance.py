@@ -131,7 +131,7 @@ class ApproveDisbIn(BaseModel):
              summary="Approve a disbursement for payment (التعميد بالصرف)",
              description="Moves a scheduled disbursement to approved so finance can pay it.")
 def approve_disbursement(disbursement_id: str, body: ApproveDisbIn):
-    d = db.by_id["disbursement"].get(disbursement_id)
+    d = db.get_disbursement(disbursement_id)
     if not d:
         raise HTTPException(404, "Disbursement not found")
     if d["status"] == "paid":
@@ -147,7 +147,7 @@ def approve_disbursement(disbursement_id: str, body: ApproveDisbIn):
              description="Records a bank transfer against the disbursement and sends an SMS notice. "
                          "Blocked (409) if the beneficiary has no IBAN on file.")
 def pay_disbursement(disbursement_id: str):
-    d = db.by_id["disbursement"].get(disbursement_id)
+    d = db.get_disbursement(disbursement_id)
     if not d:
         raise HTTPException(404, "Disbursement not found")
     if d["status"] == "paid":

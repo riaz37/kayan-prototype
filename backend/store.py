@@ -400,6 +400,12 @@ def get_support_request(request_id):
     return dict(row) if row else None
 
 
+def get_disbursement(did):
+    conn = _get_conn()
+    row = conn.execute("SELECT * FROM disbursements WHERE id = ?", (did,)).fetchone()
+    return dict(row) if row else None
+
+
 def requests_for(bid):
     conn = _get_conn()
     rows = conn.execute("SELECT * FROM support_requests WHERE beneficiary_id = ?", (bid,)).fetchall()
