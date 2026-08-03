@@ -311,6 +311,19 @@ async def agent_session_reset(phone: str):
     return {"status": "ok", "phone": phone}
 
 
+@app.post("/agent/sessions/clear-all", tags=["admin"])
+async def agent_sessions_clear_all():
+    """Clear all sessions from the database. TEMPORARY - remove after use."""
+    from agent.sessions import _get_db
+    conn = _get_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM sessions")
+    conn.commit()
+    count = cursor.rowcount
+    logger.info(f"Cleared {count} sessions")
+    return {"status": "ok", "cleared": count}
+
+
 @app.get("/", tags=["system"])
 def root():
     return {
