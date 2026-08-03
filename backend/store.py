@@ -831,8 +831,12 @@ class _TableProxy:
         elif self._table == "financial_profiles":
             insert_financial_profile(item)
         else:
-            # Generic insert
-            cols = list(item.keys())
+            # Generic insert — only use columns that exist in the table
+            cursor = conn.execute(f"PRAGMA table_info({self._table})")
+            valid_cols = {row[1] for row in cursor.fetchall()}
+            cols = [k for k in item.keys() if k in valid_cols]
+            if not cols:
+                return
             placeholders = ",".join(["?"] * len(cols))
             col_names = ",".join([f'"{c}"' for c in cols])
             conn.execute(f"INSERT OR REPLACE INTO {self._table} ({col_names}) VALUES ({placeholders})",
