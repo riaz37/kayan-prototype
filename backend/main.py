@@ -139,24 +139,4 @@ async def proxy_webhook(request: Request):
     )
 
 
-@app.post("/admin/seed-database", tags=["admin"])
-def seed_database():
-    """TEMPORARY: Run seed script to populate database. Remove after use."""
-    import subprocess
-    import sys
-    try:
-        result = subprocess.run(
-            [sys.executable, "backend/seed_production.py"],
-            capture_output=True,
-            text=True,
-            timeout=120
-        )
-        if result.returncode == 0:
-            return {"status": "ok", "output": result.stdout}
-        else:
-            return {"status": "error", "error": result.stderr}
-    except Exception as e:
-        return {"status": "error", "error": str(e)}
-
-
 # ---- frontend served separately (Vercel / static host)
