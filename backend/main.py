@@ -143,6 +143,9 @@ async def proxy_webhook(request: Request):
 def admin_seed():
     import subprocess, sys
     r = subprocess.run([sys.executable, "backend/seed_production.py"], capture_output=True, text=True, timeout=120)
+    if r.returncode == 0:
+        from store import _warm_indices
+        _warm_indices()
     return {"status": "ok" if r.returncode == 0 else "error", "output": r.stdout + r.stderr}
 
 
