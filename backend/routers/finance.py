@@ -4,6 +4,7 @@ the monthly disbursement schedule, payments to the beneficiary's IBAN,
 sponsorships (الكفالة), events, and the unified 360 history.
 """
 from typing import Optional, List
+import json
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 from datetime import timedelta
@@ -276,6 +277,18 @@ def history(beneficiary_id: str):
     disb = db.disbursements_for(beneficiary_id)
     tks = db.tickets_for(beneficiary_id)
     fin = db.finance_for(beneficiary_id) or {}
+    # Parse JSON fields stored as strings
+    obligations = fin.get("obligations", "[]")
+    if isinstance(obligations, str):
+        obligations = json.loads(obligations)
+    person_costs = fin.get("person_costs", "[]")
+    if isinstance(person_costs, str):
+        person_costs = json.loads(person_costs)
+    total_obligations = sum(o.get("amount", 0) for o in obligations)
+    total_person_costs = sum(p.get("amount", 0) for p in person_costs)
+    monthly_income = fin.get("monthly_income", 0) or 0
+    deps_count = 1 + len(db.deps_for(beneficiary_id))
+    per_capita = round((monthly_income - total_obligations - total_person_costs) / deps_count, 2) if deps_count else 0
     return {
         "beneficiary": {"id": b["id"], "file_no": b["file_no"], "status": b["status"],
                         "case_type": b["case_type"],
@@ -287,12 +300,12 @@ def history(beneficiary_id: str):
         "completeness": {"pct": comp["completion_pct"],
                          "missing_fields": comp["missing_fields"],
                          "missing_documents": comp["missing_documents"]},
-        "household": {"size": 1 + len(db.deps_for(beneficiary_id)),
+        "household": {"size": deps_count,
                       "dependents": db.deps_for(beneficiary_id)},
-        "financial": {"monthly_income_sar": fin.get("monthly_income_sar"),
-                      "total_obligations_sar": fin.get("total_obligations_sar"),
-                      "total_person_costs_sar": fin.get("total_person_costs_sar"),
-                      "per_capita_monthly_sar": fin.get("per_capita_monthly_sar"),
+        "financial": {"monthly_income_sar": monthly_income,
+                      "total_obligations_sar": total_obligations,
+                      "total_person_costs_sar": total_person_costs,
+                      "per_capita_monthly_sar": per_capita,
                       "need_score": fin.get("need_score")},
         "support_requests": reqs,
         "enrollments": [{**e, "program_ar": db.program_name(e["program_id"])}

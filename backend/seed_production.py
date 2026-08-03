@@ -72,7 +72,7 @@ def seed_database():
         fully_complete = i < 6
         status = "approved" if fully_complete else random.choice(["draft", "submitted", "under_review", "approved", "approved"])
         case_type = random.choice(["CT-NEW", "CT-NEW", "CT-FOSTER"])
-        orphan_cat = random.choice(["OC-UNKNOWN-PARENTS", "OC-DECEASED", "OC-DISABLED"])
+        orphan_cat = random.choice(["OC-UNK", "OC-SPEC", "OC-FATHER", "OC-MOTHER", "OC-BOTH"])
 
         sections = {
             "SEC-BASIC": {"full_name_ar": full_name, "national_id": f"{random.randint(1000000000, 9999999999)}",
