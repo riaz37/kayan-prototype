@@ -158,6 +158,7 @@ def _init_db():
             enrollment_id TEXT,
             amount REAL,
             status TEXT DEFAULT 'scheduled',
+            approved_by TEXT,
             due_date TEXT,
             paid_at TEXT,
             created_at TEXT

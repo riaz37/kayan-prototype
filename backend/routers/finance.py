@@ -136,9 +136,9 @@ def approve_disbursement(disbursement_id: str, body: ApproveDisbIn):
         raise HTTPException(404, "Disbursement not found")
     if d["status"] == "paid":
         raise HTTPException(409, "Already paid")
+    db.update_disbursement(disbursement_id, {"status": "approved", "approved_by": body.approved_by})
     d["status"] = "approved"
     d["approved_by"] = body.approved_by
-    db.update_disbursement(disbursement_id, {"status": "approved", "approved_by": body.approved_by})
     return {"disbursement": d}
 
 
