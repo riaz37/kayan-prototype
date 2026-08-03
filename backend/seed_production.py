@@ -170,6 +170,7 @@ def seed_database():
 
     programs = ["PROG-EDU", "PROG-HEALTH", "PROG-HOUSING", "PROG-LIVELIHOOD", "PROG-COMPASSION"]
     sr_count = 0
+    sr_ids = []
     stages_cycle = ["submitted", "under_study", "committee", "committee", "committee", "decided", "decided", "decided"]
     for i in range(20):
         b = random.choice(beneficiaries)
@@ -177,6 +178,7 @@ def seed_database():
         prog = random.choice(programs)
         stage = stages_cycle[i % len(stages_cycle)]
         sr_id = gen_id("SR", sr_count)
+        sr_ids.append((sr_id, stage))
         conn.execute("""INSERT INTO support_requests (id, beneficiary_id, program_id, request_type_id, description_ar, status, stage, amount, created_at, updated_at)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                      (sr_id, b["id"], prog,
@@ -192,13 +194,10 @@ def seed_database():
     print(f"Created {sr_count} support requests")
 
     cs_count = 0
-    committee_srs = [sr_id for sr_id, stage in zip(
-        [f"SR-{i:04d}" for i in range(1, sr_count+1)],
-        [stages_cycle[i % len(stages_cycle)] for i in range(sr_count)]
-    ) if stage == "committee"]
+    committee_srs = [sr_id for sr_id, stage in sr_ids if stage == "committee"]
     for sr_id in committee_srs:
         cs_count += 1
-        sr = next((sr for sr in conn.execute("SELECT * FROM support_requests WHERE id = ?", (sr_id,)).fetchall(), None))
+        sr = conn.execute("SELECT * FROM support_requests WHERE id = ?", (sr_id,)).fetchone()
         ben_id = sr["beneficiary_id"] if sr else random.choice(beneficiaries)["id"]
         conn.execute("""INSERT INTO case_studies (id, support_request_id, beneficiary_id, caseworker, notes_ar, recommendation_ar, steps, created_at)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
@@ -214,10 +213,7 @@ def seed_database():
     print(f"Created {cs_count} case studies")
 
     cd_count = 0
-    decided_srs = [sr_id for sr_id, stage in zip(
-        [f"SR-{i:04d}" for i in range(1, sr_count+1)],
-        [stages_cycle[i % len(stages_cycle)] for i in range(sr_count)]
-    ) if stage == "decided"]
+    decided_srs = [sr_id for sr_id, stage in sr_ids if stage == "decided"]
     for sr_id in decided_srs[:6]:
         cd_count += 1
         conn.execute("""INSERT INTO committee_decisions (id, support_request_id, decision, amount, notes_ar, decided_by, decided_at)
