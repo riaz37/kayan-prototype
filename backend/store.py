@@ -646,8 +646,9 @@ def render_template(tid, **kw):
 
 
 def send_notification(channel, to, body, kind="manual"):
+    import uuid
     conn = _get_conn()
-    nid = f"NTF-{now().strftime('%Y%m%d%H%M%S')}"
+    nid = f"NTF-{uuid.uuid4().hex[:8].upper()}"
     conn.execute(
         'INSERT INTO notifications (id, channel, "to", body_ar, kind, sent_at, status) VALUES (?,?,?,?,?,?,?)',
         (nid, channel, norm_phone(to), body, kind, now_iso(), "sent")
