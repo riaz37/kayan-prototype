@@ -170,45 +170,59 @@ def seed_database():
 
     programs = ["PROG-EDU", "PROG-HEALTH", "PROG-HOUSING", "PROG-LIVELIHOOD", "PROG-COMPASSION"]
     sr_count = 0
+    stages_cycle = ["submitted", "under_study", "committee", "committee", "committee", "decided", "decided", "decided"]
     for i in range(20):
         b = random.choice(beneficiaries)
         sr_count += 1
         prog = random.choice(programs)
+        stage = stages_cycle[i % len(stages_cycle)]
+        sr_id = gen_id("SR", sr_count)
         conn.execute("""INSERT INTO support_requests (id, beneficiary_id, program_id, request_type_id, description_ar, status, stage, amount, created_at, updated_at)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                     (gen_id("SR", sr_count), b["id"], prog,
+                     (sr_id, b["id"], prog,
                       f"REQ-{prog.split('-')[1]}-{random.randint(1, 10):02d}",
                       random.choice(["احتياج معيشي شهري لتغطية المصاريف الاساسية للاسرة",
                                       "المستفيد باحث عن عمل ويحتاج تاهيل ودورة تدريبية معتمدة",
                                       "الاسرة تواجه صعوبة في سداد الالتزام الحالي وتحتاج دعم عاجل",
                                       "المستفيد ملتحق بالدراسة ويحتاج تغطية الرسوم للفصل القادم",
                                       "حالة اجتماعية حرجة تتطلب تدخل عاجل من الجمعية"]),
-                      "submitted", random.choice(["submitted", "under_study", "committee", "decided", "decided"]),
+                      "submitted", stage,
                       random.randint(500, 20000) if random.random() > 0.3 else None,
                       gen_datetime(60), gen_datetime(3)))
     print(f"Created {sr_count} support requests")
 
     cs_count = 0
-    for i in range(12):
+    committee_srs = [sr_id for sr_id, stage in zip(
+        [f"SR-{i:04d}" for i in range(1, sr_count+1)],
+        [stages_cycle[i % len(stages_cycle)] for i in range(sr_count)]
+    ) if stage == "committee"]
+    for sr_id in committee_srs:
         cs_count += 1
-        conn.execute("""INSERT INTO case_studies (id, support_request_id, beneficiary_id, caseworker, notes_ar, steps, created_at)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                     (gen_id("CS", cs_count), f"SR-{random.randint(1000, 9999)}",
-                      random.choice(beneficiaries)["id"],
+        sr = next((sr for sr in conn.execute("SELECT * FROM support_requests WHERE id = ?", (sr_id,)).fetchall(), None))
+        ben_id = sr["beneficiary_id"] if sr else random.choice(beneficiaries)["id"]
+        conn.execute("""INSERT INTO case_studies (id, support_request_id, beneficiary_id, caseworker, notes_ar, recommendation_ar, steps, created_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                     (gen_id("CS", cs_count), sr_id, ben_id,
                       random.choice(["STF-01", "STF-02", "STF-03"]),
                       random.choice(["تمت المعاينة الميدانية وتم توثيق حالة المستفيد",
                                       "المستفيد يعاني من صعوبات اقتصادية حادة",
-                                      "الاسرة في حالة جيدة وتحتاج دعم مستمر",
-                                      "تم التعرف على احتياجات خاصة"]),
+                                      "الاسرة في حالة جيدة وتحتاج دعم مستمر"]),
+                      random.choice(["يُنصح بالموافقة على طلب الدعم نظرا للحالة الاجتماعية الحرجة",
+                                      "يحتاج المستفيد للدعم العاجلdue to loss of income",
+                                      "الحالة تستحق الدعم وفقا لمعايير اللجنة"]),
                       json.dumps(["visit", "interview", "assessment"], ensure_ascii=False), gen_datetime(30)))
     print(f"Created {cs_count} case studies")
 
     cd_count = 0
-    for i in range(6):
+    decided_srs = [sr_id for sr_id, stage in zip(
+        [f"SR-{i:04d}" for i in range(1, sr_count+1)],
+        [stages_cycle[i % len(stages_cycle)] for i in range(sr_count)]
+    ) if stage == "decided"]
+    for sr_id in decided_srs[:6]:
         cd_count += 1
         conn.execute("""INSERT INTO committee_decisions (id, support_request_id, decision, amount, notes_ar, decided_by, decided_at)
                         VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                     (gen_id("CD", cd_count), f"SR-{random.randint(1000, 9999)}",
+                     (gen_id("CD", cd_count), sr_id,
                       random.choice(["accepted", "declined", "docs_required"]),
                       random.randint(1000, 15000) if random.random() > 0.3 else 0,
                       random.choice(["تم قبول الطلب", "يرجى استكمال المستندات", "تم رفض الطلب"]),
