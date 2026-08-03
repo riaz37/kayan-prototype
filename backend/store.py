@@ -393,6 +393,12 @@ def finance_for(bid):
     return dict(row) if row else None
 
 
+def get_support_request(request_id):
+    conn = _get_conn()
+    row = conn.execute("SELECT * FROM support_requests WHERE id = ?", (request_id,)).fetchone()
+    return dict(row) if row else None
+
+
 def requests_for(bid):
     conn = _get_conn()
     rows = conn.execute("SELECT * FROM support_requests WHERE beneficiary_id = ?", (bid,)).fetchall()

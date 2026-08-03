@@ -128,7 +128,7 @@ def list_all_requests():
             description="Full request detail including the case study steps and the committee decision "
                         "if one has been issued.")
 def get_request(request_id: str):
-    sr = db.by_id["support_request"].get(request_id)
+    sr = db.get_support_request(request_id)
     if not sr:
         raise HTTPException(404, "Support request not found")
     case = db.case_for(request_id)
@@ -170,7 +170,7 @@ class AddDetailIn(BaseModel):
               description="Use when the case worker or bot asks the beneficiary to explain further. "
                           "Appends to وصف الحالة rather than overwriting it, preserving the history.")
 def add_detail(request_id: str, body: AddDetailIn):
-    sr = db.by_id["support_request"].get(request_id)
+    sr = db.get_support_request(request_id)
     if not sr:
         raise HTTPException(404, "Support request not found")
     sr["case_description_ar"] += f"\n[{db.now_iso()}] {body.additional_detail_ar}"
@@ -192,7 +192,7 @@ def list_case_steps():
              description="Starts دراسة الحالة and moves the request to 'under_study'. Assigns a social "
                          "researcher.")
 def open_case(request_id: str, researcher_id: str = Query("STF-04", examples=["STF-04"])):
-    sr = db.by_id["support_request"].get(request_id)
+    sr = db.get_support_request(request_id)
     if not sr:
         raise HTTPException(404, "Support request not found")
     if db.case_for(request_id):
@@ -273,7 +273,7 @@ def submit_committee(case_id: str, body: SubmitCommitteeIn):
     if not done:
         raise HTTPException(409, "لا يمكن العرض على اللجنة قبل اكمال خطوة واحدة على الاقل من دراسة الحالة")
     case["recommendation_ar"] = body.recommendation_ar
-    sr = db.by_id["support_request"].get(case["support_request_id"])
+    sr = db.get_support_request(case["support_request_id"])
     if sr:
         sr["stage"] = "committee"
     return {"case_id": case_id, "stage": "committee",
@@ -295,9 +295,7 @@ class DecisionIn(BaseModel):
                          "beneficiary on BOTH WhatsApp and SMS as the guide specifies. Accepted "
                          "requests become eligible for enrollment and disbursement.")
 def record_decision(request_id: str, body: DecisionIn):
-    conn = db._get_conn()
-    row = conn.execute("SELECT * FROM support_requests WHERE id = ?", (request_id,)).fetchone()
-    sr = dict(row) if row else None
+    sr = db.get_support_request(request_id)
     if not sr:
         raise HTTPException(404, "Support request not found")
     if body.decision not in ("accepted", "docs_required", "declined"):
