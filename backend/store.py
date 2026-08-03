@@ -427,7 +427,11 @@ def requests_for_all():
 def decision_for(srid):
     conn = _get_conn()
     row = conn.execute("SELECT * FROM committee_decisions WHERE support_request_id = ?", (srid,)).fetchone()
-    return dict(row) if row else None
+    if not row:
+        return None
+    d = dict(row)
+    d["decision_ar"] = next((dt["name_ar"] for dt in decision_types if dt["id"] == d["decision"]), d["decision"])
+    return d
 
 
 def case_for(srid):
