@@ -127,6 +127,7 @@ def _init_db():
             beneficiary_id TEXT,
             caseworker TEXT,
             notes_ar TEXT,
+            recommendation_ar TEXT,
             steps TEXT DEFAULT '[]',
             created_at TEXT
         );
