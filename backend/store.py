@@ -135,6 +135,7 @@ def _init_db():
         CREATE TABLE IF NOT EXISTS committee_decisions (
             id TEXT PRIMARY KEY,
             support_request_id TEXT,
+            beneficiary_id TEXT,
             decision TEXT,
             amount REAL,
             notes_ar TEXT,
