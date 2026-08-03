@@ -295,7 +295,9 @@ class DecisionIn(BaseModel):
                          "beneficiary on BOTH WhatsApp and SMS as the guide specifies. Accepted "
                          "requests become eligible for enrollment and disbursement.")
 def record_decision(request_id: str, body: DecisionIn):
-    sr = db.by_id["support_request"].get(request_id)
+    conn = db._get_conn()
+    row = conn.execute("SELECT * FROM support_requests WHERE id = ?", (request_id,)).fetchone()
+    sr = dict(row) if row else None
     if not sr:
         raise HTTPException(404, "Support request not found")
     if body.decision not in ("accepted", "docs_required", "declined"):
@@ -317,6 +319,9 @@ def record_decision(request_id: str, body: DecisionIn):
            "required_documents_ar": body.required_documents_ar,
            "notified_whatsapp": True, "notified_sms": True}
     db.committee_decisions.append(dec)
+    conn.execute("UPDATE support_requests SET stage = ?, decision = ? WHERE id = ?",
+                 ("decided", body.decision, request_id))
+    conn.commit()
     sr["stage"] = "decided"
     sr["decision"] = body.decision
     case = db.case_for(request_id)
