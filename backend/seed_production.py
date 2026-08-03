@@ -131,7 +131,8 @@ def seed_database():
 
     dep_count = 0
     for b in beneficiaries:
-        for j in range(random.randint(0, 6)):
+        dep_range = random.randint(1, 6) if b["fully_complete"] else random.randint(0, 6)
+        for j in range(dep_range):
             dep_count += 1
             conn.execute("""INSERT INTO dependents (id, beneficiary_id, name_ar, relationship, birth_date, gender, education, special_needs, created_at)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
