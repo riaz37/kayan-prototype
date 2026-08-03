@@ -775,36 +775,50 @@ function BeneficiarySheet({ id, onClose }) {
 /* ============================================================ Requests */
 function RequestsPage() {
   const [prog, setProg] = useState(""); const [q, setQ] = useState("");
-  const rq = A.useApi("", s => s.requests, []);
+  const rq = A.useApi("/support-requests", "support-requests");
   const pr = A.useApi("/programs", "programs");
-  const rows = (rq.data || []).filter(r => (!prog || r.program_id === prog) &&
+  const rows = (rq.data?.requests || []).filter(r => (!prog || r.program_id === prog) &&
     (!q || (r.title_ar + r.name_ar).includes(q)));
   const [deciding, setDeciding] = useState(null);
+  const [modal, setModal] = useState({ open: false, type: null, request: null });
+  const [modalAmount, setModalAmount] = useState("15000");
+  const [modalDocs, setModalDocs] = useState("تعريف الراتب، عقد الإيجار");
+  const [modalReason, setModalReason] = useState("لا يوجد اuiltin مؤكد حسب التقييم");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleDecision = async (id, decision) => {
-    const labels = { accepted: "اعتماد الطلب", declined: "رفض الطلب", docs_required: "طلب استكمال مستندات" };
-    if (!confirm(`${labels[decision]}؟`)) return;
-    let amount = null, reason = "قرار اللجنة", docs = null;
-    if (decision === "accepted") {
-      const a = prompt("المبلغ المطلوب (ريال):", "15000");
-      if (a === null) return;
-      amount = parseFloat(a) || 15000;
-    } else if (decision === "docs_required") {
-      docs = prompt("المستندات المطلوبة (مفصولة بفاصلة):", "تعريف الراتب، عقد الإيجار");
-      if (docs === null) return;
-      docs = docs.split(",").map(s => s.trim());
-    } else {
-      reason = prompt("سبب الاعتذار:", "لا يوجد احتياج مؤكد حسب التقييم");
-      if (reason === null) return;
-    }
-    setDeciding(id);
+  const openDecisionModal = (request, type) => {
+    setModal({ open: true, type, request });
+    setModalAmount("15000");
+    setModalDocs("تعريف الراتب، عقد الإيجار");
+    setModalReason("لا يوجد اuiltin مؤكد حسب التقييم");
+  };
+
+  const submitDecision = async () => {
+    const { type, request } = modal;
+    if (!request) return;
+    setSubmitting(true);
     try {
-      await A.post(`/support-requests/${id}/decision`, {
-        decision, approved_amount_sar: amount, reason_ar: reason, required_documents_ar: docs
-      });
+      const body = { decision: type };
+      if (type === "accepted") {
+        body.approved_amount_sar = parseFloat(modalAmount) || 15000;
+      } else if (type === "docs_required") {
+        body.required_documents_ar = modalDocs.split(",").map(s => s.trim());
+      } else {
+        body.reason_ar = modalReason;
+      }
+      await A.post(`/support-requests/${request.id}/decision`, body);
       rq.refresh();
-    } catch(e) { console.error(e); alert("خطأ في تسجيل القرار"); }
-    setDeciding(null);
+      setModal({ open: false, type: null, request: null });
+    } catch(e) {
+      alert("خطأ في تسجيل القرار");
+    }
+    setSubmitting(false);
+  };
+
+  const decisionMeta = {
+    accepted: { title: "اعتماد الطلب", color: "emerald" },
+    declined: { title: "رفض الطلب", color: "rose" },
+    docs_required: { title: "طلب استكمال مستندات", color: "amber" },
   };
 
   return (
@@ -812,7 +826,7 @@ function RequestsPage() {
       <PageHead title="طلبات الدعم" sub="طلبات المستفيدين ضمن برامج الجمعية الخمسة" />
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {(pr.data?.programs || []).map(p => {
-          const n = (rq.data || []).filter(r => r.program_id === p.id).length;
+          const n = (rq.data?.requests || []).filter(r => r.program_id === p.id).length;
           return (
             <button key={p.id} onClick={() => setProg(prog === p.id ? "" : p.id)}
               className={cx("text-right rounded-xl border p-4 transition-all bg-white",
@@ -845,11 +859,11 @@ function RequestsPage() {
                 {r.stage === "committee" && (
                   <div className="flex gap-1">
                     <Button size="sm" variant="outline" disabled={deciding === r.id}
-                      onClick={() => handleDecision(r.id, "accepted")}>
-                      {deciding === r.id ? "..." : "قبول"}
+                      onClick={() => openDecisionModal(r, "accepted")}>
+                      قبول
                     </Button>
                     <Button size="sm" variant="ghost" disabled={deciding === r.id}
-                      onClick={() => handleDecision(r.id, "declined")}>رفض</Button>
+                      onClick={() => openDecisionModal(r, "declined")}>رفض</Button>
                   </div>
                 )}
                 {r.stage === "decided" && r.approved_amount_sar && <span className="text-[12px] text-emerald-600 font-medium">✓ معتمد</span>}
@@ -858,6 +872,47 @@ function RequestsPage() {
           ))}
         </Table>
       </Card>
+
+      {modal.open && modal.type && (
+        <U.Modal open={modal.open}
+          onClose={() => !submitting && setModal({ open: false, type: null, request: null })}
+          title={decisionMeta[modal.type].title}
+          sub={modal.request ? `${modal.request.id} — ${modal.request.name_ar}` : ""}
+          footer={
+            <>
+              <Button variant="outline" onClick={() => setModal({ open: false, type: null, request: null })} disabled={submitting}>إلغاء</Button>
+              <Button variant={modal.type === "declined" ? "danger" : "default"} onClick={submitDecision} disabled={submitting}>
+                {submitting ? "جاري التسجيل…" : "تأكيد"}
+              </Button>
+            </>
+          }>
+          {modal.type === "accepted" && (
+            <div className="space-y-3">
+              <p className="text-[13px] text-ink-muted">أدخل المبلغ المعتمد للصرف:</p>
+              <Input type="number" value={modalAmount}
+                onChange={e => setModalAmount(e.target.value)} placeholder="15000" />
+              <div className="flex items-center justify-between text-[12px] text-ink-muted">
+                <span>المبلغ المطلوب:</span>
+                <span className="tabular font-medium">{money(modal.request?.requested_amount_sar)}</span>
+              </div>
+            </div>
+          )}
+          {modal.type === "docs_required" && (
+            <div className="space-y-3">
+              <p className="text-[13px] text-ink-muted">المستندات المطلوبة (مفصولة بفاصلة):</p>
+              <textarea className="w-full rounded-lg border border-line px-3 py-2 text-[13px] text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-brand-200"
+                rows={3} value={modalDocs} onChange={e => setModalDocs(e.target.value)} />
+            </div>
+          )}
+          {modal.type === "declined" && (
+            <div className="space-y-3">
+              <p className="text-[13px] text-ink-muted">سبب رفض الطلب:</p>
+              <textarea className="w-full rounded-lg border border-line px-3 py-2 text-[13px] text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-brand-200"
+                rows={3} value={modalReason} onChange={e => setModalReason(e.target.value)} />
+            </div>
+          )}
+        </U.Modal>
+      )}
     </div>
   );
 }
@@ -1167,6 +1222,15 @@ function AgentTestPage() {
     } catch (e) {}
   };
 
+  const clearAllSessions = async () => {
+    if (!confirm("Clear all sessions?")) return;
+    try {
+      await A.post("/agent/sessions/clear-all", {});
+      setMessages([]);
+      setContext(null);
+    } catch (e) {}
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -1183,6 +1247,9 @@ function AgentTestPage() {
           <div className="flex gap-2">
             <Button variant="outline" onClick={resetSession}>
               <Icon d={I.x} className="w-4 h-4" /> {t("reset")}
+            </Button>
+            <Button variant="outline" onClick={clearAllSessions} className="text-red-600 border-red-200 hover:bg-red-50">
+              <Icon d={I.x} className="w-4 h-4" /> Clear All Sessions
             </Button>
           </div>
         }

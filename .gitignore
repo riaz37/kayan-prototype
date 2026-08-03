@@ -60,3 +60,6 @@ logs/
 # WhatsApp bridge sessions
 whatsapp-bridge/sessions/
 whatsapp-bridge/*.json
+
+# MCP config (may contain local/secret settings)
+.mcp.json

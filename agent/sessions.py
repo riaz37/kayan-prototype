@@ -204,6 +204,14 @@ def clear_session(phone: str):
     conn.commit()
 
 
+def clear_all_sessions():
+    """Clear all sessions."""
+    conn = _get_conn()
+    conn.execute("DELETE FROM sessions")
+    conn.commit()
+    return True
+
+
 def get_all_sessions() -> list[dict]:
     """Get all active sessions (for debugging)."""
     conn = _get_conn()

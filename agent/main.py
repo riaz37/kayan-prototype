@@ -18,7 +18,7 @@ from agent.whatsapp import (
     verify_webhook, validate_signature, extract_message,
     send_text, send_template, normalize_phone_for_lookup,
 )
-from agent.sessions import get_session, set_context, get_context, clear_session
+from agent.sessions import get_session, set_context, get_context, clear_session, clear_all_sessions
 from agent import gemini as agent
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -309,6 +309,14 @@ async def agent_session_reset(phone: str):
     clear_session(phone)
     logger.info(f"Session reset for {phone}")
     return {"status": "ok", "phone": phone}
+
+
+@app.post("/agent/sessions/clear-all", tags=["agent"])
+async def agent_sessions_clear_all():
+    """Clear all sessions."""
+    clear_all_sessions()
+    logger.info("All sessions cleared")
+    return {"status": "ok", "message": "All sessions cleared"}
 
 
 @app.get("/", tags=["system"])

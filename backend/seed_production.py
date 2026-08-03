@@ -168,7 +168,7 @@ def seed_database():
                       random.randint(20, 95), gen_datetime(60)))
     print(f"Created {len(beneficiaries)} financial profiles")
 
-    programs = ["PROG-EDU", "PROG-HEALTH", "PROG-HOUSING", "PROG-LIVELIHOOD", "PROG-COMPASSION"]
+    programs = ["PRG-ILM", "PRG-TRN", "PRG-QOL", "PRG-HSG", "PRG-VAL"]
     sr_count = 0
     sr_ids = []
     stages_cycle = ["submitted", "under_study", "committee", "committee", "committee", "decided", "decided", "decided"]

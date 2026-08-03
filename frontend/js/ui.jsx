@@ -246,6 +246,29 @@ const Sheet = ({ open, onClose, title, sub, children, width = "max-w-2xl" }) => 
   );
 };
 
+const Modal = ({ open, onClose, title, sub, children, footer }) => {
+  useEffect(() => {
+    const k = (e) => e.key === "Escape" && onClose();
+    if (open) { document.addEventListener("keydown", k); document.body.style.overflow = "hidden"; }
+    return () => { document.removeEventListener("keydown", k); document.body.style.overflow = ""; };
+  }, [open, onClose]);
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px] animate-in" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl shadow-pop w-full max-w-md animate-in"
+           style={{ animation: "in .2s cubic-bezier(.16,1,.3,1) both" }}>
+        <div className="px-6 pt-5 pb-4">
+          <h2 className="text-[16px] font-semibold text-ink">{title}</h2>
+          {sub && <p className="text-[12.5px] text-ink-muted mt-1">{sub}</p>}
+        </div>
+        <div className="px-6 pb-4">{children}</div>
+        {footer && <div className="px-6 py-3 bg-line-soft/40 border-t border-line rounded-b-2xl flex justify-end gap-2">{footer}</div>}
+      </div>
+    </div>
+  );
+};
+
 const Empty = ({ icon = I.inbox, title, sub }) => (
   <div className="py-16 text-center">
     <div className="inline-flex p-3 rounded-xl bg-line-soft text-ink-soft mb-3"><Icon d={icon} className="w-5 h-5" /></div>
@@ -471,5 +494,5 @@ function t(key) {
 
 window.UI = { cx, nf, money, num, dateAr, timeAgo, Icon, I, Card, CardHead, Button, Badge, TONE,
   STATUS_TONE, FILE_STATUS_AR, STAGE_AR, Input, Select, Progress, Ring, Avatar, Stat, Table, Td,
-  Tabs, Sheet, Empty, Skeleton, Field, t, useLang, setLang, getLang };
+  Tabs, Sheet, Modal, Empty, Skeleton, Field, t, useLang, setLang, getLang };
 window.API = { get, post, patch, useApi, loadSnapshot };

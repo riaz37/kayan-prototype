@@ -247,24 +247,38 @@ def reply_ticket(ticket_id: str, body: ReplyIn):
     conn.commit()
     warn = None
     wa_sent = False
-    if body.send_to_whatsapp and t["channel"] == "whatsapp" and t.get("phone"):
+    # Resolve phone: ticket field → beneficiary sections → whatsapp_sessions
+    phone = t.get("phone")
+    if not phone and t.get("beneficiary_id"):
+        b = db.get_beneficiary(t["beneficiary_id"])
+        if b:
+            phone = b.get("sections", {}).get("SEC-CONTACT", {}).get("whatsapp")
+    if not phone:
+        sess_row = conn.execute(
+            "SELECT phone FROM whatsapp_sessions WHERE beneficiary_id = ? ORDER BY last_message_at DESC LIMIT 1",
+            (t.get("beneficiary_id"),)).fetchone()
+        if sess_row:
+            phone = sess_row["phone"]
+    if body.send_to_whatsapp and t["channel"] == "whatsapp" and phone:
         import httpx as _httpx, os as _os
         agent_url = _os.environ.get("AGENT_URL", "http://127.0.0.1:8002")
         try:
             resp = _httpx.post(f"{agent_url}/agent/send-text",
-                               json={"to": t["phone"], "text": body.body_ar}, timeout=30)
+                               json={"to": phone, "text": body.body_ar}, timeout=30)
             wa_sent = resp.json().get("ok", False)
         except Exception as e:
             warn = f"WhatsApp send failed: {e}"
         sess_row = conn.execute(
             "SELECT * FROM whatsapp_sessions WHERE phone = ? ORDER BY last_message_at DESC LIMIT 1",
-            (t["phone"],)).fetchone()
+            (phone,)).fetchone()
         if sess_row:
             sess = dict(sess_row)
             if not db.wa_window(sess)["open"]:
                 warn = "نافذة الواتساب (24 ساعة) منتهية — يلزم استخدام رسالة قالب معتمدة."
     elif not body.send_to_whatsapp:
         warn = "ملاحظة داخلية — لم تُرسل للمستفيد"
+    elif body.send_to_whatsapp and not phone:
+        warn = "لم يتم العثور على رقم واتساب مرتبط بالتذكرة"
     return {"message": m, "ticket_status": new_status, "whatsapp_sent": wa_sent, "warning_ar": warn}
 
 

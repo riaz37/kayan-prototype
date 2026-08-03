@@ -465,8 +465,9 @@ def _build_context_message(phone: str, context: Optional[dict]) -> str:
 
     if not context.get("known"):
         return (
-            "سياق المحادثة: متصل جديد (غير مسجل في النظام). "
-            "ابدأ بالترحيب واسأل عن أهدافه."
+            f"سياق المحادثة: متصل جديد (غير مسجل في النظام). رقم الجوال: {phone}. "
+            "ابدأ بالترحيب واسأل عن أهدافه. "
+            f"عند إنشاء تذكرة استخدم phone={phone}."
         )
 
     beneficiary_id = context.get("beneficiary_id", "")
