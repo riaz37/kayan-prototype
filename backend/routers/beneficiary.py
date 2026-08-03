@@ -259,7 +259,7 @@ def update_section(beneficiary_id: str, section_id: str, body: UpdateSectionIn):
             other = sum(s.get("amount", 0) for s in srcs
                         if s.get("type") != "راتب")
             f["income_breakdown"] = srcs
-            f["monthly_income_sar"] = round(float(salary) + float(other), 2)
+            f["monthly_income"] = round(float(salary) + float(other), 2)
             _recalc(f)
 
     return {"beneficiary_id": beneficiary_id, "section_id": section_id,
@@ -306,6 +306,8 @@ def submit_file(beneficiary_id: str):
             "reply_ar": "لا يمكن رفع الملف قبل استكمال البيانات والمستندات المطلوبة.",
         })
     b["status"] = "submitted"
+    b["updated_at"] = db.now_iso()
+    db.insert_beneficiary(b)
     return {"beneficiary_id": beneficiary_id, "status": "submitted",
             "reply_ar": "تم رفع ملفكم بنجاح. سيتم التواصل معكم لاستكمال اجراءات دراسة الحالة. "
                         "علما بان التسجيل في النظام لا يعني قبول الطلب."}
@@ -335,7 +337,7 @@ def add_dependent(beneficiary_id: str, body: DependentIn):
          "name_ar": body.name_ar, "relationship": body.relationship_ar,
          "birth_date": body.birth_date, "gender": body.gender,
          "education": body.education_stage,
-         "special_needs": 1 if body.has_special_needs else 0,
+         "special_needs": body.has_special_needs,
          "created_at": db.now_iso()}
     db.insert_dependent(d)
     n = len(db.deps_for(beneficiary_id))

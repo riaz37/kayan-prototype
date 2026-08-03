@@ -153,6 +153,7 @@ def _init_db():
             id TEXT PRIMARY KEY,
             beneficiary_id TEXT,
             program_id TEXT,
+            enrollment_id TEXT,
             amount REAL,
             status TEXT DEFAULT 'scheduled',
             due_date TEXT,
@@ -267,6 +268,32 @@ def _init_db():
 _init_db()
 
 
+def _init_dynamic_indexes():
+    """Populate in-memory indexes for dynamic data from the database."""
+    conn = _get_conn()
+    for table, key in [("support_requests", "support_request"),
+                       ("disbursements", "disbursement"),
+                       ("events", "event"),
+                       ("tickets", "ticket")]:
+        try:
+            rows = conn.execute(f"SELECT * FROM {table}").fetchall()
+            for row in rows:
+                d = dict(row)
+                # Parse JSON fields if present
+                if "sections" in d and isinstance(d["sections"], str):
+                    d["sections"] = json.loads(d["sections"])
+                if "obligations" in d and isinstance(d["obligations"], str):
+                    d["obligations"] = json.loads(d["obligations"])
+                if "person_costs" in d and isinstance(d["person_costs"], str):
+                    d["person_costs"] = json.loads(d["person_costs"])
+                by_id[key][d["id"]] = d
+        except Exception:
+            pass  # Table may not exist yet
+
+
+_init_dynamic_indexes()
+
+
 # ---- helpers
 def now():
     return datetime.utcnow()
@@ -360,6 +387,25 @@ def requests_for(bid):
     return [dict(r) for r in rows]
 
 
+def requests_for_all():
+    """List all support requests with beneficiary name and program info."""
+    conn = _get_conn()
+    rows = conn.execute("SELECT * FROM support_requests ORDER BY created_at DESC").fetchall()
+    out = []
+    for r in rows:
+        sr = dict(r)
+        # Get beneficiary name
+        b = get_beneficiary(sr["beneficiary_id"])
+        sr["name_ar"] = b["sections"]["SEC-BASIC"]["full_name_ar"] if b else None
+        sr["program_ar"] = program_name(sr["program_id"])
+        # Get decision info
+        dec = decision_for(sr["id"])
+        sr["decision_ar"] = dec["decision_ar"] if dec else None
+        sr["approved_amount_sar"] = dec["amount"] if dec else None
+        out.append(sr)
+    return out
+
+
 def decision_for(srid):
     conn = _get_conn()
     row = conn.execute("SELECT * FROM committee_decisions WHERE support_request_id = ?", (srid,)).fetchone()
@@ -400,6 +446,49 @@ def messages_for(tid):
     conn = _get_conn()
     rows = conn.execute("SELECT * FROM ticket_messages WHERE ticket_id = ? ORDER BY sent_at", (tid,)).fetchall()
     return [dict(r) for r in rows]
+
+
+def update_disbursement(disbursement_id, updates):
+    """Update disbursement fields in the database and in-memory index."""
+    conn = _get_conn()
+    set_clauses = []
+    values = []
+    for k, v in updates.items():
+        set_clauses.append(f"{k} = ?")
+        values.append(v)
+    if set_clauses:
+        values.append(disbursement_id)
+        conn.execute(f"UPDATE disbursements SET {', '.join(set_clauses)} WHERE id = ?", values)
+        conn.commit()
+    # Update in-memory index
+    d = by_id["disbursement"].get(disbursement_id)
+    if d:
+        d.update(updates)
+
+
+def update_payment(payment_id, updates):
+    """Update payment fields in the database."""
+    conn = _get_conn()
+    set_clauses = []
+    values = []
+    for k, v in updates.items():
+        set_clauses.append(f"{k} = ?")
+        values.append(v)
+    if set_clauses:
+        values.append(payment_id)
+        conn.execute(f"UPDATE payments SET {', '.join(set_clauses)} WHERE id = ?", values)
+        conn.commit()
+
+
+def insert_payment(p):
+    """Insert a payment record into the database."""
+    conn = _get_conn()
+    conn.execute(
+        """INSERT INTO payments (id, disbursement_id, beneficiary_id, amount, method, reference, paid_at)
+           VALUES (?,?,?,?,?,?,?)""",
+        (p["id"], p.get("disbursement_id"), p.get("beneficiary_id"), p.get("amount"),
+         p.get("method"), p.get("reference"), p.get("paid_at")))
+    conn.commit()
 
 
 def program_name(pid):
@@ -490,17 +579,17 @@ def _init_seq():
     # Get max IDs from each table to avoid duplicates
     queries = {
         "ben": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM beneficiaries",
-        "dep": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM departments",
+        "dep": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM dependents",
         "doc": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM documents",
         "sr": "SELECT MAX(CAST(SUBSTR(id, 4) AS INTEGER)) FROM support_requests",
-        "case": "SELECT MAX(CAST(SUBSTR(id, 4) AS INTEGER)) FROM cases",
-        "dec": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM decisions",
+        "case": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM case_studies",
+        "dec": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM committee_decisions",
         "enr": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM enrollments",
         "dis": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM disbursements",
         "pay": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM payments",
         "tkt": "SELECT MAX(CAST(SUBSTR(id, 4) AS INTEGER)) FROM tickets",
         "msg": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM ticket_messages",
-        "call": "SELECT MAX(CAST(SUBSTR(id, 6) AS INTEGER)) FROM call_logs",
+        "call": "SELECT MAX(CAST(SUBSTR(id, 6) AS INTEGER)) FROM call_sessions",
         "wa": "SELECT MAX(CAST(SUBSTR(id, 4) AS INTEGER)) FROM whatsapp_sessions",
         "file": "SELECT MAX(CAST(SUBSTR(file_no, 4) AS INTEGER)) FROM beneficiaries WHERE file_no LIKE 'KY-%'",
     }
@@ -614,9 +703,12 @@ def insert_dependent(d):
         """INSERT OR REPLACE INTO dependents
            (id, beneficiary_id, name_ar, relationship, birth_date, gender, education, special_needs, created_at)
            VALUES (?,?,?,?,?,?,?,?,?)""",
-        (d["id"], d["beneficiary_id"], d.get("name_ar"), d.get("relationship"),
-         d.get("birth_date"), d.get("gender"), d.get("education"),
-         d.get("special_needs", 0), d.get("created_at"))
+        (d["id"], d["beneficiary_id"], d.get("name_ar"),
+         d.get("relationship") or d.get("relationship_ar"),
+         d.get("birth_date"), d.get("gender"),
+         d.get("education") or d.get("education_stage"),
+         d.get("special_needs") if d.get("special_needs") is not None else d.get("has_special_needs", False),
+         d.get("created_at"))
     )
     conn.commit()
 

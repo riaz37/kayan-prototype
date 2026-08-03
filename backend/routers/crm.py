@@ -544,12 +544,11 @@ def transfer_call(call_id: str, body: TransferIn):
     tid = db.next_id("tkt", "TK-2026-")
     b = db.get_beneficiary(sess.get("beneficiary_id")) if sess.get("beneficiary_id") else None
     t = {"id": tid, "beneficiary_id": sess.get("beneficiary_id"),
-         "customer_name_ar": (b or {}).get("sections", {}).get("SEC-BASIC", {}).get("full_name_ar") or "غير مسجل",
-         "whatsapp_number": sess["from_number"], "department_id": body.department_id,
+         "phone": sess["from_number"], "department_id": body.department_id,
          "subject_ar": body.reason_ar, "status": "open", "channel": "call",
-         "priority": "high", "assigned_staff_id": None, "opened_at": db.now_iso(),
-         "last_update": db.now_iso(), "closed_at": None, "messages_count": 0,
-         "linked_request_id": None, "source_call_id": call_id}
+         "priority": "high", "assigned_to": None, "opened_at": db.now_iso(),
+         "updated_at": db.now_iso(), "closed_at": None}
+    db.insert_ticket(t)
     db.tickets.append(t)
     db.by_id["ticket"][tid] = t
     sess["outcome"] = "escalated_to_agent"

@@ -664,10 +664,10 @@ function BeneficiarySheet({ id, onClose }) {
                     <Td><div className="flex items-center gap-2.5">
                       <Avatar name={x.name_ar} size={28} />
                       <span className="font-medium text-ink">{x.name_ar}</span></div></Td>
-                    <Td><span className="text-[12.5px] text-ink-muted">{x.relationship_ar}</span></Td>
+                    <Td><span className="text-[12.5px] text-ink-muted">{x.relationship}</span></Td>
                     <Td><span className="tabular text-[12.5px] text-ink-muted">{x.birth_date}</span></Td>
-                    <Td><span className="text-[12.5px] text-ink-muted">{x.education_stage}</span></Td>
-                    <Td>{x.has_special_needs && <Badge tone="violet">احتياج خاص</Badge>}</Td>
+                    <Td><span className="text-[12.5px] text-ink-muted">{x.education}</span></Td>
+                    <Td>{x.special_needs ? <Badge tone="violet">احتياج خاص</Badge> : null}</Td>
                   </tr>
                 ))}
               </Table>
@@ -720,7 +720,7 @@ function BeneficiarySheet({ id, onClose }) {
                       <Td><span className="tabular text-[12.5px]">{x.due_date}</span></Td>
                       <Td><span className="text-[12.5px] text-ink-muted">
                         {(d.enrollments || []).find(e => e.id === x.enrollment_id)?.program_ar || "—"}</span></Td>
-                      <Td><span className="tabular text-[12.5px] font-medium">{money(x.amount_sar)}</span></Td>
+                      <Td><span className="tabular text-[12.5px] font-medium">{money(x.amount)}</span></Td>
                       <Td><Badge tone={STATUS_TONE[x.status]} dot>
                         {{ paid:"مصروف", scheduled:"مجدول", approved:"معتمد", pending_approval:"بانتظار الاعتماد" }[x.status] || x.status}
                       </Badge></Td>
@@ -741,7 +741,7 @@ function BeneficiarySheet({ id, onClose }) {
                       <span className="absolute -right-[26px] top-1 w-2.5 h-2.5 rounded-full bg-brand-400 ring-4 ring-white" />
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="text-[13px] font-medium text-ink">{t.subject_ar}</p>
-                        <Badge tone={STATUS_TONE[t.status_ar] || "slate"}>{t.status_ar}</Badge>
+                        <Badge tone={STATUS_TONE[t.status] || "slate"}>{t.status_ar}</Badge>
                       </div>
                       <p className="text-[11.5px] text-ink-soft mt-0.5">
                         {{ whatsapp:"واتساب", call:"اتصال هاتفي", portal:"الموقع" }[t.channel]} · {dateAr(t.opened_at)}
@@ -895,7 +895,7 @@ function FinancePage() {
               <tr key={x.id}>
                 <Td><span className="tabular text-[12.5px]">{x.due_date}</span></Td>
                 <Td><span className="tabular text-[12px] text-ink-muted">{x.beneficiary_id}</span></Td>
-                <Td><span className="tabular text-[12.5px] font-medium">{money(x.amount_sar)}</span></Td>
+                <Td><span className="tabular text-[12.5px] font-medium">{money(x.amount)}</span></Td>
                 <Td><Badge tone={STATUS_TONE[x.status]} dot>
                   {{ scheduled:"مجدول", approved:"معتمد", pending_approval:"بانتظار الاعتماد" }[x.status] || x.status}</Badge></Td>
               </tr>
@@ -1194,7 +1194,7 @@ function AgentTestPage() {
 
               {context.next_disbursement && (
                 <Field label={t("nextDisbursement")} value={
-                  `${money(context.next_disbursement.amount_sar)} - ${dateAr(context.next_disbursement.due_date)}`
+                  `${money(context.next_disbursement.amount)} - ${dateAr(context.next_disbursement.due_date)}`
                 } />
               )}
             </div>

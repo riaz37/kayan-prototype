@@ -69,10 +69,12 @@ def handle_submit_file(beneficiary_id: str) -> dict:
 
 
 def handle_add_dependent(beneficiary_id: str, name_ar: str, relationship_ar: str,
-                         is_orphan: bool = False, has_special_needs: bool = False) -> dict:
+                         birth_date: str = "", education_stage: str = "",
+                         has_special_needs: bool = False) -> dict:
     return _post(f"/beneficiary/{beneficiary_id}/dependents", {
         "name_ar": name_ar, "relationship_ar": relationship_ar,
-        "is_orphan": is_orphan, "has_special_needs": has_special_needs,
+        "birth_date": birth_date or None, "education_stage": education_stage or None,
+        "has_special_needs": has_special_needs,
     })
 
 
@@ -88,19 +90,19 @@ def handle_get_financial_profile(beneficiary_id: str) -> dict:
     return _get(f"/beneficiary/{beneficiary_id}/financial-profile")
 
 
-def handle_add_obligation(beneficiary_id: str, obligation_type_id: str,
-                          amount_sar: float, description_ar: str = "") -> dict:
+def handle_add_obligation(beneficiary_id: str, type_id: str,
+                          monthly_sar: float, documented: bool = True) -> dict:
     return _post(f"/beneficiary/{beneficiary_id}/obligations", {
-        "obligation_type_id": obligation_type_id,
-        "amount_sar": amount_sar, "description_ar": description_ar,
+        "type_id": type_id,
+        "monthly_sar": monthly_sar, "documented": documented,
     })
 
 
-def handle_add_person_cost(beneficiary_id: str, person_cost_type_id: str,
-                           amount_sar: float, description_ar: str = "") -> dict:
+def handle_add_person_cost(beneficiary_id: str, type_id: str,
+                           monthly_sar: float) -> dict:
     return _post(f"/beneficiary/{beneficiary_id}/person-costs", {
-        "person_cost_type_id": person_cost_type_id,
-        "amount_sar": amount_sar, "description_ar": description_ar,
+        "type_id": type_id,
+        "monthly_sar": monthly_sar,
     })
 
 
@@ -123,8 +125,8 @@ def handle_get_support_request(request_id: str) -> dict:
     return _get(f"/support-requests/{request_id}")
 
 
-def handle_add_request_detail(request_id: str, detail_ar: str) -> dict:
-    return _patch(f"/support-requests/{request_id}/add-detail", {"detail_ar": detail_ar})
+def handle_add_request_detail(request_id: str, additional_detail_ar: str) -> dict:
+    return _patch(f"/support-requests/{request_id}/add-detail", {"additional_detail_ar": additional_detail_ar})
 
 
 def handle_search_faqs(q: str) -> dict:
@@ -194,6 +196,7 @@ TOOL_HANDLERS = {
     "create_ticket": lambda **kw: handle_create_ticket(**kw),
     "get_beneficiary_history": lambda **kw: handle_get_beneficiary_history(**kw),
     "list_programs": lambda **kw: handle_list_programs(**kw),
+    "send_whatsapp": lambda **kw: handle_send_whatsapp(**kw),
     "send_template_message": lambda **kw: handle_send_template(**kw),
 }
 
@@ -362,7 +365,8 @@ TOOLS_OPENAI = [
                     "beneficiary_id": {"type": "string", "description": "Beneficiary ID"},
                     "name_ar": {"type": "string", "description": "Dependent's Arabic name"},
                     "relationship_ar": {"type": "string", "description": "Relationship (الزوجة، الابن، الابنة، الأخ، الأخت)"},
-                    "is_orphan": {"type": "boolean", "description": "Whether the dependent is an orphan"},
+                    "birth_date": {"type": "string", "description": "Birth date (YYYY-MM-DD), optional"},
+                    "education_stage": {"type": "string", "description": "Education stage (ابتدائي، متوسط، ثانوي، جامعي), optional"},
                     "has_special_needs": {"type": "boolean", "description": "Whether the dependent has special needs"},
                 },
                 "required": ["beneficiary_id", "name_ar", "relationship_ar"],
@@ -428,14 +432,14 @@ TOOLS_OPENAI = [
                 "type": "object",
                 "properties": {
                     "beneficiary_id": {"type": "string", "description": "Beneficiary ID"},
-                    "obligation_type_id": {
+                    "type_id": {
                         "type": "string",
-                        "description": "Type: OBL-RENT (إيجار), OBL-LOAN (قرض), OBL-MAINTENANCE (صيانة), OBL-EDUCATION (تعليم)",
+                        "description": "Type: OB-RENT (إيجار), OB-LOAN (قرض), OB-MAINTENANCE (صيانة), OB-EDUCATION (تعليم)",
                     },
-                    "amount_sar": {"type": "number", "description": "Monthly amount in SAR"},
-                    "description_ar": {"type": "string", "description": "Optional description"},
+                    "monthly_sar": {"type": "number", "description": "Monthly amount in SAR"},
+                    "documented": {"type": "boolean", "description": "Whether the obligation is documented (default true)"},
                 },
-                "required": ["beneficiary_id", "obligation_type_id", "amount_sar"],
+                "required": ["beneficiary_id", "type_id", "monthly_sar"],
             },
         },
     },
@@ -448,14 +452,13 @@ TOOLS_OPENAI = [
                 "type": "object",
                 "properties": {
                     "beneficiary_id": {"type": "string", "description": "Beneficiary ID"},
-                    "person_cost_type_id": {
+                    "type_id": {
                         "type": "string",
                         "description": "Type: PC-FOOD (طعام), PC-HEALTH (صحة), PC-EDUCATION (تعليم), PC-TRANSPORT (مواصلات)",
                     },
-                    "amount_sar": {"type": "number", "description": "Monthly amount in SAR"},
-                    "description_ar": {"type": "string", "description": "Optional description"},
+                    "monthly_sar": {"type": "number", "description": "Monthly amount in SAR"},
                 },
-                "required": ["beneficiary_id", "person_cost_type_id", "amount_sar"],
+                "required": ["beneficiary_id", "type_id", "monthly_sar"],
             },
         },
     },
@@ -513,9 +516,9 @@ TOOLS_OPENAI = [
                 "type": "object",
                 "properties": {
                     "request_id": {"type": "string", "description": "Support request ID"},
-                    "detail_ar": {"type": "string", "description": "Additional detail in Arabic"},
+                    "additional_detail_ar": {"type": "string", "description": "Additional detail in Arabic"},
                 },
-                "required": ["request_id", "detail_ar"],
+                "required": ["request_id", "additional_detail_ar"],
             },
         },
     },

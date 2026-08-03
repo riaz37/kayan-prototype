@@ -6,6 +6,7 @@ specialized committee -> decision -> notification.
 from typing import Optional, List
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
+import json
 
 from backend import store as db
 
@@ -114,6 +115,14 @@ def create_request(body: CreateRequestIn):
                         "سيخضع الطلب للدراسة والتقييم وسيتم اشعاركم بالقرار."}
 
 
+@router.get("/support-requests", tags=[T_REQ],
+            summary="List all support requests across all beneficiaries",
+            description="Returns all support requests with program and beneficiary info.")
+def list_all_requests():
+    rows = db.requests_for_all()
+    return {"count": len(rows), "requests": rows}
+
+
 @router.get("/support-requests/{request_id}", tags=[T_REQ],
             summary="Get a support request with its casework and decision",
             description="Full request detail including the case study steps and the committee decision "
@@ -146,7 +155,7 @@ def list_requests(beneficiary_id: str):
         d = db.decision_for(r["id"])
         out.append({**r, "program_ar": db.program_name(r["program_id"]),
                     "decision": d["decision"] if d else None,
-                    "decision_ar": d["decision"] if d else None,
+                    "decision_ar": d["decision_ar"] if d else None,
                     "approved_amount_sar": d["amount"] if d else None})
     return {"beneficiary_id": beneficiary_id, "count": len(out), "requests": out}
 
@@ -343,6 +352,14 @@ def committee_queue(limit: int = Query(20, ge=1, le=100)):
         f = db.finance_for(sr["beneficiary_id"]) or {}
         b = db.get_beneficiary(sr["beneficiary_id"])
         case = db.case_for(sr["id"])
+        # Compute per_capita_monthly_sar from stored data
+        obligations = json.loads(f.get("obligations", "[]")) if isinstance(f.get("obligations"), str) else (f.get("obligations") or [])
+        person_costs = json.loads(f.get("person_costs", "[]")) if isinstance(f.get("person_costs"), str) else (f.get("person_costs") or [])
+        total_obligations = round(sum(o.get("monthly_sar", 0) for o in obligations), 2)
+        total_person_costs = round(sum(c.get("monthly_sar", 0) for c in person_costs), 2)
+        net_monthly = round(f.get("monthly_income", 0) - total_obligations - total_person_costs, 2)
+        hh = max(1, f.get("household_size", 1))
+        per_capita = round(net_monthly / hh, 2)
         rows.append({
             "support_request_id": sr["id"],
             "beneficiary_id": sr["beneficiary_id"],
@@ -351,8 +368,8 @@ def committee_queue(limit: int = Query(20, ge=1, le=100)):
             "title_ar": sr["title_ar"],
             "requested_amount_sar": sr["requested_amount_sar"],
             "need_score": f.get("need_score"),
-            "per_capita_monthly_sar": f.get("per_capita_monthly_sar"),
-            "household_size": f.get("household_size"),
+            "per_capita_monthly_sar": per_capita,
+            "household_size": hh,
             "recommendation_ar": (case or {}).get("recommendation_ar"),
         })
     rows.sort(key=lambda r: r.get("need_score") or 0, reverse=True)

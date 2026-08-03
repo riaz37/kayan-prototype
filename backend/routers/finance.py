@@ -70,13 +70,13 @@ def create_enrollment(body: EnrollIn):
         due = start + timedelta(days=30 * m)
         did = db.next_id("dis", "DIS-")
         d = {"id": did, "beneficiary_id": sr["beneficiary_id"],
-             "program_id": sr["program_id"], "amount": monthly,
-             "due_date": due.date().isoformat(), "status": "scheduled"}
+             "program_id": sr["program_id"], "enrollment_id": eid,
+             "amount": monthly, "due_date": due.date().isoformat(), "status": "scheduled"}
         conn.execute(
-            """INSERT INTO disbursements (id, beneficiary_id, program_id, amount, due_date, status, created_at)
-               VALUES (?,?,?,?,?,?,?)""",
-            (d["id"], d["beneficiary_id"], d["program_id"], d["amount"],
-             d["due_date"], d["status"], db.now_iso()))
+            """INSERT INTO disbursements (id, beneficiary_id, program_id, enrollment_id, amount, due_date, status, created_at)
+               VALUES (?,?,?,?,?,?,?,?)""",
+            (d["id"], d["beneficiary_id"], d["program_id"], d["enrollment_id"],
+             d["amount"], d["due_date"], d["status"], db.now_iso()))
         conn.commit()
         created.append(d)
     return {"enrollment": en, "disbursements_created": len(created),
@@ -137,6 +137,7 @@ def approve_disbursement(disbursement_id: str, body: ApproveDisbIn):
         raise HTTPException(409, "Already paid")
     d["status"] = "approved"
     d["approved_by"] = body.approved_by
+    db.update_disbursement(disbursement_id, {"status": "approved", "approved_by": body.approved_by})
     return {"disbursement": d}
 
 
@@ -159,7 +160,9 @@ def pay_disbursement(disbursement_id: str):
          "beneficiary_id": d["beneficiary_id"], "amount": d["amount"],
          "method": "bank_transfer", "reference": f"KYN{_r.randint(100000, 999999)}",
          "paid_at": db.now_iso()}
+    db.insert_payment(p)
     db.payments.append(p)
+    db.update_disbursement(disbursement_id, {"status": "paid"})
     d["status"] = "paid"
     msg = db.render_template("TPL-PAY", amount=d["amount"],
                              reason=db.program_name(d["program_id"]))
@@ -266,7 +269,7 @@ def history(beneficiary_id: str):
         reqs.append({"id": r["id"], "program_ar": db.program_name(r["program_id"]),
                      "title_ar": r["title_ar"], "stage": r["stage"],
                      "requested_amount_sar": r["requested_amount_sar"],
-                     "decision_ar": d["decision"] if d else None,
+                     "decision_ar": d["decision_ar"] if d else None,
                      "approved_amount_sar": d["amount"] if d else None,
                      "created_at": r["created_at"]})
     pays = db.payments_for(beneficiary_id)
