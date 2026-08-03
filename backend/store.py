@@ -339,6 +339,17 @@ by_id = {
 }
 
 
+def _warm_indices():
+    """Populate mutable indices from the database (for seed records)."""
+    conn = _get_conn()
+    for table in ("support_request", "disbursement", "event", "ticket"):
+        rows = conn.execute(f"SELECT * FROM {table}s").fetchall()
+        by_id[table] = _index(rows)
+
+
+_warm_indices()
+
+
 # ---- beneficiary lookups
 def get_beneficiary(bid):
     conn = _get_conn()
@@ -401,7 +412,7 @@ def requests_for_all():
         sr["program_ar"] = program_name(sr["program_id"])
         # Get decision info
         dec = decision_for(sr["id"])
-        sr["decision_ar"] = dec["decision_ar"] if dec else None
+        sr["decision_ar"] = dec["decision"] if dec else None
         sr["approved_amount_sar"] = dec["amount"] if dec else None
         out.append(sr)
     return out
