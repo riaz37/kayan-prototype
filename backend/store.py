@@ -871,4 +871,3 @@ events = _TableProxy("events")
 # Runtime-only (kept in memory, not critical)
 accounts = {}
 notifications = []
-API_VERSION = "2.0.0"
