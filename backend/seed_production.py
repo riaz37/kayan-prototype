@@ -9,7 +9,7 @@ import sqlite3
 import uuid
 from datetime import datetime, timedelta
 
-DB_PATH = os.environ.get("DATABASE_URL", "data/kayan.db")
+DB_PATH = os.path.join(os.environ.get("DATA_DIR", os.path.join(os.path.dirname(__file__), "..", "data")), "kayan.db")
 
 FIRST_NAMES_M = ["محمد", "عبدالله", "فهد", "خالد", "سعد", "عبدالرحمن", "سلطان", "ياسر", "عمر", "احمد", "علي", "حسن", "يوسف", "ابراهيم", "مصطفى", "احمد", "امير", "هاني", "بلال", "راشد", "ماجد", "طارق", "كريم", "وليد", "ادهم", "نواف", "عاصف"]
 FIRST_NAMES_F = ["فاطمة", "نورة", "سارة", "منى", "ريم", "هدى", "لينا", "دانا", "جنى", "رنا", "مريم", "حور", "عمر", "رigo", "ياسمين", "لمى", "ندى", "سمر", "هند", "عبير", "اماني", "نورة", "هبة", "مها", "ايمان", "سلمى", "منار"]
