@@ -766,6 +766,34 @@ function RequestsPage() {
   const pr = A.useApi("/programs", "programs");
   const rows = (rq.data || []).filter(r => (!prog || r.program_id === prog) &&
     (!q || (r.title_ar + r.name_ar).includes(q)));
+  const [deciding, setDeciding] = useState(null);
+
+  const handleDecision = async (id, decision) => {
+    const labels = { accepted: "اعتماد الطلب", declined: "رفض الطلب", docs_required: "طلب استكمال مستندات" };
+    if (!confirm(`${labels[decision]}؟`)) return;
+    let amount = null, reason = "قرار اللجنة", docs = null;
+    if (decision === "accepted") {
+      const a = prompt("المبلغ المطلوب (ريال):", "15000");
+      if (a === null) return;
+      amount = parseFloat(a) || 15000;
+    } else if (decision === "docs_required") {
+      docs = prompt("المستندات المطلوبة (مفصولة بفاصلة):", "تعريف الراتب، عقد الإيجار");
+      if (docs === null) return;
+      docs = docs.split(",").map(s => s.trim());
+    } else {
+      reason = prompt("سبب الاعتذار:", "لا يوجد احتياج مؤكد حسب التقييم");
+      if (reason === null) return;
+    }
+    setDeciding(id);
+    try {
+      await A.post(`/support-requests/${id}/decision`, {
+        decision, approved_amount_sar: amount, reason_ar: reason, required_documents_ar: docs
+      });
+      rq.refresh();
+    } catch(e) { console.error(e); alert("خطأ في تسجيل القرار"); }
+    setDeciding(null);
+  };
+
   return (
     <div className="space-y-4">
       <PageHead title="طلبات الدعم" sub="طلبات المستفيدين ضمن برامج الجمعية الخمسة" />
@@ -787,7 +815,7 @@ function RequestsPage() {
         <div className="p-4 border-b border-line">
           <Input icon={I.search} placeholder="ابحث في الطلبات…" value={q} onChange={e => setQ(e.target.value)} />
         </div>
-        <Table head={["رقم الطلب", "المستفيد", "البرنامج", "نوع الطلب", "التصنيف", "المرحلة", "المطلوب", "المعتمد"]}
+        <Table head={["رقم الطلب", "المستفيد", "البرنامج", "نوع الطلب", "التصنيف", "المرحلة", "المطلوب", "المعتمد", "إجراء"]}
                empty={!rows.length && "لا توجد طلبات"}>
           {rows.slice(0, 60).map(r => (
             <tr key={r.id} className="hover:bg-line-soft/50 transition-colors">
@@ -800,6 +828,19 @@ function RequestsPage() {
               <Td><span className="tabular text-[12.5px]">{money(r.requested_amount_sar)}</span></Td>
               <Td><span className="tabular text-[12.5px] font-medium text-emerald-700">
                 {r.approved_amount_sar ? money(r.approved_amount_sar) : "—"}</span></Td>
+              <Td>
+                {r.stage === "committee" && (
+                  <div className="flex gap-1">
+                    <Button size="sm" variant="outline" disabled={deciding === r.id}
+                      onClick={() => handleDecision(r.id, "accepted")}>
+                      {deciding === r.id ? "..." : "قبول"}
+                    </Button>
+                    <Button size="sm" variant="ghost" disabled={deciding === r.id}
+                      onClick={() => handleDecision(r.id, "declined")}>رفض</Button>
+                  </div>
+                )}
+                {r.stage === "decided" && r.approved_amount_sar && <span className="text-[12px] text-emerald-600 font-medium">✓ معتمد</span>}
+              </Td>
             </tr>
           ))}
         </Table>
@@ -812,6 +853,34 @@ function RequestsPage() {
 function CommitteePage() {
   const cq = A.useApi("/committee/queue", "committee");
   const rows = cq.data?.queue || [];
+  const [deciding, setDeciding] = useState(null);
+
+  const handleDecision = async (id, decision) => {
+    const labels = { accepted: "اعتماد الطلب", declined: "رفض الطلب", docs_required: "طلب استكمال مستندات" };
+    if (!confirm(`${labels[decision]}؟`)) return;
+    let amount = null, reason = "قرار اللجنة", docs = null;
+    if (decision === "accepted") {
+      const a = prompt("المبلغ المطلوب (ريال):", "15000");
+      if (a === null) return;
+      amount = parseFloat(a) || 15000;
+    } else if (decision === "docs_required") {
+      docs = prompt("المستندات المطلوبة (مفصولة بفاصلة):", "تعريف الراتب، عقد الإيجار");
+      if (docs === null) return;
+      docs = docs.split(",").map(s => s.trim());
+    } else {
+      reason = prompt("سبب الاعتذار:", "لا يوجد احتياج مؤكد حسب التقييم");
+      if (reason === null) return;
+    }
+    setDeciding(id);
+    try {
+      await A.post(`/support-requests/${id}/decision`, {
+        decision, approved_amount_sar: amount, reason_ar: reason, required_documents_ar: docs
+      });
+      cq.refresh();
+    } catch(e) { console.error(e); alert("خطأ في تسجيل القرار"); }
+    setDeciding(null);
+  };
+
   return (
     <div className="space-y-4">
       <PageHead title="اللجنة المختصة" sub="الحالات المعروضة للدراسة — مرتبة حسب درجة الاحتياج والأولوية" />
@@ -857,9 +926,14 @@ function CommitteePage() {
               </p>
             )}
             <div className="flex gap-2">
-              <Button size="sm" className="flex-1"><Icon d={I.check} className="w-3.5 h-3.5" /> قبول</Button>
-              <Button size="sm" variant="outline" className="flex-1">استكمال مستندات</Button>
-              <Button size="sm" variant="ghost">اعتذار</Button>
+              <Button size="sm" className="flex-1" disabled={deciding === r.support_request_id}
+                onClick={() => handleDecision(r.support_request_id, "accepted")}>
+                <Icon d={I.check} className="w-3.5 h-3.5" /> {deciding === r.support_request_id ? "..." : "قبول"}
+              </Button>
+              <Button size="sm" variant="outline" className="flex-1" disabled={deciding === r.support_request_id}
+                onClick={() => handleDecision(r.support_request_id, "docs_required")}>استكمال مستندات</Button>
+              <Button size="sm" variant="ghost" disabled={deciding === r.support_request_id}
+                onClick={() => handleDecision(r.support_request_id, "declined")}>اعتذار</Button>
             </div>
           </Card>
         ))}
@@ -875,6 +949,24 @@ function FinancePage() {
   const ov = A.useApi("/reports/overview", "overview");
   const sp = A.useApi("/sponsorships", "sponsorships");
   const d = run.data || {}, o = ov.data || {};
+  const [acting, setActing] = useState(null);
+
+  const handleApprove = async (id) => {
+    if (!confirm("اعتماد الدفعة؟")) return;
+    setActing(id);
+    try { await A.post(`/disbursements/${id}/approve`, { approved_by: "STF-06" }); run.refresh(); }
+    catch(e) { console.error(e); alert("خطأ في الاعتماد"); }
+    setActing(null);
+  };
+
+  const handlePay = async (id) => {
+    if (!confirm("صرف الدفعة للحساب البنكي؟")) return;
+    setActing(id);
+    try { await A.post(`/disbursements/${id}/pay`); run.refresh(); ov.refresh(); }
+    catch(e) { console.error(e); alert("خطأ في الصرف — تأكد من بيانات الحساب البنكي"); }
+    setActing(null);
+  };
+
   return (
     <div className="space-y-4">
       <PageHead title="الصرف والكفالات" sub="جدول الصرف الشهري والتحويلات للمستفيدين" />
@@ -889,7 +981,7 @@ function FinancePage() {
       <div className="grid lg:grid-cols-3 gap-4">
         <Card className="lg:col-span-2">
           <CardHead title="دفعات مستحقة" sub="خلال الستين يومًا القادمة" />
-          <Table head={["تاريخ الاستحقاق", "المستفيد", "المبلغ", "الحالة"]}
+          <Table head={["تاريخ الاستحقاق", "المستفيد", "المبلغ", "الحالة", "إجراء"]}
                  empty={!d.disbursements?.length && "لا توجد دفعات مستحقة"}>
             {(d.disbursements || []).slice(0, 14).map(x => (
               <tr key={x.id}>
@@ -898,6 +990,21 @@ function FinancePage() {
                 <Td><span className="tabular text-[12.5px] font-medium">{money(x.amount)}</span></Td>
                 <Td><Badge tone={STATUS_TONE[x.status]} dot>
                   {{ scheduled:"مجدول", approved:"معتمد", pending_approval:"بانتظار الاعتماد" }[x.status] || x.status}</Badge></Td>
+                <Td>
+                  {x.status === "scheduled" && (
+                    <Button size="sm" variant="outline" disabled={acting === x.id}
+                      onClick={() => handleApprove(x.id)}>
+                      {acting === x.id ? "..." : "اعتماد"}
+                    </Button>
+                  )}
+                  {x.status === "approved" && (
+                    <Button size="sm" disabled={acting === x.id}
+                      onClick={() => handlePay(x.id)}>
+                      {acting === x.id ? "..." : "صرف"}
+                    </Button>
+                  )}
+                  {x.status === "paid" && <span className="text-[12px] text-emerald-600 font-medium">✓ مصروف</span>}
+                </Td>
               </tr>
             ))}
           </Table>
