@@ -317,6 +317,7 @@ def record_decision(request_id: str, body: DecisionIn):
            "required_documents_ar": body.required_documents_ar,
            "notified_whatsapp": True, "notified_sms": True}
     db.committee_decisions.append(dec)
+    conn = db._get_conn()
     conn.execute("UPDATE support_requests SET stage = ?, decision = ? WHERE id = ?",
                  ("decided", body.decision, request_id))
     conn.commit()
