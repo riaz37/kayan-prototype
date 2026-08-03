@@ -317,24 +317,28 @@ def history(beneficiary_id: str):
 @router.get("/beneficiaries/search", tags=[T_360],
             summary="Search beneficiaries by phone, name, file number or ID",
             description="Primary lookup for both channels — resolves a caller to their file. Phone "
-                        "matching accepts 05…, 9665…, +9665… formats.")
-def search_beneficiary(q: str = Query(..., examples=["0501234567"]),
-                       limit: int = Query(5, ge=1, le=200)):
+                        "matching accepts 05…, 9665…, +9665… formats. Empty q returns all.")
+def search_beneficiary(q: str = Query("", examples=["0501234567"]),
+                       limit: int = Query(200, ge=1, le=1000)):
     ql = q.strip()
-    phone = db.norm_phone(ql)
+    phone = db.norm_phone(ql) if ql else None
     hits = []
     for b in db.beneficiaries:
-        c = b["sections"]["SEC-CONTACT"]
-        basic = b["sections"]["SEC-BASIC"]
-        if (phone and (db.norm_phone(c.get("mobile")) == phone or db.norm_phone(c.get("whatsapp")) == phone)) \
-                or ql == b["id"] or ql == b["file_no"] \
+        c = b["sections"].get("SEC-CONTACT", {})
+        basic = b["sections"].get("SEC-BASIC", {})
+        housing = b["sections"].get("SEC-HOUSING", {})
+        # If query is empty, return all; otherwise filter
+        match = not ql or \
+                (phone and (db.norm_phone(c.get("mobile")) == phone or db.norm_phone(c.get("whatsapp")) == phone)) \
+                or ql == b["id"] or ql == b.get("file_no") \
                 or ql == (basic.get("national_id") or "") \
-                or (len(ql) > 2 and ql in (basic.get("full_name_ar") or "")):
+                or (len(ql) > 2 and ql in (basic.get("full_name_ar") or ""))
+        if match:
             comp = db.file_completeness(b["id"])
-            hits.append({"id": b["id"], "file_no": b["file_no"],
-                         "name_ar": basic["full_name_ar"], "status": b["status"],
+            hits.append({"id": b["id"], "file_no": b.get("file_no"),
+                         "name_ar": basic.get("full_name_ar", ""), "status": b.get("status"),
                          "case_type": b.get("case_type"),
-                         "city": b["sections"]["SEC-HOUSING"].get("city"),
+                         "city": housing.get("city"),
                          "mobile": c.get("mobile"),
                          "completion_pct": comp["completion_pct"] if comp else 0,
                          "dependents": len(db.deps_for(b["id"]))})
