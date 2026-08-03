@@ -13,12 +13,15 @@ from agent.config import settings
 from agent.prompts import SYSTEM_PROMPT
 from agent.tools import TOOLS_OPENAI, execute_tool
 from agent import sessions
+from agent import analytics
 
 logger = logging.getLogger(__name__)
 
 _client = None
 
 MAX_TOOL_ROUNDS = 10
+MAX_RETRIES = 2
+RETRY_DELAY = 1.0  # seconds
 
 # Rate limiting
 _last_request_time = 0
@@ -44,6 +47,61 @@ def _rate_limit():
     if elapsed < _MIN_REQUEST_INTERVAL:
         time.sleep(_MIN_REQUEST_INTERVAL - elapsed)
     _last_request_time = time.time()
+
+
+def _execute_tool_with_retry(tool_name: str, tool_args: dict) -> dict:
+    """Execute tool with retry for transient errors (network, timeout)."""
+    for attempt in range(MAX_RETRIES + 1):
+        try:
+            return execute_tool(tool_name, tool_args)
+        except Exception as e:
+            error_str = str(e).lower()
+            # Only retry on transient errors (connection, timeout)
+            is_transient = any(kw in error_str for kw in ["connection", "timeout", "network", "reset"])
+            if is_transient and attempt < MAX_RETRIES:
+                logger.warning(f"Tool {tool_name} transient error (attempt {attempt + 1}): {e}")
+                time.sleep(RETRY_DELAY * (attempt + 1))
+                continue
+            # Non-transient or exhausted retries
+            return {"error": str(e)}
+
+
+# User-friendly error messages for common backend errors
+ERROR_MESSAGES = {
+    "404": "الخدمة غير متوفرة حاليًا. يرجى المحاولة لاحقًا.",
+    "500": "حدث خطأ تقني. يرجى المحاولة مرة أخرى.",
+    "502": "الخدمة غير متوفرة حاليًا. يرجى المحاولة لاحقًا.",
+    "503": "الخدمة مزدحمة. يرجى المحاولة بعد قليل.",
+    "timeout": "استغرق الطلب وقتًا طويلًا. يرجى المحاولة مرة أخرى.",
+}
+
+
+def _map_error_to_friendly(error: str) -> str:
+    """Map backend errors to user-friendly Arabic messages."""
+    for code, msg in ERROR_MESSAGES.items():
+        if code in error:
+            return msg
+    return "عذراً، حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى."
+
+
+def _estimate_tokens(text: str) -> int:
+    """Rough token estimate: ~4 chars per token."""
+    return len(text) // 4
+
+
+def _count_message_tokens(messages: list) -> int:
+    """Estimate total tokens in message list."""
+    total = 0
+    for msg in messages:
+        content = msg.get("content", "")
+        if content:
+            total += _estimate_tokens(content)
+        # Also count tool call arguments
+        tool_calls = msg.get("tool_calls", [])
+        for tc in tool_calls:
+            args = tc.get("function", {}).get("arguments", "")
+            total += _estimate_tokens(args)
+    return total
 
 
 def _call_llm(messages: list, model: str = None):
@@ -167,6 +225,9 @@ def handle_message(phone: str, user_text: str) -> str:
     Process an incoming user message through the LLM agent loop.
     Returns the agent's Arabic text reply.
     """
+    # Track incoming message
+    analytics.track_message(phone, is_user=True)
+    
     # 1. Load conversation history
     history = sessions.get_history(phone)
 
@@ -180,20 +241,24 @@ def handle_message(phone: str, user_text: str) -> str:
     context_msg = _build_context_message(phone, context)
 
     # 4. Convert to OpenAI format
-    messages = _convert_history(history, system_msg=SYSTEM_PROMPT)
-
-    # Insert context at the beginning (after system message)
+    # Append context to system message instead of wasting a turn
+    system_msg = SYSTEM_PROMPT
     if context_msg:
-        messages.insert(1, {"role": "user", "content": context_msg})
-        messages.insert(2, {"role": "assistant", "content": "تم استلام السياق. جاهز للخدمة."})
+        system_msg = SYSTEM_PROMPT + "\n\n---\n\n## Current Context\n" + context_msg
+    messages = _convert_history(history, system_msg=system_msg)
 
     # 5. Call LLM with tools (loop for tool calls)
     for round_num in range(MAX_TOOL_ROUNDS):
+        # Log token count for monitoring
+        token_count = _count_message_tokens(messages)
+        if token_count > 3000:
+            logger.warning(f"High token count: {token_count} (round {round_num})")
+
         try:
             response = _call_llm(messages)
         except Exception as e:
             logger.error(f"LLM API error (all models failed): {e}")
-            return "عذراً، حدث خطأ تقني. يرجى المحاولة مرة أخرى."
+            return _map_error_to_friendly(str(e))
 
         choice = response.choices[0] if response.choices else None
         if not choice or not choice.message:
@@ -233,8 +298,10 @@ def handle_message(phone: str, user_text: str) -> str:
 
                 logger.info(f"Tool call: {tool_name}({json.dumps(tool_args, ensure_ascii=False)[:200]})")
 
-                # Execute the tool
-                tool_result = execute_tool(tool_name, tool_args)
+                # Execute the tool with retry
+                tool_result = _execute_tool_with_retry(tool_name, tool_args)
+                tool_success = "error" not in tool_result
+                analytics.track_tool_call(phone, tool_name, success=tool_success)
                 logger.info(f"Tool result: {json.dumps(tool_result, ensure_ascii=False)[:300]}")
 
                 # Add tool result to messages
@@ -252,12 +319,143 @@ def handle_message(phone: str, user_text: str) -> str:
             reply_text = message.content or ""
             if reply_text:
                 sessions.add_to_history(phone, "model", [{"text": reply_text}])
+                analytics.track_message(phone, is_user=False)
                 return reply_text.strip()
             else:
+                analytics.track_message(phone, is_user=False)
                 return "عذراً، لم أتمكن من إيجاد إجابة مناسبة."
 
     # If we exhausted tool rounds
+    analytics.track_message(phone, is_user=False)
     return "عذراً، أحتاج خطوات إضافية. يرجى التواصل مع موظف خدمة المستفيدين."
+
+
+def handle_message_stream(phone: str, user_text: str):
+    """
+    Process an incoming user message with streaming support.
+    Yields partial responses: ('text', chunk), ('tool', tool_name), ('done', full_reply)
+    """
+    # 1. Load conversation history
+    history = sessions.get_history(phone)
+
+    # 2. Add user message
+    user_part = {"text": user_text}
+    history.append({"role": "user", "parts": [user_part]})
+    sessions.add_to_history(phone, "user", [user_part])
+
+    # 3. Build context injection
+    context = sessions.get_context(phone)
+    context_msg = _build_context_message(phone, context)
+
+    # 4. Convert to OpenAI format
+    system_msg = SYSTEM_PROMPT
+    if context_msg:
+        system_msg = SYSTEM_PROMPT + "\n\n---\n\n## Current Context\n" + context_msg
+    messages = _convert_history(history, system_msg=system_msg)
+
+    # 5. Call LLM with tools (loop for tool calls)
+    for round_num in range(MAX_TOOL_ROUNDS):
+        token_count = _count_message_tokens(messages)
+        if token_count > 3000:
+            logger.warning(f"High token count: {token_count} (round {round_num})")
+
+        try:
+            stream = _call_llm_stream(messages)
+        except Exception as e:
+            logger.error(f"LLM API error (all models failed): {e}")
+            yield ("text", _map_error_to_friendly(str(e)))
+            return
+
+        # Process streaming response
+        full_content = ""
+        tool_calls_data = {}
+        
+        for chunk in stream:
+            if not chunk.choices:
+                continue
+            delta = chunk.choices[0].delta
+            finish_reason = chunk.choices[0].finish_reason
+
+            # Accumulate content
+            if delta.content:
+                full_content += delta.content
+                yield ("text", delta.content)
+
+            # Accumulate tool calls
+            if delta.tool_calls:
+                for tc in delta.tool_calls:
+                    idx = tc.index
+                    if idx not in tool_calls_data:
+                        tool_calls_data[idx] = {
+                            "id": tc.id or "",
+                            "name": "",
+                            "arguments": "",
+                        }
+                    if tc.id:
+                        tool_calls_data[idx]["id"] = tc.id
+                    if tc.function and tc.function.name:
+                        tool_calls_data[idx]["name"] = tc.function.name
+                    if tc.function and tc.function.arguments:
+                        tool_calls_data[idx]["arguments"] += tc.function.arguments
+
+            # If done, break
+            if finish_reason == "stop" or finish_reason == "tool_calls":
+                break
+
+        # Handle reasoning models
+        if full_content == "" and hasattr(stream, 'reasoning') and stream.reasoning:
+            full_content = stream.reasoning
+            yield ("text", full_content)
+
+        # Check if we have tool calls
+        if tool_calls_data:
+            # Build assistant message
+            assistant_msg = {
+                "role": "assistant",
+                "content": full_content or None,
+                "tool_calls": [{
+                    "id": tc["id"],
+                    "type": "function",
+                    "function": {
+                        "name": tc["name"],
+                        "arguments": tc["arguments"],
+                    },
+                } for tc in tool_calls_data.values()],
+            }
+            messages.append(assistant_msg)
+
+            # Execute each tool call
+            for tc in tool_calls_data.values():
+                tool_name = tc["name"]
+                yield ("tool", tool_name)
+                
+                try:
+                    tool_args = json.loads(tc["arguments"])
+                except json.JSONDecodeError:
+                    tool_args = {}
+
+                logger.info(f"Tool call: {tool_name}({json.dumps(tool_args, ensure_ascii=False)[:200]})")
+                tool_result = _execute_tool_with_retry(tool_name, tool_args)
+                logger.info(f"Tool result: {json.dumps(tool_result, ensure_ascii=False)[:300]}")
+
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tc["id"],
+                    "content": json.dumps(tool_result, ensure_ascii=False),
+                })
+
+                _update_session_from_tool(phone, tool_name, tool_args, tool_result)
+        else:
+            # No tool calls — done
+            if full_content:
+                sessions.add_to_history(phone, "model", [{"text": full_content}])
+                yield ("done", full_content.strip())
+            else:
+                yield ("done", "عذراً، لم أتمكن من إيجاد إجابة مناسبة.")
+            return
+
+    # Exhausted tool rounds
+    yield ("done", "عذراً، أحتاج خطوات إضافية. يرجى التواصل مع موظف خدمة المستفيدين.")
 
 
 def _build_context_message(phone: str, context: Optional[dict]) -> str:

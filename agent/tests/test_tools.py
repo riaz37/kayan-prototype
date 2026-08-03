@@ -14,15 +14,14 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 def test_tools():
     """Test all tool handlers against the live backend."""
     from agent.tools import (
-        handle_check_phone, handle_send_otp, handle_verify_otp,
-        handle_check_eligibility, handle_create_file, handle_get_file,
+        handle_check_phone, handle_check_eligibility, handle_create_file, handle_get_file,
         handle_update_section, handle_get_completeness, handle_submit_file,
         handle_add_dependent, handle_list_dependents, handle_update_document,
         handle_get_financial_profile, handle_add_obligation, handle_add_person_cost,
         handle_search_request_types, handle_create_support_request,
         handle_get_support_request, handle_add_request_detail,
         handle_search_faqs, handle_create_ticket, handle_get_beneficiary_history,
-        handle_list_programs, handle_send_template,
+        handle_list_programs,
     )
 
     results = []

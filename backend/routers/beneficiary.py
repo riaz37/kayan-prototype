@@ -1,11 +1,10 @@
 """
 Use case 1 — Registration & the beneficiary file (رحلة تسجيل المستفيد).
-Mirrors the client's guide: account creation by phone + OTP, the 10-section
+Mirrors the client's guide: account creation by phone, the 10-section
 data form, dependents, documents (incl. "لا يوجد" / "عدم الاهلية"), and the
 financial profile used for the needs assessment.
 """
 import json
-import random
 from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -16,7 +15,7 @@ router = APIRouter()
 T = "1 · التسجيل وملف المستفيد | Registration & Beneficiary File"
 
 
-# ============================================================ account / OTP
+# ============================================================ account
 class PhoneIn(BaseModel):
     phone: str = Field(..., examples=["0501234567"], description="Saudi mobile, any format")
 
@@ -40,42 +39,7 @@ def check_phone(body: PhoneIn):
                         "وان نسيتم كلمة المرور تواصلوا مع خدمات المستفيدين على 0506094154.",
         }
     return {"registered": False, "phone": p,
-            "reply_ar": "الرقم غير مسجل. يمكننا البدء بانشاء حساب جديد. سارسل لكم رمز التحقق."}
-
-
-@router.post("/registration/send-otp", tags=[T],
-             summary="Send an OTP verification code",
-             description="Sends the رمز التحقق by SMS to start account creation or password reset. "
-                         "Code is returned in the response for prototype testing only.")
-def send_otp(body: PhoneIn):
-    p = db.norm_phone(body.phone)
-    code = f"{random.randint(1000, 9999)}"
-    db.otp_codes[p] = {"code": code, "expires_at": db.now_iso(), "attempts": 0}
-    msg = db.render_template("TPL-OTP", code=code)
-    db.send_notification("sms", p, msg, kind="otp")
-    return {"sent": True, "phone": p, "debug_code": code,
-            "reply_ar": "تم ارسال رمز التحقق الى جوالكم. قد يتاخر وصول الرمز احيانا."}
-
-
-class VerifyOtpIn(BaseModel):
-    phone: str = Field(..., examples=["0501234567"])
-    code: str = Field(..., examples=["1234"])
-
-
-@router.post("/registration/verify-otp", tags=[T],
-             summary="Verify the OTP code",
-             description="Verifies the رمز التحقق. On success the caller may create the account.")
-def verify_otp(body: VerifyOtpIn):
-    p = db.norm_phone(body.phone)
-    rec = db.otp_codes.get(p)
-    if not rec:
-        raise HTTPException(404, "No OTP was issued for this number")
-    rec["attempts"] += 1
-    if rec["attempts"] > 5:
-        raise HTTPException(429, "Too many attempts, request a new code")
-    if body.code != rec["code"]:
-        return {"verified": False, "reply_ar": "رمز التحقق غير صحيح. حاولوا مرة اخرى."}
-    return {"verified": True, "phone": p, "reply_ar": "تم التحقق بنجاح."}
+            "reply_ar": "الرقم غير مسجل. يمكننا البدء بانشاء حساب جديد."}
 
 
 # ============================================================ eligibility gate

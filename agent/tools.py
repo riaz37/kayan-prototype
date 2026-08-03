@@ -4,10 +4,15 @@ Each tool maps to a backend API endpoint. Tool declarations follow the
 OpenAI function calling schema (for vLLM/Qwen). Handlers make HTTP calls to the backend.
 """
 from typing import Optional
+import time
 import httpx
 from agent.config import settings
 
 BACKEND = settings.backend_url
+
+# Simple in-memory cache for FAQ responses
+_faq_cache = {}
+_FAQ_CACHE_TTL = 3600  # 1 hour
 
 
 def _get(path: str, params: Optional[dict] = None) -> dict:
@@ -29,14 +34,6 @@ def _patch(path: str, body: Optional[dict] = None) -> dict:
 
 def handle_check_phone(phone: str) -> dict:
     return _post("/registration/check-phone", {"phone": phone})
-
-
-def handle_send_otp(phone: str) -> dict:
-    return _post("/registration/send-otp", {"phone": phone})
-
-
-def handle_verify_otp(phone: str, code: str) -> dict:
-    return _post("/registration/verify-otp", {"phone": phone, "code": code})
 
 
 def handle_check_eligibility(orphan_category_id: str) -> dict:
@@ -130,7 +127,22 @@ def handle_add_request_detail(request_id: str, additional_detail_ar: str) -> dic
 
 
 def handle_search_faqs(q: str) -> dict:
-    return _get("/faqs/search", {"q": q})
+    """Search FAQs with in-memory caching."""
+    cache_key = q.lower().strip()
+    now = time.time()
+
+    # Check cache
+    if cache_key in _faq_cache:
+        cached_time, cached_result = _faq_cache[cache_key]
+        if now - cached_time < _FAQ_CACHE_TTL:
+            return cached_result
+
+    # Cache miss - fetch from backend
+    result = _get("/faqs/search", {"q": q})
+
+    # Store in cache
+    _faq_cache[cache_key] = (now, result)
+    return result
 
 
 def handle_create_ticket(subject_ar: str, channel: str, phone: str = "",
@@ -157,16 +169,10 @@ def handle_list_programs() -> dict:
     return _get("/programs")
 
 
-def handle_send_whatsapp(to: str, body_ar: str) -> dict:
-    import httpx as _h
-    resp = _h.post(f"{BACKEND}/whatsapp/send", params={"to": to, "body_ar": body_ar}, timeout=30)
-    return resp.json()
-
-
-def handle_send_template(to: str, template_id: str, params: dict) -> dict:
-    return _post("/whatsapp/send-template", {
-        "to": to, "template_id": template_id, "params": params,
-    })
+def handle_cancel_flow() -> dict:
+    """Reset the current conversation flow. Returns confirmation message."""
+    return {"cancelled": True,
+            "reply_ar": "تم الإلغاء. كيف أقدر أساعدك في شيء ثاني؟"}
 
 
 
@@ -174,8 +180,6 @@ def handle_send_template(to: str, template_id: str, params: dict) -> dict:
 
 TOOL_HANDLERS = {
     "check_phone": lambda **kw: handle_check_phone(**kw),
-    "send_otp": lambda **kw: handle_send_otp(**kw),
-    "verify_otp": lambda **kw: handle_verify_otp(**kw),
     "check_eligibility": lambda **kw: handle_check_eligibility(**kw),
     "create_file": lambda **kw: handle_create_file(**kw),
     "get_file": lambda **kw: handle_get_file(**kw),
@@ -196,8 +200,7 @@ TOOL_HANDLERS = {
     "create_ticket": lambda **kw: handle_create_ticket(**kw),
     "get_beneficiary_history": lambda **kw: handle_get_beneficiary_history(**kw),
     "list_programs": lambda **kw: handle_list_programs(**kw),
-    "send_whatsapp": lambda **kw: handle_send_whatsapp(**kw),
-    "send_template_message": lambda **kw: handle_send_template(**kw),
+    "cancel_flow": lambda **kw: handle_cancel_flow(**kw),
 }
 
 
@@ -226,35 +229,6 @@ TOOLS_OPENAI = [
                     "phone": {"type": "string", "description": "Phone number (e.g. 0501234567)"},
                 },
                 "required": ["phone"],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "send_otp",
-            "description": "Send an OTP verification code to a phone number. Use after confirming the user wants to register.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "phone": {"type": "string", "description": "Phone number"},
-                },
-                "required": ["phone"],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "verify_otp",
-            "description": "Verify the OTP code the user received. Use after they provide the code.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "phone": {"type": "string", "description": "Phone number"},
-                    "code": {"type": "string", "description": "The OTP code received"},
-                },
-                "required": ["phone", "code"],
             },
         },
     },
@@ -587,19 +561,11 @@ TOOLS_OPENAI = [
     {
         "type": "function",
         "function": {
-            "name": "send_template_message",
-            "description": "Send an approved WhatsApp template message. Use this when the 24-hour session window has expired.",
+            "name": "cancel_flow",
+            "description": "Cancel the current conversation flow and reset. Use when user says cancel/stop/nevermind or when they want to start over.",
             "parameters": {
                 "type": "object",
-                "properties": {
-                    "to": {"type": "string", "description": "Recipient phone number"},
-                    "template_id": {
-                        "type": "string",
-                        "description": "Template: TPL-OTP, TPL-REG-OK, TPL-DOCS, TPL-ACCEPT, TPL-DECLINE, TPL-VISIT, TPL-PAY",
-                    },
-                    "params": {"type": "object", "description": "Template parameters as key-value pairs"},
-                },
-                "required": ["to", "template_id"],
+                "properties": {},
             },
         },
     },

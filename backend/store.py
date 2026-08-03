@@ -841,6 +841,5 @@ whatsapp_sessions = _TableProxy("whatsapp_sessions")
 events = _TableProxy("events")
 
 # Runtime-only (kept in memory, not critical)
-otp_codes = {}
 accounts = {}
 notifications = []

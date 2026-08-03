@@ -14,6 +14,8 @@ DB_PATH = os.path.join(DB_DIR, "sessions.db")
 
 SESSION_TIMEOUT = timedelta(minutes=30)
 MAX_HISTORY = 50
+MAX_HISTORY_TOKENS = 8000  # ~32K chars / 4 chars per token
+MIN_HISTORY_KEEP = 20  # Always keep last 20 messages
 
 _conn = None
 
@@ -52,6 +54,29 @@ def _now() -> datetime:
 
 def _now_iso() -> str:
     return _now().replace(microsecond=0).isoformat() + "Z"
+
+
+def _estimate_tokens(text: str) -> int:
+    """Rough token estimate: ~4 chars per token."""
+    return len(text) // 4
+
+
+def _trim_history(history: list) -> list:
+    """Trim history to stay within token limits while keeping recent messages."""
+    if not history:
+        return history
+
+    total_tokens = sum(
+        _estimate_tokens(json.dumps(msg, ensure_ascii=False))
+        for msg in history
+    )
+
+    if total_tokens <= MAX_HISTORY_TOKENS:
+        return history
+
+    # Keep last MIN_HISTORY_KEEP messages, trim older ones
+    trimmed = history[-MIN_HISTORY_KEEP:]
+    return trimmed
 
 
 def get_session(phone: str) -> dict:
@@ -115,9 +140,10 @@ def _save_session(phone: str, sess: dict):
 
 
 def get_history(phone: str) -> list[dict]:
-    """Get conversation history for a phone."""
+    """Get conversation history for a phone, trimmed to fit token limits."""
     sess = get_session(phone)
-    return sess["history"][-MAX_HISTORY:]
+    history = sess["history"][-MAX_HISTORY:]
+    return _trim_history(history)
 
 
 def add_to_history(phone: str, role: str, parts: list[dict]):
