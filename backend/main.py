@@ -151,3 +151,7 @@ def admin_seed():
 
 # ---- frontend served separately (Vercel / static host)
 
+
+@app.get("/health-version")
+def health_version():
+    return {"version": getattr(store, "API_VERSION", "unknown")}
