@@ -237,7 +237,7 @@ class RegisterEventIn(BaseModel):
              description="Registers an approved beneficiary for an event; blocked when the event is "
                          "full or already completed.")
 def register_event(event_id: str, body: RegisterEventIn):
-    e = db.by_id["event"].get(event_id)
+    e = db.get_event(event_id)
     if not e:
         raise HTTPException(404, "Event not found")
     if e["status"] == "completed":

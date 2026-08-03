@@ -407,6 +407,12 @@ def get_disbursement(did):
     return dict(row) if row else None
 
 
+def get_event(eid):
+    conn = _get_conn()
+    row = conn.execute("SELECT * FROM events WHERE id = ?", (eid,)).fetchone()
+    return dict(row) if row else None
+
+
 def requests_for(bid):
     conn = _get_conn()
     rows = conn.execute("SELECT * FROM support_requests WHERE beneficiary_id = ?", (bid,)).fetchall()
@@ -479,7 +485,7 @@ def messages_for(tid):
 
 
 def update_disbursement(disbursement_id, updates):
-    """Update disbursement fields in the database and in-memory index."""
+    """Update disbursement fields in the database."""
     conn = _get_conn()
     set_clauses = []
     values = []
@@ -490,10 +496,6 @@ def update_disbursement(disbursement_id, updates):
         values.append(disbursement_id)
         conn.execute(f"UPDATE disbursements SET {', '.join(set_clauses)} WHERE id = ?", values)
         conn.commit()
-    # Update in-memory index
-    d = by_id["disbursement"].get(disbursement_id)
-    if d:
-        d.update(updates)
 
 
 def update_payment(payment_id, updates):
