@@ -139,4 +139,11 @@ async def proxy_webhook(request: Request):
     )
 
 
+@app.post("/admin/seed", tags=["admin"])
+def admin_seed():
+    import subprocess, sys
+    r = subprocess.run([sys.executable, "backend/seed_production.py"], capture_output=True, text=True, timeout=120)
+    return {"status": "ok" if r.returncode == 0 else "error", "output": r.stdout + r.stderr}
+
+
 # ---- frontend served separately (Vercel / static host)
