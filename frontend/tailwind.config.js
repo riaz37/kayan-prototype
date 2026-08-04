@@ -15,7 +15,7 @@ module.exports = {
         card:'0 1px 2px 0 rgb(16 24 40 / 0.04), 0 1px 3px 0 rgb(16 24 40 / 0.04)',
         pop: '0 8px 24px -6px rgb(16 24 40 / 0.10), 0 2px 6px -2px rgb(16 24 40 / 0.05)',
       },
-      keyframes: { in:{ '0%':{opacity:'0',transform:'translateY(4px)'},'100%':{opacity:'1',transform:'none'} } },
+      keyframes: { in:{ '0%':{opacity:'0'},'100%':{opacity:'1'} } },
       animation: { in:'in .28s cubic-bezier(.16,1,.3,1) both' },
     }
   },
