@@ -393,15 +393,30 @@ function TicketSheet({ id, onClose }) {
             </div>
           </div>
 
-          <Card>
-            <CardHead title="سجل المحادثة" sub={`${allMsgs.length} رسالة`} />
-            <div ref={chatRef} className="px-4 pb-3 space-y-1 overflow-y-auto" style={{ maxHeight: "400px" }}>
-              {hasMore && (
-                <button onClick={() => setShowCount(c => c + 30)}
-                        className="w-full py-2 text-[12px] text-brand-600 hover:text-brand-700 font-medium rounded-lg hover:bg-brand-50 transition-colors">
-                  تحميل رسائل سابقة ({allMsgs.length - showCount} متبقي)
-                </button>
-              )}
+          <div className="rounded-2xl border border-line bg-white overflow-hidden">
+            {/* Chat Header */}
+            <div className="px-4 py-3 border-b border-line bg-gradient-to-l from-brand-50 to-white">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center">
+                    <Icon d={I.bot} className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-semibold text-ink">المحادثة</p>
+                    <p className="text-[11px] text-ink-muted">{allMsgs.length} رسالة</p>
+                  </div>
+                </div>
+                {hasMore && (
+                  <button onClick={() => setShowCount(c => c + 30)}
+                    className="text-[11px] text-brand-600 hover:text-brand-700 font-medium px-2 py-1 rounded-lg hover:bg-brand-50 transition-colors">
+                    تحميل سابقات
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Chat Messages */}
+            <div ref={chatRef} className="px-4 py-3 space-y-3 overflow-y-auto bg-[#F8F9FB]" style={{ maxHeight: "420px" }}>
               {visibleMsgs.map((m, i) => {
                 const inbound = m.direction === "inbound";
                 const prev = visibleMsgs[i - 1];
@@ -410,54 +425,120 @@ function TicketSheet({ id, onClose }) {
                 return (
                   <React.Fragment key={i}>
                     {showDate && (
-                      <div className="flex items-center gap-3 my-3">
+                      <div className="flex items-center gap-3 my-1">
                         <div className="flex-1 h-px bg-line" />
-                        <span className="text-[10.5px] text-ink-muted font-medium px-2">{dateAr(m.sent_at)}</span>
+                        <span className="text-[10px] text-ink-soft font-medium px-2">{dateAr(m.sent_at)}</span>
                         <div className="flex-1 h-px bg-line" />
                       </div>
                     )}
-                    <div className={cx("flex", inbound ? "justify-start" : "justify-end", !showSender && "mt-0.5")}>
-                      <div className={cx("max-w-[85%] rounded-xl px-3 py-2 text-[12.5px] leading-relaxed",
-                        inbound ? "bg-line-soft text-ink rounded-tr-sm"
-                                : m.is_internal ? "bg-amber-50 text-amber-900 border border-amber-200 rounded-tl-sm"
-                                : "bg-brand-600 text-white rounded-tl-sm")}>
-                        {showSender && (
-                          <p className={cx("text-[10px] font-medium mb-0.5",
-                            inbound ? "text-ink-soft" : m.is_internal ? "text-amber-600" : "text-brand-100")}>
-                            {inbound ? "المستفيد" : m.is_internal ? "ملاحظة داخلية" : m.sender === "bot" ? "الوكيل الذكي" : "الموظف"}
-                          </p>
-                        )}
-                        <p className="whitespace-pre-wrap">{m.body_ar}</p>
-                        <p className={cx("text-[9.5px] mt-1", inbound ? "text-ink-muted" : m.is_internal ? "text-amber-500" : "text-brand-200")}>
-                          {new Date(m.sent_at).toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" })}
-                        </p>
-                      </div>
+                    <div className={cx("flex", inbound ? "justify-start" : "justify-end")}>
+                      {inbound ? (
+                        <div className="flex items-end gap-2 max-w-[80%]">
+                          <div className="w-6 h-6 rounded-full bg-line-soft flex items-center justify-center flex-shrink-0 mb-0.5">
+                            <span className="text-[10px] font-semibold text-ink-muted">
+                              {m.sender_name?.charAt(0) || "م"}
+                            </span>
+                          </div>
+                          <div>
+                            {showSender && <p className="text-[10px] text-ink-soft mb-1 mr-1">المستفيد</p>}
+                            <div className="bg-white border border-line rounded-2xl rounded-br-md px-3.5 py-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+                              <p className="text-[13px] text-ink leading-[1.7] whitespace-pre-wrap">{m.body_ar}</p>
+                              <p className="text-[10px] text-ink-soft mt-1.5 text-left">
+                                {new Date(m.sent_at).toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" })}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-end gap-2 max-w-[80%] flex-row-reverse">
+                          <div className="w-6 h-6 rounded-full bg-brand-600 flex items-center justify-center flex-shrink-0 mb-0.5">
+                            <Icon d={m.sender === "bot" ? I.bot : I.user} className="w-3 h-3 text-white" />
+                          </div>
+                          <div>
+                            {showSender && (
+                              <p className={cx("text-[10px] mb-1 ml-1 text-left",
+                                m.is_internal ? "text-amber-500" : "text-ink-soft")}>
+                                {m.is_internal ? "ملاحظة داخلية" : m.sender === "bot" ? "الوكيل الذكي" : "الموظف"}
+                              </p>
+                            )}
+                            <div className={cx("rounded-2xl rounded-bl-md px-3.5 py-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.06)]",
+                              m.is_internal ? "bg-amber-50 border border-amber-200" : "bg-brand-600 text-white")}>
+                              <p className={cx("text-[13px] leading-[1.7] whitespace-pre-wrap",
+                                m.is_internal ? "text-amber-900" : "text-white")}>{m.body_ar}</p>
+                              <p className={cx("text-[10px] mt-1.5 text-left",
+                                m.is_internal ? "text-amber-400" : "text-brand-200")}>
+                                {new Date(m.sent_at).toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" })}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </React.Fragment>
                 );
               })}
-              {!allMsgs.length && <Empty icon={I.chat} title="لا توجد رسائل" />}
+              {!allMsgs.length && (
+                <div className="py-12 text-center">
+                  <div className="w-12 h-12 rounded-full bg-brand-50 flex items-center justify-center mx-auto mb-3">
+                    <Icon d={I.chat} className="w-5 h-5 text-brand-500" />
+                  </div>
+                  <p className="text-[13px] text-ink font-medium">ابدأ المحادثة</p>
+                  <p className="text-[11px] text-ink-soft mt-0.5">اكتب رسالة للمستفيد</p>
+                </div>
+              )}
             </div>
-            <div className="border-t border-line p-3 space-y-2">
-              <div className="flex items-center gap-2">
-                <button onClick={() => setSendToWhatsApp(!sendToWhatsApp)}
-                  className={cx("relative w-9 h-5 rounded-full transition-colors", sendToWhatsApp ? "bg-brand-600" : "bg-line-soft")}>
-                  <span className={cx("absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform", sendToWhatsApp && "translate-x-4")} />
-                </button>
-                <span className="text-[11px] text-ink-muted">
-                  {sendToWhatsApp ? "إرسال عبر واتساب" : "ملاحظة داخلية فقط"}
-                </span>
-              </div>
-              <div className="flex gap-2">
-                <Input placeholder={sendToWhatsApp ? "اكتب ردًا للمستفيد…" : "اكتب ملاحظة داخلية…"} className="flex-1"
-                       value={replyText} onChange={e => setReplyText(e.target.value)}
-                       onKeyDown={e => e.key === "Enter" && sendReply()} />
-                <Button onClick={sendReply} disabled={sending || !replyText.trim()}>
-                  <Icon d={I.arrow} className="w-4 h-4 flip" /> {sending ? "جاري…" : "إرسال"}
-                </Button>
+
+            {/* Input Area */}
+            <div className="border-t border-line bg-white">
+              <div className="px-3 py-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <button onClick={() => setSendToWhatsApp(!sendToWhatsApp)}
+                    className={cx("relative w-8 h-[18px] rounded-full transition-colors flex-shrink-0", sendToWhatsApp ? "bg-brand-600" : "bg-line-soft")}>
+                    <span className={cx("absolute top-[2px] left-[2px] w-[14px] h-[14px] rounded-full bg-white shadow-sm transition-transform", sendToWhatsApp && "translate-x-[14px]")} />
+                  </button>
+                  <span className="text-[11px] text-ink-muted">
+                    {sendToWhatsApp ? "إرسال عبر واتساب" : "ملاحظة داخلية"}
+                  </span>
+                </div>
+                <div className="flex items-end gap-2">
+                  <div className="flex-1 relative">
+                    <textarea
+                      className="w-full resize-none rounded-xl border border-line bg-line-soft/40 px-3.5 py-2.5 text-[13px] text-ink placeholder:text-ink-soft focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-300 transition-all leading-[1.6]"
+                      rows={1}
+                      placeholder={sendToWhatsApp ? "اكتب ردًا للمستفيد…" : "اكتب ملاحظة داخلية…"}
+                      value={replyText}
+                      onChange={e => {
+                        setReplyText(e.target.value);
+                        e.target.style.height = "auto";
+                        e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+                      }}
+                      onKeyDown={e => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          sendReply();
+                        }
+                      }}
+                      style={{ minHeight: "42px" }}
+                    />
+                  </div>
+                  <button onClick={sendReply} disabled={sending || !replyText.trim()}
+                    className={cx("flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all",
+                      sending || !replyText.trim()
+                        ? "bg-line-soft text-ink-soft cursor-not-allowed"
+                        : "bg-brand-600 text-white hover:bg-brand-700 active:scale-95 shadow-sm")}>
+                    {sending ? (
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                    ) : (
+                      <Icon d={I.arrow} className="w-4 h-4 flip" />
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
-          </Card>
+          </div>
         </div>
       )}
     </Sheet>
