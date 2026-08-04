@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import reference as R
 
 random.seed(7)
-BASE = os.path.join(os.path.dirname(__file__), "..", "data")
+BASE = os.path.join(os.path.dirname(__file__), "..", "reference-data")
 os.makedirs(BASE, exist_ok=True)
 NOW = datetime(2026, 7, 23, 10, 0, 0)
 
