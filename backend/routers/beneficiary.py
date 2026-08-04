@@ -137,7 +137,8 @@ def create_file(body: CreateFileIn):
     db.insert_financial_profile({
         "id": f"FP-{bid}", "beneficiary_id": bid,
         "monthly_income": 0.0, "monthly_expenses": 0.0,
-        "obligations": [], "person_costs": [], "need_score": 0.0,
+        "obligations": [], "person_costs": [], "income_breakdown": [],
+        "household_size": 1, "need_score": 0.0,
         "created_at": db.now_iso(),
     })
     msg = db.render_template("TPL-REG-OK", file_no=file_no)
@@ -211,8 +212,16 @@ def update_section(beneficiary_id: str, section_id: str, body: UpdateSectionIn):
     if unknown:
         raise HTTPException(422, f"Fields not in {section_id}: {unknown}. Allowed: {sorted(allowed)}")
     b["sections"].setdefault(section_id, {}).update(body.values)
-    b["updated_at"] = db.now_iso()
-    db.insert_beneficiary(b)
+    updates = {"sections": b["sections"]}
+    # Mirror the few fields that also live as top-level columns, so phone
+    # lookup and the console's list view stay consistent with the form.
+    if section_id == "SEC-BASIC" and body.values.get("full_name_ar"):
+        updates["full_name_ar"] = body.values["full_name_ar"]
+    if section_id == "SEC-CONTACT" and body.values.get("mobile"):
+        updates["phone"] = db.norm_phone(body.values["mobile"])
+    if section_id == "SEC-HOUSING" and body.values.get("city"):
+        updates["city"] = body.values["city"]
+    db.update_beneficiary(beneficiary_id, updates)
 
     # keep the financial profile in sync when income-bearing fields change
     if section_id in ("SEC-EXTRA", "SEC-EDU"):
@@ -221,9 +230,9 @@ def update_section(beneficiary_id: str, section_id: str, body: UpdateSectionIn):
             srcs = b["sections"].get("SEC-EXTRA", {}).get("income_sources") or []
             salary = b["sections"].get("SEC-EDU", {}).get("monthly_salary") or 0
             other = sum(s.get("amount", 0) for s in srcs
-                        if s.get("type") != "راتب")
+                        if isinstance(s, dict) and s.get("type") != "راتب")
             f["income_breakdown"] = srcs
-            f["monthly_income"] = round(float(salary) + float(other), 2)
+            f["monthly_income"] = round(float(salary or 0) + float(other), 2)
             _recalc(f)
 
     return {"beneficiary_id": beneficiary_id, "section_id": section_id,
@@ -269,9 +278,7 @@ def submit_file(beneficiary_id: str):
             "missing_documents": c["missing_documents"],
             "reply_ar": "لا يمكن رفع الملف قبل استكمال البيانات والمستندات المطلوبة.",
         })
-    b["status"] = "submitted"
-    b["updated_at"] = db.now_iso()
-    db.insert_beneficiary(b)
+    db.update_beneficiary(beneficiary_id, {"status": "submitted"})
     return {"beneficiary_id": beneficiary_id, "status": "submitted",
             "reply_ar": "تم رفع ملفكم بنجاح. سيتم التواصل معكم لاستكمال اجراءات دراسة الحالة. "
                         "علما بان التسجيل في النظام لا يعني قبول الطلب."}
@@ -305,13 +312,15 @@ def add_dependent(beneficiary_id: str, body: DependentIn):
          "created_at": db.now_iso()}
     db.insert_dependent(d)
     n = len(db.deps_for(beneficiary_id))
-    b["sections"]["SEC-EXTRA"]["dependents_count"] = n
-    b["updated_at"] = db.now_iso()
-    db.insert_beneficiary(b)
+    b["sections"].setdefault("SEC-EXTRA", {})["dependents_count"] = n
+    db.update_beneficiary(beneficiary_id, {"sections": b["sections"]})
+    # Household size drives per-capita income, so it has to be stored, not just
+    # assigned to a dict that is thrown away at the end of the request.
     f = db.finance_for(beneficiary_id)
     if f:
         f["household_size"] = 1 + n
-    return {"dependent": d, "dependents_count": n,
+        _recalc(f)
+    return {"dependent": d, "dependents_count": n, "household_size": 1 + n,
             "reply_ar": f"تمت اضافة {body.name_ar} ضمن التابعين. اجمالي التابعين {n}."}
 
 
@@ -366,10 +375,10 @@ def set_document(beneficiary_id: str, document_type_id: str, body: DocStatusIn):
         raise HTTPException(409, f"{dt.get('name_ar')} لا يقبل حالة لا يوجد — يجب رفع المستند")
     if body.status == "ineligible" and not dt.get("ineligible_allowed"):
         raise HTTPException(409, f"{dt.get('name_ar')} لا يقبل حالة عدم الاهلية — يجب رفع المستند")
-    conn.execute("UPDATE documents SET status=?, updated_at=? WHERE id=?",
-                (body.status, db.now_iso(), d["id"]))
-    conn.commit()
+    db.update_document(d["id"], {"status": body.status, "note_ar": body.note_ar})
     d["status"] = body.status
+    if body.note_ar:
+        d["note_ar"] = body.note_ar
     return {"document": d, "completeness": db.file_completeness(beneficiary_id)}
 
 
@@ -383,7 +392,10 @@ def get_finance(beneficiary_id: str):
     f = db.finance_for(beneficiary_id)
     if not f:
         raise HTTPException(404, "Beneficiary not found")
-    return f
+    # Keep household_size in step with the dependents actually on file, then
+    # return the derived totals alongside the stored ones.
+    f["household_size"] = 1 + len(db.deps_for(beneficiary_id))
+    return _recalc(f)
 
 
 class ObligationIn(BaseModel):
@@ -403,14 +415,8 @@ def add_obligation(beneficiary_id: str, body: ObligationIn):
     ot = next((o for o in db.obligation_types if o["id"] == body.type_id), None)
     if not ot:
         raise HTTPException(404, "Unknown obligation type")
-    obligations = json.loads(f.get("obligations", "[]"))
-    obligations.append({"type_id": ot["id"], "name_ar": ot["name_ar"],
-                       "monthly_sar": body.monthly_sar, "documented": body.documented})
-    conn = db._get_conn()
-    conn.execute("UPDATE financial_profiles SET obligations=? WHERE id=?",
-                (json.dumps(obligations, ensure_ascii=False), f["id"]))
-    conn.commit()
-    f["obligations"] = obligations
+    f["obligations"].append({"type_id": ot["id"], "name_ar": ot["name_ar"],
+                             "monthly_sar": body.monthly_sar, "documented": body.documented})
     return _recalc(f)
 
 
@@ -432,36 +438,50 @@ def add_cost(beneficiary_id: str, body: CostIn):
         raise HTTPException(404, "Unknown cost type")
     if not ct["counted"]:
         raise HTTPException(409, "لا يتم احتساب المصاريف الكمالية او الترفيهية ضمن الفواتير المعتمدة")
-    person_costs = json.loads(f.get("person_costs", "[]"))
-    person_costs.append({"type_id": ct["id"], "name_ar": ct["name_ar"],
-                        "monthly_sar": body.monthly_sar})
-    conn = db._get_conn()
-    conn.execute("UPDATE financial_profiles SET person_costs=? WHERE id=?",
-                (json.dumps(person_costs, ensure_ascii=False), f["id"]))
-    conn.commit()
-    f["person_costs"] = person_costs
+    f["person_costs"].append({"type_id": ct["id"], "name_ar": ct["name_ar"],
+                              "monthly_sar": body.monthly_sar})
     return _recalc(f)
 
 
+def _amount(entry):
+    """Obligation/cost rows have used two different amount keys over time."""
+    return float(entry.get("monthly_sar", entry.get("amount", 0)) or 0)
+
+
 def _recalc(f):
-    obligations = json.loads(f.get("obligations", "[]"))
-    person_costs = json.loads(f.get("person_costs", "[]"))
-    total_obligations = round(sum(o["monthly_sar"] for o in obligations), 2)
-    total_person_costs = round(sum(c["monthly_sar"] for c in person_costs), 2)
-    net_monthly = round(f.get("monthly_income", 0) - total_obligations - total_person_costs, 2)
-    hh = max(1, f.get("household_size", 1))
+    """Recompute the needs assessment and WRITE IT BACK.
+
+    Previously this persisted only obligations/person_costs/need_score, so
+    monthly_income and household_size — the two inputs that actually move the
+    score — were recomputed in memory and dropped. Every file kept income 0
+    and household 1, which made the committee queue's ordering meaningless.
+    """
+    obligations = f.get("obligations") or []
+    person_costs = f.get("person_costs") or []
+    total_obligations = round(sum(_amount(o) for o in obligations), 2)
+    total_person_costs = round(sum(_amount(c) for c in person_costs), 2)
+    monthly_income = float(f.get("monthly_income") or 0)
+    net_monthly = round(monthly_income - total_obligations - total_person_costs, 2)
+    hh = max(1, int(f.get("household_size") or 1))
     per_capita = round(net_monthly / hh, 2)
     need_score = max(0, min(100, round(100 - (per_capita / 15), 1)))
-    conn = db._get_conn()
-    conn.execute("""UPDATE financial_profiles SET
-        obligations=?, person_costs=?, need_score=? WHERE id=?""",
-        (json.dumps(obligations, ensure_ascii=False),
-         json.dumps(person_costs, ensure_ascii=False),
-         need_score, f["id"]))
-    conn.commit()
-    f["obligations"] = obligations
-    f["person_costs"] = person_costs
-    f["need_score"] = need_score
+
+    db.update_finance(f["id"], {
+        "obligations": obligations,
+        "person_costs": person_costs,
+        "income_breakdown": f.get("income_breakdown") or [],
+        "monthly_income": monthly_income,
+        "monthly_expenses": round(total_obligations + total_person_costs, 2),
+        "household_size": hh,
+        "need_score": need_score,
+    })
+    f.update({"need_score": need_score, "household_size": hh,
+              "monthly_income": monthly_income,
+              "monthly_expenses": round(total_obligations + total_person_costs, 2),
+              "total_obligations_sar": total_obligations,
+              "total_person_costs_sar": total_person_costs,
+              "net_monthly_sar": net_monthly,
+              "per_capita_monthly_sar": per_capita})
     return f
 
 

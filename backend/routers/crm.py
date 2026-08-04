@@ -17,6 +17,48 @@ T_WA = "3 · قناة الواتساب | WhatsApp Channel"
 T_SIP = "4 · قناة الاتصال الهاتفي | Voice / SIP Channel"
 
 
+def _agent_history(phone):
+    """Pull the LLM conversation for a phone from the agent process.
+
+    The agent keys sessions by whatever string the channel handed it, so try
+    the normalised forms this deployment can produce. (The previous list also
+    tried a hardcoded "88"+digits — a Bangladesh prefix left over from a
+    developer's test number.)
+    """
+    if not phone:
+        return []
+    import httpx as _httpx, os as _os
+    agent_url = _os.environ.get("AGENT_URL", "http://127.0.0.1:8002")
+    digits = "".join(c for c in str(phone) if c.isdigit())
+    candidates = []
+    for cand in (str(phone), digits, db.norm_phone(phone)):
+        if cand and cand not in candidates:
+            candidates.append(cand)
+    raw = []
+    for candidate in candidates:
+        try:
+            resp = _httpx.get(f"{agent_url}/agent/session/{candidate}/history", timeout=5)
+            raw = resp.json().get("history", [])
+            if raw:
+                break
+        except Exception:
+            continue
+    out = []
+    for h in raw:
+        role = h.get("role", "")
+        text = " ".join(p.get("text", "") for p in h.get("parts", []) if p.get("text"))
+        if text:
+            out.append({
+                "id": f"WA-{len(out) + 1}",
+                "direction": "inbound" if role == "user" else "outbound",
+                "sender": "beneficiary" if role == "user" else "bot",
+                "body_ar": text,
+                "is_internal": 0,
+                "sent_at": h.get("at"),
+            })
+    return out
+
+
 # ============================================================ tickets
 @router.get("/crm/tickets", tags=[T_CRM],
             summary="List tickets with filters",
@@ -81,38 +123,13 @@ def get_ticket(ticket_id: str):
         b = db.get_beneficiary(t["beneficiary_id"])
         if b:
             cust_name = b.get("sections", {}).get("SEC-BASIC", {}).get("full_name_ar")
-    # Fetch WhatsApp conversation history from agent session
-    wa_history = []
-    if t.get("phone"):
-        import httpx as _httpx, os as _os
-        agent_url = _os.environ.get("AGENT_URL", "http://127.0.0.1:8002")
-        phone = t["phone"]
-        # Try multiple phone formats to match session key
-        digits = "".join(c for c in phone if c.isdigit())
-        candidates = [phone, digits, "88" + digits, "966" + digits.lstrip("0")]
-        history_data = []
-        for candidate in candidates:
-            try:
-                resp = _httpx.get(f"{agent_url}/agent/session/{candidate}/history", timeout=10)
-                raw = resp.json().get("history", [])
-                if raw:
-                    history_data = raw
-                    break
-            except Exception:
-                continue
-        for h in history_data:
-            role = h.get("role", "")
-            parts = h.get("parts", [])
-            text = " ".join(p.get("text", "") for p in parts if p.get("text"))
-            if text:
-                wa_history.append({
-                    "direction": "inbound" if role == "user" else "outbound",
-                    "sender": "beneficiary" if role == "user" else "agent",
-                    "body_ar": text,
-                })
-    # Merge: ticket_messages (explicit CRM messages) + wa_history (agent conversation)
+    # Fetch WhatsApp conversation history from the agent's session store
+    wa_history = _agent_history(t.get("phone"))
+    # Merge: ticket_messages (explicit CRM messages) + wa_history (agent conversation).
+    # Anything without a timestamp sorts to the end rather than jumping to the
+    # top of the thread as an undated "—" bubble.
     all_msgs = msgs + wa_history
-    all_msgs.sort(key=lambda m: m.get("sent_at", ""))
+    all_msgs.sort(key=lambda m: m.get("sent_at") or "9999")
     return {**t, "status_ar": db.status_ar(t["status"]),
             "department_ar": db.by_id["department"].get(t["department_id"], {}).get("name_ar"),
             "customer_name_ar": cust_name or "غير مسجل",
@@ -189,11 +206,18 @@ def move_ticket(ticket_id: str, body: MoveTicketIn):
     t = dict(row)
     t["status"] = body.status
     t["updated_at"] = db.now_iso()
+    updates = {"status": body.status}
+    # Only stamp closed_at on the transition; reopening clears it.
     if body.status == "closed":
-        t["closed_at"] = db.now_iso()
-    conn.execute("UPDATE tickets SET status=?, updated_at=?, closed_at=? WHERE id=?",
-                (body.status, t.get("updated_at"), t.get("closed_at"), ticket_id))
-    conn.commit()
+        updates["closed_at"] = t["closed_at"] = db.now_iso()
+    elif t.get("closed_at"):
+        updates["closed_at"] = t["closed_at"] = None
+    db.update_ticket(ticket_id, updates)
+    if body.note_ar:
+        db.insert_ticket_message({
+            "id": db.next_id("msg", "MSG-"), "ticket_id": ticket_id, "direction": "outbound",
+            "sender": "system", "body_ar": body.note_ar, "is_internal": 1,
+            "sent_at": db.now_iso()})
     return {"ticket_id": ticket_id, "status": body.status,
             "status_ar": db.status_ar(body.status), "sla": db.ticket_sla(t)}
 
@@ -213,10 +237,9 @@ def assign_ticket(ticket_id: str, body: AssignIn):
     s = db.by_id["staff"].get(body.staff_id)
     if not s:
         raise HTTPException(404, "Staff member not found")
-    conn.execute("UPDATE tickets SET assigned_to=?, updated_at=? WHERE id=?",
-                (body.staff_id, db.now_iso(), ticket_id))
-    conn.commit()
-    return {"ticket_id": ticket_id, "assigned_to_ar": s["name_ar"], "role_ar": s["role_ar"]}
+    db.update_ticket(ticket_id, {"assigned_to": body.staff_id})
+    return {"ticket_id": ticket_id, "assigned_to": body.staff_id,
+            "assigned_to_ar": s["name_ar"], "role_ar": s["role_ar"]}
 
 
 class ReplyIn(BaseModel):
@@ -238,13 +261,13 @@ def reply_ticket(ticket_id: str, body: ReplyIn):
     msg_id = db.next_id("msg", "MSG-")
     m = {"id": msg_id, "ticket_id": ticket_id, "direction": "outbound",
          "sender": body.sender, "body_ar": body.body_ar, "sent_at": db.now_iso(),
-         "is_internal": not body.send_to_whatsapp}
+         # Persisted now: without the column, an internal note came back from
+         # the database indistinguishable from a message sent to the beneficiary.
+         "is_internal": 1 if not body.send_to_whatsapp else 0}
     db.insert_ticket_message(m)
     # Auto-transition: open/in_progress → waiting_customer
     new_status = "waiting_customer" if t["status"] in ("open", "in_progress") else t["status"]
-    conn.execute("UPDATE tickets SET status=?, updated_at=? WHERE id=?",
-                (new_status, db.now_iso(), ticket_id))
-    conn.commit()
+    db.update_ticket(ticket_id, {"status": new_status})
     warn = None
     wa_sent = False
     # Resolve phone: ticket field → beneficiary sections → whatsapp_sessions
@@ -484,9 +507,17 @@ def wa_templates():
                         "(الوقت المتبقي).")
 def wa_session(phone: str):
     p = db.norm_phone(phone)
-    sess = next((s for s in db.whatsapp_sessions if db.norm_phone(s.get("phone", s.get("wa_number", ""))) == p), None)
-    if not sess:
+    conn = db._get_conn()
+    row = conn.execute(
+        "SELECT * FROM whatsapp_sessions WHERE phone = ? ORDER BY last_message_at DESC LIMIT 1",
+        (p,)).fetchone()
+    if not row:
+        # Fall back to a scan for rows stored in a different phone format.
+        row = next((r for r in conn.execute("SELECT * FROM whatsapp_sessions")
+                    if db.norm_phone(r["phone"]) == p), None)
+    if not row:
         raise HTTPException(404, "No session for this number")
+    sess = dict(row)
     return {**sess, "window": db.wa_window(sess)}
 
 
@@ -508,11 +539,12 @@ def call_start(body: CallStartIn):
     b = db.beneficiary_by_phone(p)
     cid = db.next_id("call", "CALL-")
     sess = {"id": cid, "sip_call_id": body.sip_call_id or f"sip-{cid}@kayan.pbx",
-            "direction": body.direction, "from_number": p, "to_number": body.to_number,
-            "beneficiary_id": (b or {}).get("id"), "identified": bool(b),
+            "direction": body.direction, "phone": p, "from_number": p,
+            "to_number": body.to_number,
+            "beneficiary_id": (b or {}).get("id"), "identified": 1 if b else 0,
             "language": "ar", "dialect": None, "started_at": db.now_iso(),
-            "duration_sec": 0, "outcome": None, "intent": None, "transcript_available": True}
-    db.call_sessions.append(sess)
+            "duration_seconds": 0, "outcome": None, "intent": None}
+    db.insert_call_session(sess)
     ctx = _context_for(b)
     return {"call_id": cid, "identified": bool(b), "context": ctx,
             "greeting_ar": (f"حياكم الله {ctx['name_ar']} في جمعية كيان للايتام. كيف اقدر اخدمكم؟"
@@ -533,14 +565,31 @@ class CallEndIn(BaseModel):
              description="Closes the call session with its outcome, detected intent and duration for "
                          "reporting.")
 def call_end(call_id: str, body: CallEndIn):
-    sess = next((c for c in db.call_sessions if c["id"] == call_id), None)
+    sess = _call_session(call_id)
     if not sess:
         raise HTTPException(404, "Call session not found")
-    sess.update({"outcome": body.outcome, "intent": body.intent,
-                 "duration_sec": body.duration_sec, "ended_at": db.now_iso()})
+    updates = {"outcome": body.outcome, "intent": body.intent,
+               "duration_seconds": body.duration_sec, "ended_at": db.now_iso()}
     if body.transcript_ar:
-        sess["transcript_ar"] = body.transcript_ar
-    return {"call_id": call_id, "logged": True, "session": sess}
+        updates["transcript_ar"] = body.transcript_ar
+    db.update_row("call_sessions", call_id, updates)
+    sess.update(updates)
+    return {"call_id": call_id, "logged": True, "session": _call_view(sess)}
+
+
+def _call_session(call_id):
+    conn = db._get_conn()
+    row = conn.execute("SELECT * FROM call_sessions WHERE id = ?", (call_id,)).fetchone()
+    return dict(row) if row else None
+
+
+def _call_view(c):
+    """Expose both the stored and the historical field names — the console
+    reads from_number/duration_sec, the table stores phone/duration_seconds."""
+    return {**c,
+            "from_number": c.get("from_number") or c.get("phone"),
+            "duration_sec": c.get("duration_sec") or c.get("duration_seconds") or 0,
+            "identified": bool(c.get("identified") or c.get("beneficiary_id"))}
 
 
 class TransferIn(BaseModel):
@@ -553,23 +602,23 @@ class TransferIn(BaseModel):
              description="Escalates a live call to a human, creating a ticket that carries the call "
                          "context so the agent does not start cold.")
 def transfer_call(call_id: str, body: TransferIn):
-    sess = next((c for c in db.call_sessions if c["id"] == call_id), None)
+    sess = _call_session(call_id)
     if not sess:
         raise HTTPException(404, "Call session not found")
     dep = db.by_id["department"].get(body.department_id)
     if not dep:
         raise HTTPException(404, "Unknown department")
     tid = db.next_id("tkt", "TK-2026-")
-    b = db.get_beneficiary(sess.get("beneficiary_id")) if sess.get("beneficiary_id") else None
     t = {"id": tid, "beneficiary_id": sess.get("beneficiary_id"),
-         "phone": sess["from_number"], "department_id": body.department_id,
+         "phone": sess.get("from_number") or sess.get("phone"),
+         "department_id": body.department_id,
          "subject_ar": body.reason_ar, "status": "open", "channel": "call",
          "priority": "high", "assigned_to": None, "opened_at": db.now_iso(),
          "updated_at": db.now_iso(), "closed_at": None}
-    db.insert_ticket(t)
-    db.tickets.append(t)
+    with db.tx():
+        db.insert_ticket(t)
+        db.update_row("call_sessions", call_id, {"outcome": "escalated_to_agent"})
     db.by_id["ticket"][tid] = t
-    sess["outcome"] = "escalated_to_agent"
     return {"ticket_id": tid, "queue_position": 2, "eta_minutes": 4,
             "reply_ar": "سأحولكم الان لاحد موظفي خدمات المستفيدين مع نقل تفاصيل مكالمتكم. "
                         "نرجو الانتظار لحظات."}
@@ -579,8 +628,10 @@ def transfer_call(call_id: str, body: TransferIn):
             summary="List call sessions",
             description="Recent voice sessions with outcome and detected intent, for reporting.")
 def list_calls(limit: int = Query(20, ge=1, le=100)):
-    rows = sorted(db.call_sessions, key=lambda c: c["started_at"], reverse=True)[:limit]
-    return {"count": len(rows), "calls": rows}
+    conn = db._get_conn()
+    rows = conn.execute(
+        "SELECT * FROM call_sessions ORDER BY started_at DESC LIMIT ?", (limit,)).fetchall()
+    return {"count": len(rows), "calls": [_call_view(dict(r)) for r in rows]}
 
 
 @router.get("/notifications", tags=[T_WA],
@@ -588,7 +639,8 @@ def list_calls(limit: int = Query(20, ge=1, le=100)):
             description="Everything the platform has sent in this session — useful to verify the bot "
                         "actually notified the beneficiary.")
 def list_notifications(limit: int = Query(30, ge=1, le=200)):
-    return {"count": len(db.notifications), "notifications": db.notifications[-limit:]}
+    rows = db.notifications_recent(limit)
+    return {"count": len(rows), "notifications": rows}
 
 
 # ============================================================ shared context

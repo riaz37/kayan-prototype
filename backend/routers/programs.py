@@ -14,6 +14,12 @@ router = APIRouter()
 T_REQ = "5 · طلبات الدعم | Support Requests"
 T_CASE = "6 · دراسة الحالة واللجنة | Casework & Committee"
 
+# Looked up with .get() — an unrecognised stage must not 500 the whole request.
+STAGE_AR = {"submitted": "تم التقديم — بانتظار الدراسة",
+            "under_study": "قيد دراسة الحالة",
+            "committee": "معروض على اللجنة المختصة",
+            "decided": "تم اصدار القرار"}
+
 
 # ============================================================ catalogue
 @router.get("/programs", tags=[T_REQ],
@@ -105,9 +111,11 @@ def create_request(body: CreateRequestIn):
           "request_type_id": rt["id"], "title_ar": rt["name_ar"],
           "internal_classification": body.internal_classification,
           "case_description_ar": body.case_description_ar,
-          "requested_amount_sar": amount, "stage": "submitted",
-          "created_at": db.now_iso(), "channel": body.channel}
-    db.support_requests.append(sr)
+          "description_ar": body.case_description_ar,
+          "requested_amount_sar": amount, "amount": amount,
+          "status": "submitted", "stage": "submitted",
+          "created_at": db.now_iso(), "updated_at": db.now_iso(), "channel": body.channel}
+    db.insert_row("support_requests", sr)
     db.by_id["support_request"][sid] = sr
     return {"support_request_id": sid, "stage": "submitted",
             "program_ar": db.program_name(rt["program_id"]), "title_ar": rt["name_ar"],
@@ -133,10 +141,7 @@ def get_request(request_id: str):
         raise HTTPException(404, "Support request not found")
     case = db.case_for(request_id)
     dec = db.decision_for(request_id)
-    stage_ar = {"submitted": "تم التقديم — بانتظار الدراسة",
-                "under_study": "قيد دراسة الحالة",
-                "committee": "معروض على اللجنة المختصة",
-                "decided": "تم اصدار القرار"}[sr["stage"]]
+    stage_ar = STAGE_AR.get(sr.get("stage"), sr.get("stage") or "غير محدد")
     return {**sr, "program_ar": db.program_name(sr["program_id"]),
             "stage_ar": stage_ar, "case_study": case, "decision": dec,
             "reply_ar": f"حالة طلبكم {sr['id']}: {stage_ar}." +
@@ -154,6 +159,7 @@ def list_requests(beneficiary_id: str):
     for r in rows:
         d = db.decision_for(r["id"])
         out.append({**r, "program_ar": db.program_name(r["program_id"]),
+                    "stage_ar": STAGE_AR.get(r.get("stage"), r.get("stage")),
                     "decision": d["decision"] if d else None,
                     "decision_ar": d["decision_ar"] if d else None,
                     "approved_amount_sar": d["amount"] if d else None})
@@ -173,9 +179,12 @@ def add_detail(request_id: str, body: AddDetailIn):
     sr = db.get_support_request(request_id)
     if not sr:
         raise HTTPException(404, "Support request not found")
-    sr["case_description_ar"] += f"\n[{db.now_iso()}] {body.additional_detail_ar}"
+    existing = sr.get("case_description_ar") or ""
+    updated = f"{existing}\n[{db.now_iso()}] {body.additional_detail_ar}".strip()
+    db.update_support_request(request_id, {"case_description_ar": updated,
+                                           "description_ar": updated})
     return {"support_request_id": request_id,
-            "case_description_ar": sr["case_description_ar"],
+            "case_description_ar": updated,
             "reply_ar": "شكرا لتوضيحكم، تم اضافة التفاصيل الى الطلب."}
 
 
@@ -197,13 +206,17 @@ def open_case(request_id: str, researcher_id: str = Query("STF-04", examples=["S
         raise HTTPException(404, "Support request not found")
     if db.case_for(request_id):
         raise HTTPException(409, "A case study is already open for this request")
+    if not db.by_id["staff"].get(researcher_id):
+        raise HTTPException(404, "Unknown social researcher")
     cid = db.next_id("case", "CASE-")
     case = {"id": cid, "support_request_id": request_id,
             "beneficiary_id": sr["beneficiary_id"], "opened_at": db.now_iso(),
+            "created_at": db.now_iso(),
             "steps": [], "social_researcher_id": researcher_id,
+            "caseworker": researcher_id,
             "recommendation_ar": None, "status": "open"}
-    db.case_studies.append(case)
-    sr["stage"] = "under_study"
+    db.insert_row("case_studies", case)
+    db.update_support_request(request_id, {"stage": "under_study"})
     return {"case_id": cid, "stage": "under_study", "case_study": case}
 
 
@@ -219,22 +232,35 @@ class ScheduleStepIn(BaseModel):
              description="Schedules a field visit, office or online interview, or psychological "
                          "assessment, and notifies the beneficiary on WhatsApp.")
 def schedule_step(case_id: str, body: ScheduleStepIn):
-    case = next((c for c in db.case_studies if c["id"] == case_id), None)
+    case = db.get_case(case_id)
     if not case:
         raise HTTPException(404, "Case study not found")
     st = next((s for s in db.case_steps if s["id"] == body.step_id), None)
     if not st:
         raise HTTPException(404, "Unknown case step")
+    steps = case["steps"]
+    if any(s.get("step_id") == st["id"] for s in steps):
+        raise HTTPException(409, f"{st['name_ar']} مجدولة مسبقا على هذه الحالة")
     step = {"step_id": st["id"], "name_ar": st["name_ar"],
             "scheduled_at": body.scheduled_at, "status": "scheduled",
             "assigned_staff_id": body.assigned_staff_id, "findings_ar": None}
-    case["steps"].append(step)
+    steps.append(step)
+    db.update_case(case_id, {"steps": steps})
     b = db.get_beneficiary(case["beneficiary_id"])
-    if b:
+    phone = _contact_phone(b)
+    if phone:
         msg = db.render_template("TPL-VISIT", date=body.scheduled_at[:10])
-        db.send_notification("whatsapp", b["sections"]["SEC-CONTACT"]["whatsapp"], msg, kind="visit")
-    return {"case_id": case_id, "step": step,
+        db.send_notification("whatsapp", phone, msg, kind="visit")
+    return {"case_id": case_id, "step": step, "steps": steps,
             "reply_ar": f"تم تحديد موعد {st['name_ar']} بتاريخ {body.scheduled_at[:10]}."}
+
+
+def _contact_phone(b):
+    """WhatsApp number for a file, whichever field carries it."""
+    if not b:
+        return None
+    contact = b.get("sections", {}).get("SEC-CONTACT", {})
+    return contact.get("whatsapp") or contact.get("mobile") or b.get("phone")
 
 
 class FindingsIn(BaseModel):
@@ -246,15 +272,19 @@ class FindingsIn(BaseModel):
              summary="Record findings for a completed step",
              description="Marks a case step complete and stores the researcher's findings.")
 def record_findings(case_id: str, body: FindingsIn):
-    case = next((c for c in db.case_studies if c["id"] == case_id), None)
+    case = db.get_case(case_id)
     if not case:
         raise HTTPException(404, "Case study not found")
-    step = next((s for s in case["steps"] if s["step_id"] == body.step_id), None)
+    steps = case["steps"]
+    step = next((s for s in steps if s.get("step_id") == body.step_id), None)
     if not step:
         raise HTTPException(404, "Step not scheduled on this case")
     step["status"] = "completed"
     step["findings_ar"] = body.findings_ar
-    return {"case_id": case_id, "step": step}
+    step["completed_at"] = db.now_iso()
+    db.update_case(case_id, {"steps": steps})
+    return {"case_id": case_id, "step": step,
+            "completed_steps": len([s for s in steps if s.get("status") == "completed"])}
 
 
 class SubmitCommitteeIn(BaseModel):
@@ -266,17 +296,17 @@ class SubmitCommitteeIn(BaseModel):
              description="Presents the case to اللجنة المختصة with the researcher's recommendation. "
                          "Requires at least one completed step (409 otherwise).")
 def submit_committee(case_id: str, body: SubmitCommitteeIn):
-    case = next((c for c in db.case_studies if c["id"] == case_id), None)
+    case = db.get_case(case_id)
     if not case:
         raise HTTPException(404, "Case study not found")
-    done = [s for s in case["steps"] if s["status"] == "completed"]
+    done = [s for s in case["steps"] if s.get("status") == "completed"]
     if not done:
         raise HTTPException(409, "لا يمكن العرض على اللجنة قبل اكمال خطوة واحدة على الاقل من دراسة الحالة")
-    case["recommendation_ar"] = body.recommendation_ar
-    sr = db.get_support_request(case["support_request_id"])
-    if sr:
-        sr["stage"] = "committee"
-    return {"case_id": case_id, "stage": "committee",
+    db.update_case(case_id, {"recommendation_ar": body.recommendation_ar,
+                             "status": "submitted_to_committee"})
+    db.update_support_request(case["support_request_id"], {"stage": "committee"})
+    return {"case_id": case_id, "support_request_id": case["support_request_id"],
+            "stage": "committee",
             "completed_steps": len(done), "recommendation_ar": body.recommendation_ar}
 
 
@@ -307,28 +337,34 @@ def record_decision(request_id: str, body: DecisionIn):
     if body.decision == "accepted" and rt.get("ceiling_sar") and amt > rt["ceiling_sar"]:
         raise HTTPException(409, f"Approved amount exceeds the ceiling ({rt['ceiling_sar']} SAR)")
     did = db.next_id("dec", "DEC-")
+    approved = amt if body.decision == "accepted" else 0.0
     dec = {"id": did, "support_request_id": request_id, "beneficiary_id": sr["beneficiary_id"],
            "decision": body.decision,
            "decision_ar": next(d["name_ar"] for d in db.decision_types if d["id"] == body.decision),
-           "approved_amount_sar": amt if body.decision == "accepted" else 0.0,
+           # `amount` is the column; approved_amount_sar is the API's name for it.
+           # Writing only the latter is why every decision stored NULL and no
+           # accepted request could ever be enrolled.
+           "amount": approved,
+           "approved_amount_sar": approved,
+           "decided_at": db.now_iso(),
            "committee_date": db.now_iso(),
+           "decided_by": "STF-01",
            "committee_members": [s["name_ar"] for s in db.staff[:3]],
            "reason_ar": body.reason_ar,
-           "required_documents_ar": body.required_documents_ar,
+           "notes_ar": body.reason_ar,
+           "required_documents_ar": body.required_documents_ar or [],
            "notified_whatsapp": True, "notified_sms": True}
-    db.committee_decisions.append(dec)
-    conn = db._get_conn()
-    conn.execute("UPDATE support_requests SET stage = ?, decision = ? WHERE id = ?",
-                 ("decided", body.decision, request_id))
-    conn.commit()
+    db.insert_row("committee_decisions", dec)
+    db.update_support_request(request_id, {"stage": "decided", "decision": body.decision,
+                                           "status": body.decision})
     sr["stage"] = "decided"
     sr["decision"] = body.decision
     case = db.case_for(request_id)
     if case:
-        case["status"] = "closed"
+        db.update_case(case["id"], {"status": "closed"})
 
     b = db.get_beneficiary(sr["beneficiary_id"])
-    phone = b["sections"]["SEC-CONTACT"]["whatsapp"] if b else None
+    phone = _contact_phone(b)
     if body.decision == "accepted":
         msg = db.render_template("TPL-ACCEPT", request_no=request_id,
                                  program=db.program_name(sr["program_id"]))
@@ -349,32 +385,36 @@ def record_decision(request_id: str, body: DecisionIn):
             description="The committee's queue, ordered by the beneficiary's need score so the "
                         "highest-need cases surface first (support is given وفق الاحتياج والاولوية).")
 def committee_queue(limit: int = Query(20, ge=1, le=100)):
+    conn = db._get_conn()
     rows = []
-    for sr in db.support_requests:
-        if sr["stage"] != "committee":
-            continue
-        f = db.finance_for(sr["beneficiary_id"]) or {}
-        b = db.get_beneficiary(sr["beneficiary_id"])
+    for raw in conn.execute("SELECT * FROM support_requests WHERE stage = 'committee'"):
+        sr = db._normalize_request(db._decode(raw))
+        bid = sr["beneficiary_id"]
+        f = db.finance_for(bid) or {}
+        b = db.get_beneficiary(bid)
         case = db.case_for(sr["id"])
-        # Compute per_capita_monthly_sar from stored data
-        obligations = json.loads(f.get("obligations", "[]")) if isinstance(f.get("obligations"), str) else (f.get("obligations") or [])
-        person_costs = json.loads(f.get("person_costs", "[]")) if isinstance(f.get("person_costs"), str) else (f.get("person_costs") or [])
-        total_obligations = round(sum(o.get("monthly_sar", 0) for o in obligations), 2)
-        total_person_costs = round(sum(c.get("monthly_sar", 0) for c in person_costs), 2)
-        net_monthly = round(f.get("monthly_income", 0) - total_obligations - total_person_costs, 2)
-        hh = max(1, f.get("household_size", 1))
-        per_capita = round(net_monthly / hh, 2)
+        hh = max(1, 1 + len(db.deps_for(bid)))
+        total_obligations = round(sum(_entry_amount(o) for o in (f.get("obligations") or [])), 2)
+        total_person_costs = round(sum(_entry_amount(c) for c in (f.get("person_costs") or [])), 2)
+        net_monthly = round(float(f.get("monthly_income") or 0)
+                            - total_obligations - total_person_costs, 2)
         rows.append({
             "support_request_id": sr["id"],
-            "beneficiary_id": sr["beneficiary_id"],
-            "name_ar": b["sections"]["SEC-BASIC"]["full_name_ar"] if b else None,
+            "beneficiary_id": bid,
+            "name_ar": db.beneficiary_name(b),
             "program_ar": db.program_name(sr["program_id"]),
             "title_ar": sr["title_ar"],
             "requested_amount_sar": sr["requested_amount_sar"],
             "need_score": f.get("need_score"),
-            "per_capita_monthly_sar": per_capita,
+            "per_capita_monthly_sar": round(net_monthly / hh, 2),
             "household_size": hh,
             "recommendation_ar": (case or {}).get("recommendation_ar"),
         })
     rows.sort(key=lambda r: r.get("need_score") or 0, reverse=True)
     return {"count": len(rows), "queue": rows[:limit]}
+
+
+def _entry_amount(entry):
+    if not isinstance(entry, dict):
+        return 0.0
+    return float(entry.get("monthly_sar", entry.get("amount", 0)) or 0)
