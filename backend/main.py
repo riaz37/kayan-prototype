@@ -26,7 +26,7 @@ import os
 import logging
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 
 
 from backend import store as db
@@ -93,23 +93,51 @@ import httpx
 
 AGENT_URL = os.environ.get("AGENT_URL", "http://127.0.0.1:8002")
 
+HOP_BY_HOP = {"content-encoding", "content-length", "transfer-encoding", "connection"}
+
+
 @app.api_route("/agent/{path:path}", methods=["GET", "POST", "PUT", "DELETE"], include_in_schema=False)
 async def proxy_agent(path: str, request: Request):
-    """Forward /agent/* requests to the agent server."""
+    """Forward /agent/* to the agent server, passing streamed responses through.
+
+    This used to `await client.request(...)`, which reads the entire body before
+    replying — so /agent/chat's Server-Sent Events arrived all at once at the
+    end, exactly what streaming exists to avoid.
+    """
     body = await request.body()
-    headers = {k: v for k, v in request.headers.items() if k.lower() not in ("host", "content-length")}
-    async with httpx.AsyncClient() as client:
-        resp = await client.request(
-            method=request.method,
-            url=f"{AGENT_URL}/agent/{path}",
-            headers=headers,
-            content=body,
-            timeout=120,
-        )
-    return Response(
-        content=resp.content,
+    headers = {k: v for k, v in request.headers.items()
+               if k.lower() not in ("host", "content-length")}
+    params = dict(request.query_params)
+
+    client = httpx.AsyncClient(timeout=httpx.Timeout(300.0, connect=10.0))
+    req = client.build_request(
+        method=request.method,
+        url=f"{AGENT_URL}/agent/{path}",
+        headers=headers,
+        params=params,
+        content=body,
+    )
+    try:
+        resp = await client.send(req, stream=True)
+    except Exception:
+        await client.aclose()
+        raise
+
+    async def body_iter():
+        try:
+            async for chunk in resp.aiter_raw():
+                yield chunk
+        finally:
+            await resp.aclose()
+            await client.aclose()
+
+    passthrough = {k: v for k, v in resp.headers.items() if k.lower() not in HOP_BY_HOP}
+    passthrough.setdefault("X-Accel-Buffering", "no")
+    return StreamingResponse(
+        body_iter(),
         status_code=resp.status_code,
-        headers=dict(resp.headers),
+        headers=passthrough,
+        media_type=resp.headers.get("content-type"),
     )
 
 

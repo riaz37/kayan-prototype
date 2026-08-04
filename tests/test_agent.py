@@ -141,3 +141,94 @@ def test_webhook_message_extraction():
 
     # a delivery-status callback carries no message
     assert extract_message({"entry": [{"changes": [{"value": {"statuses": []}}]}]}) is None
+
+
+# ---------------------------------------------------------------- SSE endpoint
+@pytest.fixture
+def agent_client(monkeypatch):
+    from fastapi.testclient import TestClient
+    from agent import main as agent_main
+
+    monkeypatch.setattr(agent_main, "_load_context", lambda *a, **k: None)
+    return TestClient(agent_main.app), agent_main
+
+
+def _events(response):
+    out = []
+    for line in response.text.splitlines():
+        if line.startswith("data:"):
+            out.append(json.loads(line[5:]))
+    return out
+
+
+def test_chat_streams_sse_by_default(agent_client, monkeypatch):
+    client, agent_main = agent_client
+
+    def fake_stream(phone, text):
+        yield ("text", "وعليكم ")
+        yield ("text", "السلام")
+        yield ("done", "وعليكم السلام")
+
+    monkeypatch.setattr(agent_main.agent, "handle_message_stream", fake_stream)
+    r = client.post("/agent/chat", json={"from_number": "966500000010", "text_ar": "مرحبا"})
+
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("text/event-stream")
+    events = _events(r)
+    assert [e["type"] for e in events] == ["delta", "delta", "done"]
+    assert "".join(e["text"] for e in events if e["type"] == "delta") == "وعليكم السلام"
+    assert events[-1]["reply"] == "وعليكم السلام"
+
+
+def test_chat_emits_tool_and_reset_events(agent_client, monkeypatch):
+    """Preamble written before a tool call must be retractable — otherwise the
+    console shows the model's throat-clearing as if it were the answer."""
+    client, agent_main = agent_client
+
+    def fake_stream(phone, text):
+        yield ("text", "دعني أتحقق")
+        yield ("reset", None)
+        yield ("tool", "check_phone")
+        yield ("text", "الرقم غير مسجل")
+        yield ("done", "الرقم غير مسجل")
+
+    monkeypatch.setattr(agent_main.agent, "handle_message_stream", fake_stream)
+    events = _events(client.post("/agent/chat",
+                                 json={"from_number": "966500000011", "text_ar": "سجلني"}))
+
+    assert [e["type"] for e in events] == ["delta", "reset", "tool", "delta", "done"]
+    assert events[2]["name"] == "check_phone"
+    assert events[-1]["reply"] == "الرقم غير مسجل"
+
+
+def test_chat_stream_false_returns_the_original_json(agent_client, monkeypatch):
+    """Scripts and the WhatsApp path still need one blocking response."""
+    client, agent_main = agent_client
+    monkeypatch.setattr(agent_main.agent, "handle_message", lambda p, t: "رد كامل")
+
+    r = client.post("/agent/chat?stream=false",
+                    json={"from_number": "966500000012", "text_ar": "مرحبا"})
+    assert r.headers["content-type"].startswith("application/json")
+    assert r.json()["reply"] == "رد كامل"
+
+
+def test_chat_stream_reports_errors_as_an_event(agent_client, monkeypatch):
+    client, agent_main = agent_client
+
+    def boom(phone, text):
+        yield ("text", "…")
+        raise RuntimeError("llm exploded")
+
+    monkeypatch.setattr(agent_main.agent, "handle_message_stream", boom)
+    events = _events(client.post("/agent/chat",
+                                 json={"from_number": "966500000013", "text_ar": "مرحبا"}))
+    assert events[-1]["type"] == "error"
+    # apologises in the user's language rather than leaking the traceback
+    assert "عذرا" in events[-1]["message"].replace("ً", "")
+
+
+def test_error_reply_matches_the_users_language():
+    from agent.main import _error_reply
+
+    assert "عذرا" in _error_reply("مرحبا").replace("ً", "")
+    assert _error_reply("hello").startswith("Sorry")

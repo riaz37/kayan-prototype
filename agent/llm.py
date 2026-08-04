@@ -277,9 +277,16 @@ def handle_message(phone: str, user_text: str) -> str:
 
 def handle_message_stream(phone: str, user_text: str):
     """
-    Process an incoming user message with streaming support.
-    Yields partial responses: ('text', chunk), ('tool', tool_name), ('done', full_reply)
+    Process an incoming user message, yielding progress as it happens.
+
+    Events:
+      ("text",  chunk)      append this fragment to the visible reply
+      ("tool",  name)       a tool started running
+      ("reset", None)       discard what has been shown; it was preamble the
+                            model wrote before deciding to call a tool
+      ("done",  reply)      the final, authoritative reply text
     """
+    analytics.track_message(phone, is_user=True)
     history = sessions.get_history(phone)
     user_msg = {"role": "user", "content": user_text}
     history.append(user_msg)
@@ -303,7 +310,8 @@ def handle_message_stream(phone: str, user_text: str):
         except Exception as e:
             logger.error(f"LLM API error (all models failed): {e}")
             sessions.append_messages(phone, turn)
-            yield ("text", _map_error_to_friendly(str(e)))
+            yield ("reset", None)
+            yield ("done", _map_error_to_friendly(str(e)))
             return
 
         # Process streaming response
@@ -360,6 +368,11 @@ def handle_message_stream(phone: str, user_text: str):
             messages.append(assistant_msg)
             turn.append(assistant_msg)
 
+            # Anything streamed this round was the model thinking out loud
+            # before deciding to call a tool — it is not part of the answer.
+            if full_content.strip():
+                yield ("reset", None)
+
             # Execute each tool call
             for tc in tool_calls_data.values():
                 tool_name = tc["name"]
@@ -372,6 +385,7 @@ def handle_message_stream(phone: str, user_text: str):
 
                 logger.info(f"Tool call: {tool_name}({json.dumps(tool_args, ensure_ascii=False)[:200]})")
                 tool_result = _execute_tool_with_retry(tool_name, tool_args)
+                analytics.track_tool_call(phone, tool_name, success="error" not in tool_result)
                 logger.info(f"Tool result: {json.dumps(tool_result, ensure_ascii=False)[:300]}")
 
                 tool_msg = {"role": "tool", "tool_call_id": tc["id"],
@@ -381,14 +395,20 @@ def handle_message_stream(phone: str, user_text: str):
 
                 _update_session_from_tool(phone, tool_name, tool_args, tool_result)
         else:
-            reply = (full_content or "").strip() or "عذراً، لم أتمكن من إيجاد إجابة مناسبة."
+            reply = (full_content or "").strip()
+            if not reply:
+                reply = "عذراً، لم أتمكن من إيجاد إجابة مناسبة."
+                yield ("reset", None)
             turn.append({"role": "assistant", "content": reply})
             sessions.append_messages(phone, turn)
+            analytics.track_message(phone, is_user=False)
             yield ("done", reply)
             return
 
     # Exhausted tool rounds
     sessions.append_messages(phone, turn)
+    analytics.track_message(phone, is_user=False)
+    yield ("reset", None)
     yield ("done", "عذراً، أحتاج خطوات إضافية. يرجى التواصل مع موظف خدمة المستفيدين.")
 
 

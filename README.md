@@ -2,7 +2,7 @@
 
 A **runnable mock** of جمعية كيان للأيتام's beneficiary management platform, built so AI agents on **phone (SIP)** and **WhatsApp** can execute the full journey in the association's guide *"رحلة المستفيد في نظام جمعية كيان"* — and so the CRM behind it behaves like the admin panel in the supplied screenshots.
 
-**72 tool endpoints. 33 reference datasets. 115/115 end-to-end checks + 32 regression tests passing.**
+**72 tool endpoints. 33 reference datasets. 115/115 end-to-end checks + 46 regression tests passing.**
 
 ## The journey this simulates
 
@@ -44,7 +44,7 @@ Throughout, unresolved queries become **CRM tickets** on a kanban board with SLA
 | `agent/` | WhatsApp LLM agent — webhook, tool-calling loop, session store |
 | `reference-data/` | 33 reference datasets (JSON), Arabic-first, referentially intact |
 | `openapi/kayan_openapi.json` | OpenAPI 3.1 spec — **import this into your agent builder** |
-| `tests/` | pytest regression suite (32 tests) |
+| `tests/` | pytest regression suite (46 tests) |
 | `scripts/journey_check.py` | Walks the entire journey end-to-end (115 assertions) |
 | `docs/` | Build plan, architecture, data model, agent design, tool reference, open-source stack, frontend |
 | `frontend/` | Arabic RTL admin console (React + Tailwind, no CDN) |
@@ -68,7 +68,7 @@ backend, append `?api=https://your-backend` once — the choice is remembered.
 ### Verify
 
 ```bash
-.venv/bin/python -m pytest tests/ -q                       # 32 regression tests
+.venv/bin/python -m pytest tests/ -q                       # 46 regression tests
 DATA_DIR=/tmp/kayan-check PYTHONPATH=. \
   .venv/bin/python scripts/journey_check.py                # 115 end-to-end assertions
 ```
@@ -86,6 +86,7 @@ console's agent tester works without them.
 2. Build one agent per group (see `docs/04_AGENT_DESIGN.md`), or one agent with the full toolset.
 3. Conversational endpoints return **`reply_ar`** — speech/print-ready Arabic, so your TTS layer doesn't compose from raw fields.
 4. Start every conversation with `POST /whatsapp/inbound` or `POST /voice/call-start` — both return the caller's full context (file status, what's missing, open requests, next payment).
+5. `POST /agent/chat` streams Server-Sent Events (`delta` / `tool` / `reset` / `done`) so a multi-tool turn shows progress instead of stalling. Add `?stream=false` for a single JSON response.
 
 ## Three things built in deliberately
 

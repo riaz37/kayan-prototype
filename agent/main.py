@@ -9,6 +9,7 @@ import os
 import time
 
 from fastapi import FastAPI, Request, Response
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
@@ -244,41 +245,83 @@ def _send_reply(to: str, text: str):
         logger.error(f"Failed to send reply to {to}: {e}")
 
 
-@app.post("/agent/chat", response_model=ChatResponse, tags=["agent"])
-async def agent_chat(req: ChatRequest):
+def _error_reply(text: str) -> str:
+    """Apologise in whichever language the user wrote in."""
+    import re as _re
+    if _re.search(r"[\u0600-\u06FF]", text):
+        return "عذراً، حدث خطأ تقني. يرجى المحاولة مرة أخرى."
+    return "Sorry, a technical error occurred. Please try again."
+
+
+@app.post("/agent/chat", tags=["agent"])
+async def agent_chat(req: ChatRequest, stream: bool = True):
     """
-    Test the agent from the browser.
-    Bypasses Meta webhook — sends message directly to the LLM agent.
+    Test the agent from the browser. Bypasses the Meta webhook.
+
+    Streams Server-Sent Events by default. A turn that calls three tools is
+    three LLM round trips (~2s before the first word, measured), and the
+    endpoint used to sit silent for all of it. Pass ?stream=false for the
+    original single JSON response — scripts use that, and so does the WhatsApp
+    path, which cannot stream a message anyway.
+
+    SSE events, one JSON object per `data:` line:
+        {"type":"delta","text":"…"}   append to the visible reply
+        {"type":"tool","name":"…"}    a tool started running
+        {"type":"reset"}              discard what is shown; it was preamble
+        {"type":"done","reply":"…","context":{…},"known_beneficiary":bool}
+        {"type":"error","message":"…"}
     """
     phone = req.from_number
     text = req.text_ar
-
     logger.info(f"Agent chat from {phone}: {text[:100]}")
 
     # Load context if first message
-    sess = get_session(phone)
-    if not sess.get("context"):
+    if not get_session(phone).get("context"):
         _load_context(phone, text)
 
-    # Process through agent
-    try:
-        reply = agent.handle_message(phone, text)
-    except Exception as e:
-        logger.error(f"Agent error: {e}")
-        import re as _re
-        has_arabic = bool(_re.search(r'[\u0600-\u06FF]', text))
-        if has_arabic:
-            reply = "عذراً، حدث خطأ تقني. يرجى المحاولة مرة أخرى."
-        else:
-            reply = "Sorry, a technical error occurred. Please try again."
+    if not stream:
+        try:
+            reply = agent.handle_message(phone, text)
+        except Exception as e:
+            logger.error(f"Agent error: {e}")
+            reply = _error_reply(text)
+        context = get_context(phone)
+        return ChatResponse(reply=reply, context=context,
+                            known_beneficiary=bool(context and context.get("known")))
 
-    # Get current context
-    context = get_context(phone)
+    def sse(payload: dict) -> str:
+        return f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
 
-    return ChatResponse(
-        reply=reply,
-        context=context,
-        known_beneficiary=bool(context and context.get("known")),
+    def event_stream():
+        final = ""
+        try:
+            for kind, value in agent.handle_message_stream(phone, text):
+                if kind == "text":
+                    yield sse({"type": "delta", "text": value})
+                elif kind == "tool":
+                    yield sse({"type": "tool", "name": value})
+                elif kind == "reset":
+                    yield sse({"type": "reset"})
+                elif kind == "done":
+                    final = value
+        except Exception as e:
+            logger.exception("Agent stream error")
+            yield sse({"type": "error", "message": _error_reply(text), "detail": str(e)})
+            return
+
+        context = get_context(phone)
+        yield sse({"type": "done", "reply": final, "context": context,
+                   "known_beneficiary": bool(context and context.get("known"))})
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            # nginx and some proxies buffer responses by default, which defeats SSE
+            "X-Accel-Buffering": "no",
+        },
     )
 
 

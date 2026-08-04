@@ -366,6 +366,42 @@ async function send(method, path, body) {
 const post = (path, body) => send("POST", path, body);
 const patch = (path, body) => send("PATCH", path, body);
 
+/** POST and consume a Server-Sent Events response.
+ *  Calls onEvent(payload) for each `data:` line as it arrives.
+ *  EventSource cannot POST, so this reads the body stream directly. */
+async function postStream(path, body, onEvent, { signal } = {}) {
+  const r = await fetch(API_BASE + path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
+    body: JSON.stringify(body ?? {}),
+    signal,
+  });
+  if (!r.ok || !r.body) {
+    let detail = null;
+    try { detail = (await r.json())?.detail; } catch (e) { /* not json */ }
+    throw new Error(detail?.reply_ar || detail?.message || detail || `HTTP ${r.status}`);
+  }
+  const reader = r.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    // events are separated by a blank line; keep any partial tail in the buffer
+    const parts = buffer.split("\n\n");
+    buffer = parts.pop();
+    for (const part of parts) {
+      for (const line of part.split("\n")) {
+        if (!line.startsWith("data:")) continue;
+        const raw = line.slice(5).trim();
+        if (!raw) continue;
+        try { onEvent(JSON.parse(raw)); } catch (e) { console.warn("bad SSE payload", raw); }
+      }
+    }
+  }
+}
+
 function useApi(path, fallbackKey, deps = []) {
   const [state, setState] = useState({ loading: true, data: null, live: false });
   const refreshKey = useRef(0);
@@ -528,4 +564,4 @@ function t(key) {
 window.UI = { cx, nf, money, num, dateAr, timeAgo, Icon, I, Card, CardHead, Button, Badge, TONE,
   STATUS_TONE, FILE_STATUS_AR, STAGE_AR, Input, Select, Progress, Ring, Avatar, Stat, Table, Td,
   Tabs, Sheet, Modal, Empty, Skeleton, Field, t, useLang, setLang, getLang };
-window.API = { get, post, patch, useApi, loadSnapshot, API_BASE };
+window.API = { get, post, patch, postStream, useApi, loadSnapshot, API_BASE };

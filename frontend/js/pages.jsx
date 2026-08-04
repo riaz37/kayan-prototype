@@ -1293,11 +1293,39 @@ function PageHead({ title, sub, right }) {
 }
 
 /* ============================================================ Agent Test Console */
+// Shown while a tool runs, so a multi-round turn reads as progress rather than
+// a stall. Falls back to the raw tool name for anything not listed.
+const TOOL_LABEL_AR = {
+  check_phone: "التحقق من رقم الجوال…",
+  check_eligibility: "التحقق من الأهلية…",
+  create_file: "إنشاء الملف…",
+  get_file: "قراءة الملف…",
+  update_section: "تحديث بيانات الملف…",
+  get_completeness: "فحص اكتمال الملف…",
+  submit_file: "رفع الملف للدراسة…",
+  add_dependent: "إضافة تابع…",
+  list_dependents: "قراءة التابعين…",
+  update_document: "تحديث حالة المستند…",
+  get_financial_profile: "قراءة الملف المالي…",
+  add_obligation: "إضافة التزام شهري…",
+  add_person_cost: "إضافة تكلفة معيشية…",
+  search_request_types: "البحث عن نوع الطلب…",
+  create_support_request: "تسجيل طلب الدعم…",
+  get_support_request: "قراءة حالة الطلب…",
+  add_request_detail: "إضافة تفاصيل للطلب…",
+  search_faqs: "البحث في الأسئلة الشائعة…",
+  create_ticket: "فتح تذكرة…",
+  get_beneficiary_history: "قراءة السجل الشامل…",
+  list_programs: "قراءة البرامج…",
+  cancel_flow: "إلغاء العملية…",
+};
+
 function AgentTestPage() {
   const [phone, setPhone] = useState("966500287602");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [activeTool, setActiveTool] = useState(null);
   const [context, setContext] = useState(null);
   const chatEndRef = useRef(null);
   const { t } = U;
@@ -1312,14 +1340,36 @@ function AgentTestPage() {
     setInput("");
     setMessages(prev => [...prev, { role: "user", text, time: new Date() }]);
     setLoading(true);
+    setActiveTool(null);
+
+    // Placeholder the stream writes into, so the reply appears word by word
+    // instead of after several seconds of silence.
+    const slot = Date.now();
+    setMessages(prev => [...prev, { role: "agent", text: "", time: new Date(), key: slot, streaming: true }]);
+    const patchSlot = (fn) => setMessages(prev =>
+      prev.map(m => (m.key === slot ? { ...m, ...fn(m) } : m)));
 
     try {
-      const res = await A.post("/agent/chat", { from_number: phone, text_ar: text });
-      setMessages(prev => [...prev, { role: "agent", text: res.reply, time: new Date() }]);
-      if (res.context) setContext(res.context);
+      await A.postStream("/agent/chat", { from_number: phone, text_ar: text }, (ev) => {
+        if (ev.type === "delta") {
+          patchSlot(m => ({ text: m.text + ev.text }));
+        } else if (ev.type === "tool") {
+          setActiveTool(ev.name);
+        } else if (ev.type === "reset") {
+          // what was streamed was the model's preamble before a tool call
+          patchSlot(() => ({ text: "" }));
+        } else if (ev.type === "error") {
+          patchSlot(() => ({ role: "error", text: ev.message, streaming: false }));
+        } else if (ev.type === "done") {
+          patchSlot(() => ({ text: ev.reply, streaming: false }));
+          if (ev.context) setContext(ev.context);
+        }
+      });
     } catch (e) {
-      setMessages(prev => [...prev, { role: "error", text: t("connectionError"), time: new Date() }]);
+      patchSlot(() => ({ role: "error", text: e?.message || t("connectionError"), streaming: false }));
     }
+    patchSlot(() => ({ streaming: false }));
+    setActiveTool(null);
     setLoading(false);
   };
 
@@ -1394,30 +1444,45 @@ function AgentTestPage() {
                 <p className="text-[12.5px] text-ink-muted mt-1">{t("startChatSub")}</p>
               </div>
             )}
-            {messages.map((msg, i) => (
-              <div key={i} className={cx("flex", msg.role === "user" ? "justify-end" : "justify-start")}>
-                <div className={cx(
-                  "max-w-[80%] rounded-2xl px-4 py-2.5",
-                  msg.role === "user" && "bg-brand-600 text-white rounded-br-md",
-                  msg.role === "agent" && "bg-white border border-line text-ink rounded-bl-md shadow-card",
-                  msg.role === "error" && "bg-rose-50 border border-rose-200 text-rose-700 rounded-bl-md"
-                )}>
-                  <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{msg.text}</p>
-                  <p className={cx("text-[10px] mt-1", msg.role === "user" ? "text-brand-100" : "text-ink-soft")}>
-                    {msg.time.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
-                  </p>
-                </div>
-              </div>
-            ))}
-            {loading && (
-              <div className="flex justify-start">
-                <div className="bg-white border border-line rounded-2xl rounded-bl-md px-4 py-3 shadow-card">
-                  <div className="flex gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-ink-soft animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-2 h-2 rounded-full bg-ink-soft animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-2 h-2 rounded-full bg-ink-soft animate-bounce" style={{ animationDelay: "300ms" }} />
+            {messages.map((msg, i) => {
+              // an agent bubble that has arrived empty is still waiting on the
+              // first token — render the typing dots inside it, not after it
+              const awaiting = msg.streaming && !msg.text;
+              return (
+                <div key={msg.key ?? i} className={cx("flex", msg.role === "user" ? "justify-end" : "justify-start")}>
+                  <div className={cx(
+                    "max-w-[80%] rounded-2xl px-4 py-2.5",
+                    msg.role === "user" && "bg-brand-600 text-white rounded-br-md",
+                    msg.role === "agent" && "bg-white border border-line text-ink rounded-bl-md shadow-card",
+                    msg.role === "error" && "bg-rose-50 border border-rose-200 text-rose-700 rounded-bl-md"
+                  )}>
+                    {awaiting ? (
+                      <div className="flex gap-1.5 py-1">
+                        <span className="w-2 h-2 rounded-full bg-ink-soft animate-bounce" style={{ animationDelay: "0ms" }} />
+                        <span className="w-2 h-2 rounded-full bg-ink-soft animate-bounce" style={{ animationDelay: "150ms" }} />
+                        <span className="w-2 h-2 rounded-full bg-ink-soft animate-bounce" style={{ animationDelay: "300ms" }} />
+                      </div>
+                    ) : (
+                      <p className="text-[13px] leading-relaxed whitespace-pre-wrap">
+                        {msg.text}
+                        {msg.streaming && <span className="inline-block w-[2px] h-[13px] align-middle mr-0.5 bg-brand-500 animate-pulse" />}
+                      </p>
+                    )}
+                    {!msg.streaming && (
+                      <p className={cx("text-[10px] mt-1", msg.role === "user" ? "text-brand-100" : "text-ink-soft")}>
+                        {msg.time.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    )}
                   </div>
                 </div>
+              );
+            })}
+            {activeTool && (
+              <div className="flex justify-start">
+                <span className="inline-flex items-center gap-1.5 rounded-lg bg-brand-50 text-brand-700 ring-1 ring-inset ring-brand-100 px-2.5 py-1 text-[11.5px] font-medium">
+                  <Icon d={I.spark} className="w-3 h-3 animate-pulse" />
+                  {TOOL_LABEL_AR[activeTool] || activeTool}
+                </span>
               </div>
             )}
             <div ref={chatEndRef} />
