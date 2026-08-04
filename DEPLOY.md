@@ -14,12 +14,13 @@ railway service create backend-agent
 railway service connect backend-agent
 
 # Set environment variables
-railway variables set GEMINI_API_KEY="your-key"
+railway variables set LLM_BASE_URL="http://your-llm-host:9025"
+railway variables set LLM_MODEL="qwen"
 railway variables set WHATSAPP_ACCESS_TOKEN="your-token"
 railway variables set WHATSAPP_PHONE_NUMBER_ID="your-phone-id"
 railway variables set WHATSAPP_VERIFY_TOKEN="kayan-verify-token"
 railway variables set WHATSAPP_APP_SECRET="your-secret"
-railway variables set BACKEND_URL="http://localhost:8000"
+railway variables set BACKEND_URL="http://127.0.0.1:8001"
 
 # Add persistent volume for SQLite
 railway volume add -m /app/data
@@ -62,7 +63,11 @@ In Meta Developer Console, update the webhook URL:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `LLM_API_KEY` | No | API key for the LLM endpoint (empty for local) |
+| `LLM_BASE_URL` | No | OpenAI-compatible LLM endpoint (default: the self-hosted vLLM) |
+| `LLM_MODEL` | No | Model name at that endpoint (default `qwen`) |
+| `LLM_API_KEY` | No | API key for the LLM endpoint (`none` for the local vLLM) |
+| `LLM_ENABLE_THINKING` | No | `1` to keep the model's reasoning pass on (slower replies) |
+| `DATA_DIR` | No | Where `kayan.db` lives; must match the mounted volume |
 | `WHATSAPP_ACCESS_TOKEN` | Yes | Meta WhatsApp Cloud API token |
 | `WHATSAPP_PHONE_NUMBER_ID` | Yes | WhatsApp business phone number ID |
 | `WHATSAPP_VERIFY_TOKEN` | Yes | Webhook verification token |
@@ -76,7 +81,7 @@ In Meta Developer Console, update the webhook URL:
 ┌─────────────────────────────────────────┐
 │  Railway: backend-agent service         │
 │  ┌─────────────┐  ┌─────────────┐       │
-│  │ Backend :PORT│  │ Agent :8001 │       │
+│  │ Backend :8001│  │ Agent :8002 │       │
 │  └─────────────┘  └─────────────┘       │
 │  Volume: /app/data (SQLite)             │
 └─────────────────────────────────────────┘
@@ -93,8 +98,8 @@ In Meta Developer Console, update the webhook URL:
 # Start all services locally
 docker-compose up --build
 
-# Or without Docker
-./start.sh
+# Or without Docker (venv, build, seed, serve)
+./run.sh
 ```
 
 ## Logs
@@ -110,12 +115,22 @@ railway logs --follow
 ## Troubleshooting
 
 ### Backend crashes on startup
-- Check if all environment variables are set
-- Verify GEMINI_API_KEY is valid
+- Check the volume is mounted at the path `DATA_DIR` points to
+- `GET /health` should return `{"status":"ok"}` before the agent will work
+
+### Agent replies with a technical-error message
+- `GET /` on the agent reports the model and base URL it is actually using
+- Confirm the LLM endpoint is reachable *from Railway*, not just from your laptop
 
 ### SQLite database is empty
 - Ensure volume is mounted to `/app/data`
 - Check volume is persistent (not ephemeral)
+- Seed it once: `POST /admin/seed` (this wipes and regenerates the demo data)
+
+### "no such column" errors after deploying
+- Should not happen: `backend/store.py` migrates missing columns on startup.
+- If it does, the column is missing from `_MIGRATIONS` — add it there rather
+  than editing the database by hand, so every environment converges.
 
 ### Frontend can't reach backend
 - Verify BACKEND_URL points to the correct service

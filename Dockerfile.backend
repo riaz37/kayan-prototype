@@ -17,8 +17,9 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 COPY backend/ backend/
 COPY agent/ agent/
 
-# Copy reference data (JSON seed files) to separate dir (volume mounts at /app/data/)
-COPY data/*.json reference-data/
+# Static reference data. Kept outside /app/data because that path is a mounted
+# volume at runtime — anything copied there would be hidden by the mount.
+COPY reference-data/ reference-data/
 
 # Create data directory for SQLite (will be mounted as volume)
 RUN mkdir -p /app/data

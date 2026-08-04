@@ -11,8 +11,9 @@ services:
       - kayan-data:/app/data
       - ./.env:/app/.env:ro
     environment:
-      - PORT=8000
-      - BACKEND_URL=http://localhost:8000
+      # supervisord binds backend:8001 and agent:8002 inside the container
+      - BACKEND_URL=http://127.0.0.1:8001
+      - AGENT_URL=http://127.0.0.1:8002
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]

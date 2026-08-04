@@ -57,9 +57,18 @@ htmlcov/
 *.log
 logs/
 
-# WhatsApp bridge sessions
+# WhatsApp bridge sessions — auth.json holds linked-device key material
 whatsapp-bridge/sessions/
+whatsapp-bridge/session/
 whatsapp-bridge/*.json
+whatsapp-bridge/**/whatsapp_qr.png
+
+# Runtime databases. These are generated (backend/seed_production.py) and were
+# previously committed, which meant a clone started against a stale schema and
+# shipped real conversation history with it.
+data/*.db
+data/*.db-shm
+data/*.db-wal
 
 # MCP config (may contain local/secret settings)
 .mcp.json

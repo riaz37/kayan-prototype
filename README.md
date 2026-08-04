@@ -2,7 +2,7 @@
 
 A **runnable mock** of جمعية كيان للأيتام's beneficiary management platform, built so AI agents on **phone (SIP)** and **WhatsApp** can execute the full journey in the association's guide *"رحلة المستفيد في نظام جمعية كيان"* — and so the CRM behind it behaves like the admin panel in the supplied screenshots.
 
-**72 tool endpoints. 33 seed datasets. 83/83 end-to-end checks passing.**
+**72 tool endpoints. 33 reference datasets. 115/115 end-to-end checks + 32 regression tests passing.**
 
 ## The journey this simulates
 
@@ -34,31 +34,51 @@ Throughout, unresolved queries become **CRM tickets** on a kanban board with SLA
 
 | Path | What it is |
 |---|---|
-| `backend/` | FastAPI mock — 72 tool endpoints in 9 groups |
-| `backend/routers/beneficiary.py` | Registration, OTP, the 10 sections, dependents, documents, finances, FAQ |
+| `backend/` | FastAPI service — 72 tool endpoints in 9 groups |
+| `backend/store.py` | SQLite persistence: schema, migrations, read/write helpers |
+| `backend/routers/beneficiary.py` | Registration, the 10 sections, dependents, documents, finances, FAQ |
 | `backend/routers/crm.py` | Tickets, kanban, SLA, stats + WhatsApp & SIP channels |
 | `backend/routers/programs.py` | 5 programs / 43 request types, casework, committee |
 | `backend/routers/finance.py` | Enrollment, disbursements, payments, sponsorships, 360 history |
-| `data/` | 33 seed datasets (JSON), Arabic-first, referentially intact |
+| `backend/seed_production.py` | Generates the demo database (deterministic) |
+| `agent/` | WhatsApp LLM agent — webhook, tool-calling loop, session store |
+| `reference-data/` | 33 reference datasets (JSON), Arabic-first, referentially intact |
 | `openapi/kayan_openapi.json` | OpenAPI 3.1 spec — **import this into your agent builder** |
-| `scripts/generate_seed.py` | Regenerates all seed data (deterministic) |
-| `scripts/smoke_test.py` | Walks the entire journey end-to-end (83 assertions) |
+| `tests/` | pytest regression suite (32 tests) |
+| `scripts/journey_check.py` | Walks the entire journey end-to-end (115 assertions) |
 | `docs/` | Build plan, architecture, data model, agent design, tool reference, open-source stack, frontend |
-| `frontend/` | Arabic RTL admin console (React + Tailwind, no CDN) — served at `/app/` |
+| `frontend/` | Arabic RTL admin console (React + Tailwind, no CDN) |
 
 ## Run it
 
 ```bash
-pip install -r requirements.txt
-python scripts/generate_seed.py          # already generated; re-run to reset
-PYTHONPATH=. uvicorn backend.main:app --reload --port 8000
+./run.sh                # venv, build, seed, then serve everything
+./run.sh --no-agent     # skip the LLM agent
+./run.sh --reseed       # wipe and regenerate the demo data
+./run.sh --tunnel       # also expose the agent via ngrok for Meta webhooks
 ```
 
-or `./run.sh`. Then:
+- **Console** — http://localhost:3000
+- **Swagger UI** — http://localhost:8001/docs
+- **Agent health** — http://localhost:8002/health
 
-- **Console UI** — http://localhost:8000/app/
-- **Swagger UI** — http://localhost:8000/docs
-- **Verify everything** — `PYTHONPATH=. python scripts/smoke_test.py`
+The console targets `localhost:8001` automatically. To point it at another
+backend, append `?api=https://your-backend` once — the choice is remembered.
+
+### Verify
+
+```bash
+.venv/bin/python -m pytest tests/ -q                       # 32 regression tests
+DATA_DIR=/tmp/kayan-check PYTHONPATH=. \
+  .venv/bin/python scripts/journey_check.py                # 115 end-to-end assertions
+```
+
+### Configuration
+
+Copy `.env.example` to `.env`. The LLM defaults to a self-hosted vLLM
+(`qwen3.6-27b-fp8`); any OpenAI-compatible endpoint works via `LLM_BASE_URL`
+and `LLM_MODEL`. WhatsApp credentials are only needed for real delivery — the
+console's agent tester works without them.
 
 ## Connecting your AI agents
 
@@ -78,7 +98,7 @@ or `./run.sh`. Then:
 ## Assumptions (all changeable)
 
 - **Stack:** Python/FastAPI, chosen because it auto-generates the OpenAPI spec your builder consumes. See `docs/06_OPEN_SOURCE_STACK.md` for the recommended production stack (ERPNext + Chatwoot + LiveKit).
-- **State:** in-memory; resets on restart — repeatable agent tests. No DB, no real money, no real SIP/WhatsApp.
+- **State:** SQLite at `$DATA_DIR/kayan.db` (default `./data`). The database is generated, not committed — run `python backend/seed_production.py` to (re)create it. Schema changes are applied automatically on startup by the migration step in `backend/store.py`.
 - **Auth:** none, open CORS, for sandbox use. Add a token before any shared deployment.
 - **Language:** Arabic-first, undiacritized (standard for ERP/UI text). English available on FAQ.
 
