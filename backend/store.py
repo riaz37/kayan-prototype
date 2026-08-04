@@ -1,25 +1,54 @@
 """
 SQLite-backed data store for the Kayan prototype.
 Reference data loaded from JSON (static). Transactional data persisted in SQLite.
+
+Connection policy
+-----------------
+One connection PER THREAD, in autocommit mode (isolation_level=None).
+
+FastAPI runs sync endpoints in a threadpool, so a single shared connection was
+both a thread-safety hazard and a availability hazard: a statement that raised
+mid-transaction left the write lock held, and every later write in the process
+failed with "database is locked" until restart. Autocommit means there is no
+open transaction to leak. Use tx() where several statements must land together.
 """
-import json, os, sqlite3
-from datetime import datetime, timedelta
+import json, os, sqlite3, threading
+from contextlib import contextmanager
+from datetime import datetime, timedelta, timezone
 
 REF_DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "reference-data")
 DATA_DIR = os.path.join(os.environ.get("DATA_DIR", os.path.join(os.path.dirname(__file__), "..", "data")))
 DB_PATH = os.path.join(DATA_DIR, "kayan.db")
 
-_conn = None
+_local = threading.local()
 
 
 def _get_conn():
-    global _conn
-    if _conn is None:
-        _conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-        _conn.row_factory = sqlite3.Row
-        _conn.execute("PRAGMA journal_mode=WAL")
-        _conn.execute("PRAGMA foreign_keys=ON")
-    return _conn
+    """The calling thread's connection. Autocommit; WAL; 10s busy timeout."""
+    conn = getattr(_local, "conn", None)
+    if conn is None:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        conn = sqlite3.connect(DB_PATH, isolation_level=None, timeout=10.0)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA foreign_keys=ON")
+        conn.execute("PRAGMA busy_timeout=10000")
+        _local.conn = conn
+    return conn
+
+
+@contextmanager
+def tx():
+    """Group several writes into one transaction; rolls back on any exception."""
+    conn = _get_conn()
+    conn.execute("BEGIN IMMEDIATE")
+    try:
+        yield conn
+    except Exception:
+        conn.execute("ROLLBACK")
+        raise
+    else:
+        conn.execute("COMMIT")
 
 
 def _load(name):
@@ -64,6 +93,8 @@ def _init_db():
             full_name_ar TEXT,
             phone TEXT,
             sections TEXT DEFAULT '{}',
+            eligibility_verified INTEGER DEFAULT 0,
+            approved_at TEXT,
             created_at TEXT,
             updated_at TEXT
         );
@@ -88,7 +119,9 @@ def _init_db():
             mandatory INTEGER DEFAULT 1,
             status TEXT DEFAULT 'missing',
             file_path TEXT,
-            created_at TEXT
+            note_ar TEXT,
+            created_at TEXT,
+            updated_at TEXT
         );
 
         CREATE TABLE IF NOT EXISTS financial_profiles (
@@ -98,6 +131,8 @@ def _init_db():
             monthly_expenses REAL DEFAULT 0,
             obligations TEXT DEFAULT '[]',
             person_costs TEXT DEFAULT '[]',
+            income_breakdown TEXT DEFAULT '[]',
+            household_size INTEGER DEFAULT 1,
             need_score REAL DEFAULT 0,
             created_at TEXT
         );
@@ -126,9 +161,12 @@ def _init_db():
             support_request_id TEXT,
             beneficiary_id TEXT,
             caseworker TEXT,
+            social_researcher_id TEXT,
             notes_ar TEXT,
             recommendation_ar TEXT,
             steps TEXT DEFAULT '[]',
+            status TEXT DEFAULT 'open',
+            opened_at TEXT,
             created_at TEXT
         );
 
@@ -139,6 +177,11 @@ def _init_db():
             decision TEXT,
             amount REAL,
             notes_ar TEXT,
+            reason_ar TEXT,
+            required_documents_ar TEXT DEFAULT '[]',
+            committee_members TEXT DEFAULT '[]',
+            notified_whatsapp INTEGER DEFAULT 0,
+            notified_sms INTEGER DEFAULT 0,
             decided_by TEXT,
             decided_at TEXT
         );
@@ -147,6 +190,12 @@ def _init_db():
             id TEXT PRIMARY KEY,
             beneficiary_id TEXT,
             program_id TEXT,
+            support_request_id TEXT,
+            type TEXT DEFAULT 'one_time',
+            monthly_amount REAL DEFAULT 0,
+            total_approved REAL DEFAULT 0,
+            start_date TEXT,
+            end_date TEXT,
             status TEXT DEFAULT 'active',
             enrolled_at TEXT
         );
@@ -177,6 +226,7 @@ def _init_db():
         CREATE TABLE IF NOT EXISTS sponsors (
             id TEXT PRIMARY KEY,
             name_ar TEXT,
+            type TEXT,
             phone TEXT,
             email TEXT,
             total_pledged REAL DEFAULT 0,
@@ -188,6 +238,7 @@ def _init_db():
             sponsor_id TEXT,
             beneficiary_id TEXT,
             monthly_amount REAL,
+            kind TEXT DEFAULT 'restricted',
             status TEXT DEFAULT 'active',
             started_at TEXT
         );
@@ -214,6 +265,7 @@ def _init_db():
             direction TEXT,
             sender TEXT,
             body_ar TEXT,
+            is_internal INTEGER DEFAULT 0,
             sent_at TEXT
         );
 
@@ -221,11 +273,17 @@ def _init_db():
             id TEXT PRIMARY KEY,
             phone TEXT,
             beneficiary_id TEXT,
+            sip_call_id TEXT,
+            to_number TEXT,
+            identified INTEGER DEFAULT 0,
+            language TEXT DEFAULT 'ar',
+            dialect TEXT,
             direction TEXT DEFAULT 'inbound',
             outcome TEXT,
             intent TEXT,
-            duration_seconds INTEGER,
+            duration_seconds INTEGER DEFAULT 0,
             notes_ar TEXT,
+            transcript_ar TEXT,
             started_at TEXT,
             ended_at TEXT
         );
@@ -241,11 +299,23 @@ def _init_db():
 
         CREATE TABLE IF NOT EXISTS events (
             id TEXT PRIMARY KEY,
-            title_ar TEXT,
+            name_ar TEXT,
             description_ar TEXT,
+            program_id TEXT,
             event_date TEXT,
             location TEXT,
+            capacity INTEGER DEFAULT 0,
+            registered INTEGER DEFAULT 0,
+            status TEXT DEFAULT 'scheduled',
             created_at TEXT
+        );
+
+        CREATE TABLE IF NOT EXISTS event_registrations (
+            id TEXT PRIMARY KEY,
+            event_id TEXT,
+            beneficiary_id TEXT,
+            registered_at TEXT,
+            UNIQUE (event_id, beneficiary_id)
         );
 
         CREATE TABLE IF NOT EXISTS notifications (
@@ -265,41 +335,105 @@ def _init_db():
             created_at TEXT
         );
     """)
-    conn.commit()
+
+
+# CREATE TABLE IF NOT EXISTS never alters an existing table, so a database
+# created by an older build keeps its old columns and the new code 500s against
+# it ("no such column: ..."). Every column added after a table first shipped
+# must therefore also be listed here.
+_MIGRATIONS = {
+    "beneficiaries":       [("eligibility_verified", "INTEGER DEFAULT 0"), ("approved_at", "TEXT")],
+    "documents":           [("note_ar", "TEXT"), ("updated_at", "TEXT")],
+    "financial_profiles":  [("income_breakdown", "TEXT DEFAULT '[]'"),
+                            ("household_size", "INTEGER DEFAULT 1")],
+    "support_requests":    [("decision", "TEXT"), ("case_description_ar", "TEXT"),
+                            ("internal_classification", "TEXT"), ("channel", "TEXT"),
+                            ("requested_amount_sar", "REAL"), ("title_ar", "TEXT"),
+                            ("updated_at", "TEXT")],
+    "case_studies":        [("social_researcher_id", "TEXT"), ("status", "TEXT DEFAULT 'open'"),
+                            ("opened_at", "TEXT")],
+    "committee_decisions": [("beneficiary_id", "TEXT"), ("reason_ar", "TEXT"),
+                            ("required_documents_ar", "TEXT DEFAULT '[]'"),
+                            ("committee_members", "TEXT DEFAULT '[]'"),
+                            ("notified_whatsapp", "INTEGER DEFAULT 0"),
+                            ("notified_sms", "INTEGER DEFAULT 0")],
+    "enrollments":         [("support_request_id", "TEXT"), ("type", "TEXT DEFAULT 'one_time'"),
+                            ("monthly_amount", "REAL DEFAULT 0"), ("total_approved", "REAL DEFAULT 0"),
+                            ("start_date", "TEXT"), ("end_date", "TEXT")],
+    "disbursements":       [("approved_by", "TEXT")],
+    "ticket_messages":     [("is_internal", "INTEGER DEFAULT 0")],
+    "call_sessions":       [("sip_call_id", "TEXT"), ("to_number", "TEXT"),
+                            ("identified", "INTEGER DEFAULT 0"), ("language", "TEXT DEFAULT 'ar'"),
+                            ("dialect", "TEXT"), ("transcript_ar", "TEXT")],
+    "sponsors":            [("type", "TEXT")],
+    "sponsorships":        [("kind", "TEXT DEFAULT 'restricted'")],
+    "events":              [("name_ar", "TEXT"), ("program_id", "TEXT"),
+                            ("capacity", "INTEGER DEFAULT 0"), ("registered", "INTEGER DEFAULT 0"),
+                            ("status", "TEXT DEFAULT 'scheduled'")],
+}
+
+
+def _migrate():
+    """Add any column the current code expects but an older database lacks."""
+    conn = _get_conn()
+    for table, columns in _MIGRATIONS.items():
+        try:
+            have = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+        except sqlite3.Error:
+            continue
+        if not have:
+            continue  # table does not exist; _init_db created the current shape
+        for name, decl in columns:
+            if name not in have:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {decl}")
+
+
+def _columns(table):
+    conn = _get_conn()
+    try:
+        return {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+    except sqlite3.Error:
+        return set()
+
+
+def _backfill():
+    """Reconcile rows written before the column names were unified."""
+    conn = _get_conn()
+
+    # Older seeds wrote support_requests.amount / .description_ar; the API has
+    # always written requested_amount_sar / case_description_ar. Same field —
+    # which is why the console showed blank amounts for every seeded request.
+    sr = _columns("support_requests")
+    if {"amount", "requested_amount_sar"} <= sr:
+        conn.execute("""UPDATE support_requests SET requested_amount_sar = amount
+                        WHERE requested_amount_sar IS NULL AND amount IS NOT NULL""")
+    if {"description_ar", "case_description_ar"} <= sr:
+        conn.execute("""UPDATE support_requests SET case_description_ar = description_ar
+                        WHERE case_description_ar IS NULL AND description_ar IS NOT NULL""")
+
+    ev = _columns("events")
+    if {"title_ar", "name_ar"} <= ev:
+        conn.execute("UPDATE events SET name_ar = title_ar WHERE name_ar IS NULL")
+
+    # committee_decisions.beneficiary_id was added late; recover it via the request.
+    if "beneficiary_id" in _columns("committee_decisions"):
+        conn.execute("""UPDATE committee_decisions SET beneficiary_id = (
+                            SELECT sr.beneficiary_id FROM support_requests sr
+                            WHERE sr.id = committee_decisions.support_request_id)
+                        WHERE beneficiary_id IS NULL""")
 
 
 _init_db()
-
-
-def _init_dynamic_indexes():
-    """Populate in-memory indexes for dynamic data from the database."""
-    conn = _get_conn()
-    for table, key in [("support_requests", "support_request"),
-                       ("disbursements", "disbursement"),
-                       ("events", "event"),
-                       ("tickets", "ticket")]:
-        try:
-            rows = conn.execute(f"SELECT * FROM {table}").fetchall()
-            for row in rows:
-                d = dict(row)
-                # Parse JSON fields if present
-                if "sections" in d and isinstance(d["sections"], str):
-                    d["sections"] = json.loads(d["sections"])
-                if "obligations" in d and isinstance(d["obligations"], str):
-                    d["obligations"] = json.loads(d["obligations"])
-                if "person_costs" in d and isinstance(d["person_costs"], str):
-                    d["person_costs"] = json.loads(d["person_costs"])
-                by_id[key][d["id"]] = d
-        except Exception:
-            pass  # Table may not exist yet
-
-
-_init_dynamic_indexes()
+_migrate()
+_backfill()
 
 
 # ---- helpers
 def now():
-    return datetime.utcnow()
+    """Naive UTC. Timestamps are stored as '...Z' strings and compared against
+    each other, so the whole codebase stays on naive-UTC rather than mixing
+    aware and naive datetimes (which raises on subtraction)."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def now_iso():
@@ -352,28 +486,86 @@ def _warm_indices():
 _warm_indices()
 
 
+# ---- JSON-valued columns, decoded on read and encoded on write in one place
+JSON_COLUMNS = {
+    "sections": dict,
+    "obligations": list,
+    "person_costs": list,
+    "income_breakdown": list,
+    "steps": list,
+    "required_documents_ar": list,
+    "committee_members": list,
+}
+
+
+def _decode(row):
+    """sqlite3.Row -> dict with JSON columns parsed into real Python values."""
+    if row is None:
+        return None
+    d = dict(row)
+    for key, kind in JSON_COLUMNS.items():
+        if key in d:
+            v = d[key]
+            if isinstance(v, str):
+                try:
+                    d[key] = json.loads(v)
+                except (ValueError, TypeError):
+                    d[key] = kind()
+            elif v is None:
+                d[key] = kind()
+    return d
+
+
+def _encode(key, value):
+    """Python value -> the form SQLite can bind (JSON columns become text)."""
+    if key in JSON_COLUMNS or isinstance(value, (dict, list)):
+        return json.dumps(value, ensure_ascii=False)
+    if isinstance(value, bool):
+        return int(value)
+    return value
+
+
+def update_row(table, row_id, updates, id_column="id"):
+    """Persist a partial update. The missing half of every read-modify-write
+    in the routers: they used to mutate the dict returned by a SELECT and
+    return 200 without ever writing it back."""
+    if not updates:
+        return 0
+    valid = _columns(table)
+    cols = [k for k in updates if k in valid]
+    if not cols:
+        return 0
+    conn = _get_conn()
+    sets = ", ".join(f'"{c}" = ?' for c in cols)
+    values = [_encode(c, updates[c]) for c in cols] + [row_id]
+    cur = conn.execute(f"UPDATE {table} SET {sets} WHERE {id_column} = ?", values)
+    return cur.rowcount
+
+
 # ---- beneficiary lookups
 def get_beneficiary(bid):
     conn = _get_conn()
-    row = conn.execute("SELECT * FROM beneficiaries WHERE id = ?", (bid,)).fetchone()
-    if not row:
-        return None
-    b = dict(row)
-    b["sections"] = json.loads(b.get("sections", "{}"))
-    return b
+    return _decode(conn.execute("SELECT * FROM beneficiaries WHERE id = ?", (bid,)).fetchone())
 
 
 def beneficiary_by_phone(phone):
+    """Resolve a caller to their file.
+
+    Runs on every inbound WhatsApp message and every call, so try the indexed
+    top-level phone column first and only fall back to scanning SEC-CONTACT
+    (older rows recorded the number solely inside the sections blob).
+    """
     p = norm_phone(phone)
+    if not p:
+        return None
     conn = _get_conn()
-    rows = conn.execute("SELECT * FROM beneficiaries").fetchall()
-    for r in rows:
-        sections = json.loads(r["sections"] or "{}")
-        contact = sections.get("SEC-CONTACT", {})
+    for row in conn.execute("SELECT * FROM beneficiaries WHERE phone IS NOT NULL"):
+        if norm_phone(row["phone"]) == p:
+            return _decode(row)
+    for row in conn.execute("SELECT * FROM beneficiaries"):
+        contact = (json.loads(row["sections"] or "{}")).get("SEC-CONTACT", {})
         if norm_phone(contact.get("mobile")) == p or norm_phone(contact.get("whatsapp")) == p:
-            b = dict(r)
-            b["sections"] = sections
-            return b
+            return _decode(row)
     return None
 
 
@@ -391,32 +583,58 @@ def docs_for(bid):
 
 def finance_for(bid):
     conn = _get_conn()
-    row = conn.execute("SELECT * FROM financial_profiles WHERE beneficiary_id = ?", (bid,)).fetchone()
-    return dict(row) if row else None
+    return _decode(conn.execute(
+        "SELECT * FROM financial_profiles WHERE beneficiary_id = ?", (bid,)).fetchone())
 
 
 def get_support_request(request_id):
     conn = _get_conn()
-    row = conn.execute("SELECT * FROM support_requests WHERE id = ?", (request_id,)).fetchone()
-    return dict(row) if row else None
+    sr = _decode(conn.execute(
+        "SELECT * FROM support_requests WHERE id = ?", (request_id,)).fetchone())
+    return _normalize_request(sr)
+
+
+def _normalize_request(sr):
+    """Fill the canonical field from its legacy twin for rows seeded long ago,
+    and derive title_ar from the request type when the seed omitted it."""
+    if not sr:
+        return None
+    if sr.get("requested_amount_sar") is None and sr.get("amount") is not None:
+        sr["requested_amount_sar"] = sr["amount"]
+    if not sr.get("case_description_ar") and sr.get("description_ar"):
+        sr["case_description_ar"] = sr["description_ar"]
+    if not sr.get("title_ar"):
+        rt = by_id["request_type"].get(sr.get("request_type_id")) or {}
+        sr["title_ar"] = rt.get("name_ar")
+    if not sr.get("internal_classification"):
+        sr["internal_classification"] = "اعتيادي"
+    return sr
 
 
 def get_disbursement(did):
     conn = _get_conn()
-    row = conn.execute("SELECT * FROM disbursements WHERE id = ?", (did,)).fetchone()
-    return dict(row) if row else None
+    return _decode(conn.execute("SELECT * FROM disbursements WHERE id = ?", (did,)).fetchone())
 
 
 def get_event(eid):
     conn = _get_conn()
-    row = conn.execute("SELECT * FROM events WHERE id = ?", (eid,)).fetchone()
-    return dict(row) if row else None
+    return _decode(conn.execute("SELECT * FROM events WHERE id = ?", (eid,)).fetchone())
+
+
+def get_enrollment(eid):
+    conn = _get_conn()
+    return _decode(conn.execute("SELECT * FROM enrollments WHERE id = ?", (eid,)).fetchone())
+
+
+def get_case(case_id):
+    conn = _get_conn()
+    return _decode(conn.execute("SELECT * FROM case_studies WHERE id = ?", (case_id,)).fetchone())
 
 
 def requests_for(bid):
     conn = _get_conn()
     rows = conn.execute("SELECT * FROM support_requests WHERE beneficiary_id = ?", (bid,)).fetchall()
-    return [dict(r) for r in rows]
+    return [_normalize_request(_decode(r)) for r in rows]
 
 
 def requests_for_all():
@@ -425,14 +643,14 @@ def requests_for_all():
     rows = conn.execute("SELECT * FROM support_requests ORDER BY created_at DESC").fetchall()
     out = []
     for r in rows:
-        sr = dict(r)
-        # Get beneficiary name
+        sr = _normalize_request(_decode(r))
         b = get_beneficiary(sr["beneficiary_id"])
-        sr["name_ar"] = b["sections"]["SEC-BASIC"]["full_name_ar"] if b else None
+        sr["name_ar"] = beneficiary_name(b)
         sr["program_ar"] = program_name(sr["program_id"])
-        # Get decision info
         dec = decision_for(sr["id"])
-        sr["decision_ar"] = dec["decision"] if dec else None
+        # decision_ar must be the human label; the raw code goes in `decision`.
+        sr["decision"] = dec["decision"] if dec else sr.get("decision")
+        sr["decision_ar"] = dec["decision_ar"] if dec else None
         sr["approved_amount_sar"] = dec["amount"] if dec else None
         out.append(sr)
     return out
@@ -440,24 +658,35 @@ def requests_for_all():
 
 def decision_for(srid):
     conn = _get_conn()
-    row = conn.execute("SELECT * FROM committee_decisions WHERE support_request_id = ?", (srid,)).fetchone()
-    if not row:
+    d = _decode(conn.execute(
+        "SELECT * FROM committee_decisions WHERE support_request_id = ?", (srid,)).fetchone())
+    if not d:
         return None
-    d = dict(row)
-    d["decision_ar"] = next((dt["name_ar"] for dt in decision_types if dt["id"] == d["decision"]), d["decision"])
+    d["decision_ar"] = next((dt["name_ar"] for dt in decision_types if dt["id"] == d["decision"]),
+                            d["decision"])
+    # The API surface has always called this approved_amount_sar; the column is `amount`.
+    d["approved_amount_sar"] = d.get("amount")
     return d
 
 
 def case_for(srid):
     conn = _get_conn()
-    row = conn.execute("SELECT * FROM case_studies WHERE support_request_id = ?", (srid,)).fetchone()
-    return dict(row) if row else None
+    return _decode(conn.execute(
+        "SELECT * FROM case_studies WHERE support_request_id = ?", (srid,)).fetchone())
 
 
 def enrollments_for(bid):
     conn = _get_conn()
     rows = conn.execute("SELECT * FROM enrollments WHERE beneficiary_id = ?", (bid,)).fetchall()
-    return [dict(r) for r in rows]
+    return [_decode(r) for r in rows]
+
+
+def beneficiary_name(b):
+    """Display name, wherever it happens to live on this row."""
+    if not b:
+        return None
+    return (b.get("sections", {}).get("SEC-BASIC", {}).get("full_name_ar")
+            or b.get("full_name_ar"))
 
 
 def disbursements_for(bid):
@@ -484,32 +713,42 @@ def messages_for(tid):
     return [dict(r) for r in rows]
 
 
+# Thin named wrappers over update_row, kept because the routers read better
+# with them and they document which tables are meant to be mutated.
+def update_beneficiary(bid, updates):
+    return update_row("beneficiaries", bid, {**updates, "updated_at": now_iso()})
+
+
+def update_support_request(srid, updates):
+    return update_row("support_requests", srid, {**updates, "updated_at": now_iso()})
+
+
+def update_case(case_id, updates):
+    return update_row("case_studies", case_id, updates)
+
+
+def update_finance(fp_id, updates):
+    return update_row("financial_profiles", fp_id, updates)
+
+
+def update_document(doc_id, updates):
+    return update_row("documents", doc_id, {**updates, "updated_at": now_iso()})
+
+
 def update_disbursement(disbursement_id, updates):
-    """Update disbursement fields in the database."""
-    conn = _get_conn()
-    set_clauses = []
-    values = []
-    for k, v in updates.items():
-        set_clauses.append(f"{k} = ?")
-        values.append(v)
-    if set_clauses:
-        values.append(disbursement_id)
-        conn.execute(f"UPDATE disbursements SET {', '.join(set_clauses)} WHERE id = ?", values)
-        conn.commit()
+    return update_row("disbursements", disbursement_id, updates)
 
 
 def update_payment(payment_id, updates):
-    """Update payment fields in the database."""
-    conn = _get_conn()
-    set_clauses = []
-    values = []
-    for k, v in updates.items():
-        set_clauses.append(f"{k} = ?")
-        values.append(v)
-    if set_clauses:
-        values.append(payment_id)
-        conn.execute(f"UPDATE payments SET {', '.join(set_clauses)} WHERE id = ?", values)
-        conn.commit()
+    return update_row("payments", payment_id, updates)
+
+
+def update_ticket(ticket_id, updates):
+    return update_row("tickets", ticket_id, {**updates, "updated_at": now_iso()})
+
+
+def update_event(event_id, updates):
+    return update_row("events", event_id, updates)
 
 
 def insert_payment(p):
@@ -520,7 +759,6 @@ def insert_payment(p):
            VALUES (?,?,?,?,?,?,?)""",
         (p["id"], p.get("disbursement_id"), p.get("beneficiary_id"), p.get("amount"),
          p.get("method"), p.get("reference"), p.get("paid_at")))
-    conn.commit()
 
 
 def program_name(pid):
@@ -578,7 +816,9 @@ def file_completeness(bid):
 
 # ---- WhatsApp 24h session window
 def wa_window(session):
-    exp = parse(session["window_expires_at"])
+    exp = parse(session.get("window_expires_at"))
+    if exp is None:
+        return {"open": False, "remaining_seconds": 0, "remaining_ar": "منتهية"}
     rem = (exp - now()).total_seconds()
     if rem <= 0:
         return {"open": False, "remaining_seconds": 0, "remaining_ar": "منتهية"}
@@ -587,61 +827,73 @@ def wa_window(session):
 
 
 def ticket_sla(t):
-    dep = by_id["department"].get(t["department_id"], {})
-    hours = dep.get("sla_hours", 24)
-    deadline = parse(t["opened_at"]) + timedelta(hours=hours)
-    rem = (deadline - now()).total_seconds()
-    if t["status"] == "closed":
+    if t.get("status") == "closed":
         return {"breached": False, "remaining_ar": "-", "remaining_seconds": 0}
+    dep = by_id["department"].get(t.get("department_id")) or {}
+    hours = dep.get("sla_hours", 24)
+    opened = parse(t.get("opened_at"))
+    if opened is None:
+        return {"breached": False, "remaining_ar": "-", "remaining_seconds": 0}
+    rem = (opened + timedelta(hours=hours) - now()).total_seconds()
     if rem <= 0:
         return {"breached": True, "remaining_ar": "منتهية المدة", "remaining_seconds": 0}
     h, m = int(rem // 3600), int((rem % 3600) // 60)
     return {"breached": False, "remaining_ar": f"{h}س {m}د", "remaining_seconds": int(rem)}
 
 
-# ---- id sequences (initialized from DB on first call)
+# ---- id sequences
+# Counters start from the highest existing numeric suffix so a restart never
+# reissues an ID. Non-numeric suffixes (older seeds used UUID hex, which CAST
+# turned into nonsense like 18131096) are ignored rather than trusted.
 _seq = {}
+_seq_lock = threading.Lock()
 _seq_initialized = False
+
+_SEQ_SOURCES = {
+    "ben":  ("beneficiaries", "id", 2000),
+    "dep":  ("dependents", "id", 6000),
+    "doc":  ("documents", "id", 8000),
+    "sr":   ("support_requests", "id", 25000),
+    "case": ("case_studies", "id", 35000),
+    "dec":  ("committee_decisions", "id", 45000),
+    "enr":  ("enrollments", "id", 55000),
+    "dis":  ("disbursements", "id", 65000),
+    "pay":  ("payments", "id", 75000),
+    "tkt":  ("tickets", "id", 6000),
+    "msg":  ("ticket_messages", "id", 95000),
+    "call": ("call_sessions", "id", 15000),
+    "wa":   ("whatsapp_sessions", "id", 16000),
+    "evt":  ("events", "id", 17000),
+    "reg":  ("event_registrations", "id", 18000),
+    "spo":  ("sponsors", "id", 19000),
+    "kaf":  ("sponsorships", "id", 20000),
+    "file": ("beneficiaries", "file_no", 4000),
+}
+
 
 def _init_seq():
     global _seq_initialized
     if _seq_initialized:
         return
     conn = _get_conn()
-    # Get max IDs from each table to avoid duplicates
-    queries = {
-        "ben": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM beneficiaries",
-        "dep": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM dependents",
-        "doc": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM documents",
-        "sr": "SELECT MAX(CAST(SUBSTR(id, 4) AS INTEGER)) FROM support_requests",
-        "case": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM case_studies",
-        "dec": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM committee_decisions",
-        "enr": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM enrollments",
-        "dis": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM disbursements",
-        "pay": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM payments",
-        "tkt": "SELECT MAX(CAST(SUBSTR(id, 4) AS INTEGER)) FROM tickets",
-        "msg": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM ticket_messages",
-        "call": "SELECT MAX(CAST(SUBSTR(id, 6) AS INTEGER)) FROM call_sessions",
-        "wa": "SELECT MAX(CAST(SUBSTR(id, 4) AS INTEGER)) FROM whatsapp_sessions",
-        "file": "SELECT MAX(CAST(SUBSTR(file_no, 4) AS INTEGER)) FROM beneficiaries WHERE file_no LIKE 'KY-%'",
-    }
-    defaults = {"ben": 2000, "dep": 6000, "doc": 8000, "sr": 25000, "case": 35000,
-                "dec": 45000, "enr": 55000, "dis": 65000, "pay": 75000, "tkt": 6000,
-                "msg": 95000, "call": 15000, "wa": 16000, "file": 4000}
-    for kind, query in queries.items():
+    for kind, (table, column, default) in _SEQ_SOURCES.items():
+        best = default
         try:
-            row = conn.execute(query).fetchone()
-            max_val = row[0] if row and row[0] else defaults[kind]
-            _seq[kind] = max_val
-        except Exception:
-            _seq[kind] = defaults[kind]
+            for (value,) in conn.execute(f"SELECT {column} FROM {table} WHERE {column} IS NOT NULL"):
+                suffix = str(value).rsplit("-", 1)[-1]
+                if suffix.isdigit():
+                    best = max(best, int(suffix))
+        except sqlite3.Error:
+            pass
+        _seq[kind] = best
     _seq_initialized = True
 
 
 def next_id(kind, prefix):
-    _init_seq()
-    _seq[kind] += 1
-    return f"{prefix}{_seq[kind]}"
+    with _seq_lock:
+        _init_seq()
+        _seq[kind] = _seq.get(kind, 0) + 1
+        return f"{prefix}{_seq[kind]}"
 
 
 def render_template(tid, **kw):
@@ -658,144 +910,104 @@ def send_notification(channel, to, body, kind="manual"):
     import uuid
     conn = _get_conn()
     nid = f"NTF-{uuid.uuid4().hex[:8].upper()}"
+    sent_at = now_iso()
     conn.execute(
         'INSERT INTO notifications (id, channel, "to", body_ar, kind, sent_at, status) VALUES (?,?,?,?,?,?,?)',
-        (nid, channel, norm_phone(to), body, kind, now_iso(), "sent")
+        (nid, channel, norm_phone(to), body, kind, sent_at, "sent")
     )
-    conn.commit()
     return {"id": nid, "channel": channel, "to": norm_phone(to), "body_ar": body,
-            "kind": kind, "sent_at": now_iso(), "status": "sent"}
+            "kind": kind, "sent_at": sent_at, "status": "sent"}
 
 
-# ---- convenience inserts
-def insert_beneficiary(b):
+def notifications_recent(limit=30):
+    conn = _get_conn()
+    rows = conn.execute(
+        'SELECT * FROM notifications ORDER BY sent_at DESC LIMIT ?', (limit,)).fetchall()
+    return [dict(r) for r in rows]
+
+
+# ---- inserts
+# One generic writer instead of a hand-written INSERT per table. The old
+# per-table statements listed their columns explicitly, so every column added
+# later was silently dropped on write (that is how case-study `steps`,
+# `is_internal` and the whole call-session payload went missing).
+_ALIASES = {
+    "dependents": {"relationship_ar": "relationship", "education_stage": "education",
+                   "has_special_needs": "special_needs"},
+    "call_sessions": {"from_number": "phone", "duration_sec": "duration_seconds"},
+    "support_requests": {},
+    "committee_decisions": {"approved_amount_sar": "amount"},
+    "sponsorships": {"monthly_amount_sar": "monthly_amount"},
+    "events": {"title_ar": "name_ar", "date": "event_date"},
+}
+
+
+def insert_row(table, item):
+    """Insert (or replace) a row, keeping only columns the table really has."""
+    valid = _columns(table)
+    aliases = _ALIASES.get(table, {})
+    row = {}
+    for key, value in item.items():
+        col = aliases.get(key, key)
+        if col in valid and (col not in row or row[col] in (None, "")):
+            row[col] = _encode(col, value)
+    if not row:
+        return None
+    cols = list(row)
     conn = _get_conn()
     conn.execute(
-        """INSERT OR REPLACE INTO beneficiaries
-           (id, file_no, status, case_type, orphan_category, city, full_name_ar, phone, sections, created_at, updated_at)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
-        (b["id"], b.get("file_no"), b.get("status", "draft"), b.get("case_type"),
-         b.get("orphan_category"), b.get("city"), b.get("full_name_ar"), b.get("phone"),
-         json.dumps(b.get("sections", {}), ensure_ascii=False), b.get("created_at"), b.get("updated_at"))
-    )
-    conn.commit()
+        f'INSERT OR REPLACE INTO {table} ({",".join(chr(34)+c+chr(34) for c in cols)}) '
+        f'VALUES ({",".join("?" * len(cols))})',
+        [row[c] for c in cols])
+    return item.get("id")
+
+
+def insert_beneficiary(b):
+    return insert_row("beneficiaries", b)
 
 
 def insert_ticket(t):
-    conn = _get_conn()
-    conn.execute(
-        """INSERT OR REPLACE INTO tickets
-           (id, subject_ar, channel, phone, beneficiary_id, department_id, priority, status, assigned_to, opened_at, updated_at, first_message)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
-        (t["id"], t.get("subject_ar"), t.get("channel"), t.get("phone"),
-         t.get("beneficiary_id"), t.get("department_id"), t.get("priority", "normal"),
-         t.get("status", "open"), t.get("assigned_to"), t.get("opened_at"),
-         t.get("updated_at"), t.get("first_message"))
-    )
-    conn.commit()
+    return insert_row("tickets", {"priority": "medium", "status": "open", **t})
 
 
 def insert_ticket_message(m):
-    conn = _get_conn()
-    conn.execute(
-        """INSERT OR REPLACE INTO ticket_messages (id, ticket_id, direction, sender, body_ar, sent_at)
-           VALUES (?,?,?,?,?,?)""",
-        (m["id"], m["ticket_id"], m["direction"], m["sender"], m["body_ar"], m["sent_at"])
-    )
-    conn.commit()
+    return insert_row("ticket_messages", m)
 
 
 def insert_whatsapp_session(ws):
-    conn = _get_conn()
-    conn.execute(
-        """INSERT OR REPLACE INTO whatsapp_sessions
-           (id, phone, beneficiary_id, window_expires_at, last_message_at, direction)
-           VALUES (?,?,?,?,?,?)""",
-        (ws["id"], ws["phone"], ws.get("beneficiary_id"),
-         ws["window_expires_at"], ws.get("last_message_at"), ws.get("direction", "inbound"))
-    )
-    conn.commit()
+    return insert_row("whatsapp_sessions", {"direction": "inbound", **ws})
 
 
 def insert_call_session(cs):
-    conn = _get_conn()
-    conn.execute(
-        """INSERT OR REPLACE INTO call_sessions
-           (id, phone, beneficiary_id, direction, outcome, intent, duration_seconds, notes_ar, started_at, ended_at)
-           VALUES (?,?,?,?,?,?,?,?,?,?)""",
-        (cs["id"], cs["phone"], cs.get("beneficiary_id"), cs.get("direction", "inbound"),
-         cs.get("outcome"), cs.get("intent"), cs.get("duration_seconds"),
-         cs.get("notes_ar"), cs.get("started_at"), cs.get("ended_at"))
-    )
-    conn.commit()
+    return insert_row("call_sessions", {"direction": "inbound", **cs})
 
 
 def insert_dependent(d):
-    conn = _get_conn()
-    conn.execute(
-        """INSERT OR REPLACE INTO dependents
-           (id, beneficiary_id, name_ar, relationship, birth_date, gender, education, special_needs, created_at)
-           VALUES (?,?,?,?,?,?,?,?,?)""",
-        (d["id"], d["beneficiary_id"], d.get("name_ar"),
-         d.get("relationship") or d.get("relationship_ar"),
-         d.get("birth_date"), d.get("gender"),
-         d.get("education") or d.get("education_stage"),
-         d.get("special_needs") if d.get("special_needs") is not None else d.get("has_special_needs", False),
-         d.get("created_at"))
-    )
-    conn.commit()
+    return insert_row("dependents", d)
 
 
 def insert_document(doc):
-    conn = _get_conn()
-    conn.execute(
-        """INSERT OR REPLACE INTO documents
-           (id, beneficiary_id, document_type_id, name_ar, mandatory, status, file_path, created_at)
-           VALUES (?,?,?,?,?,?,?,?)""",
-        (doc["id"], doc["beneficiary_id"], doc.get("document_type_id"), doc.get("name_ar"),
-         doc.get("mandatory", 1), doc.get("status", "missing"), doc.get("file_path"), doc.get("created_at"))
-    )
-    conn.commit()
+    return insert_row("documents", {"mandatory": 1, "status": "missing", **doc})
 
 
 def insert_financial_profile(fp):
-    conn = _get_conn()
-    conn.execute(
-        """INSERT OR REPLACE INTO financial_profiles
-           (id, beneficiary_id, monthly_income, monthly_expenses, obligations, person_costs, need_score, created_at)
-           VALUES (?,?,?,?,?,?,?,?)""",
-        (fp["id"], fp["beneficiary_id"], fp.get("monthly_income", 0), fp.get("monthly_expenses", 0),
-         json.dumps(fp.get("obligations", []), ensure_ascii=False),
-         json.dumps(fp.get("person_costs", []), ensure_ascii=False),
-         fp.get("need_score", 0), fp.get("created_at"))
-    )
-    conn.commit()
+    return insert_row("financial_profiles", {"monthly_income": 0, "monthly_expenses": 0,
+                                             "obligations": [], "person_costs": [],
+                                             "household_size": 1, "need_score": 0, **fp})
 
 
 def insert_account(phone, beneficiary_id):
     conn = _get_conn()
     conn.execute(
         "INSERT OR REPLACE INTO accounts (phone, beneficiary_id, password_set, created_at) VALUES (?,?,0,?)",
-        (norm_phone(phone), beneficiary_id, now_iso())
-    )
-    conn.commit()
+        (norm_phone(phone), beneficiary_id, now_iso()))
 
 
 # ---- bulk load (for API listing)
 def load_table(table, limit=200):
     conn = _get_conn()
     rows = conn.execute(f"SELECT * FROM {table} LIMIT ?", (limit,)).fetchall()
-    result = []
-    for r in rows:
-        d = dict(r)
-        for k in ("sections", "obligations", "person_costs"):
-            if k in d and isinstance(d[k], str):
-                try:
-                    d[k] = json.loads(d[k])
-                except:
-                    pass
-        result.append(d)
-    return result
+    return [_decode(r) for r in rows]
 
 
 def count_table(table):
@@ -822,36 +1034,7 @@ class _TableProxy:
         raise TypeError("Index must be a slice")
 
     def append(self, item):
-        """Insert item into the appropriate table."""
-        conn = _get_conn()
-        if self._table == "beneficiaries":
-            insert_beneficiary(item)
-        elif self._table == "tickets":
-            insert_ticket(item)
-        elif self._table == "ticket_messages":
-            insert_ticket_message(item)
-        elif self._table == "whatsapp_sessions":
-            insert_whatsapp_session(item)
-        elif self._table == "call_sessions":
-            insert_call_session(item)
-        elif self._table == "dependents":
-            insert_dependent(item)
-        elif self._table == "documents":
-            insert_document(item)
-        elif self._table == "financial_profiles":
-            insert_financial_profile(item)
-        else:
-            # Generic insert — only use columns that exist in the table
-            cursor = conn.execute(f"PRAGMA table_info({self._table})")
-            valid_cols = {row[1] for row in cursor.fetchall()}
-            cols = [k for k in item.keys() if k in valid_cols]
-            if not cols:
-                return
-            placeholders = ",".join(["?"] * len(cols))
-            col_names = ",".join([f'"{c}"' for c in cols])
-            conn.execute(f"INSERT OR REPLACE INTO {self._table} ({col_names}) VALUES ({placeholders})",
-                        [item[c] for c in cols])
-            conn.commit()
+        insert_row(self._table, item)
 
     def extend(self, items):
         for item in items:
@@ -876,7 +1059,20 @@ ticket_messages = _TableProxy("ticket_messages")
 call_sessions = _TableProxy("call_sessions")
 whatsapp_sessions = _TableProxy("whatsapp_sessions")
 events = _TableProxy("events")
+notifications = _TableProxy("notifications")
 
-# Runtime-only (kept in memory, not critical)
-accounts = {}
-notifications = []
+
+class _AccountsView:
+    """`accounts` used to be a dict that was never populated, so check-phone
+    only ever matched via beneficiary lookup. Back it with the real table."""
+
+    def get(self, phone, default=None):
+        conn = _get_conn()
+        row = conn.execute("SELECT * FROM accounts WHERE phone = ?", (norm_phone(phone),)).fetchone()
+        return dict(row) if row else default
+
+    def __contains__(self, phone):
+        return self.get(phone) is not None
+
+
+accounts = _AccountsView()
