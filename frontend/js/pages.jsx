@@ -489,53 +489,44 @@ function TicketSheet({ id, onClose }) {
             </div>
 
             {/* Input Area */}
-            <div className="border-t border-line bg-white">
-              <div className="px-3 py-2">
-                <div className="flex items-center gap-2 mb-2">
-                  <button onClick={() => setSendToWhatsApp(!sendToWhatsApp)}
-                    className={cx("relative w-8 h-[18px] rounded-full transition-colors flex-shrink-0", sendToWhatsApp ? "bg-brand-600" : "bg-line-soft")}>
-                    <span className={cx("absolute top-[2px] left-[2px] w-[14px] h-[14px] rounded-full bg-white shadow-sm transition-transform", sendToWhatsApp && "translate-x-[14px]")} />
-                  </button>
-                  <span className="text-[11px] text-ink-muted">
-                    {sendToWhatsApp ? "إرسال عبر واتساب" : "ملاحظة داخلية"}
-                  </span>
-                </div>
-                <div className="flex items-end gap-2">
-                  <div className="flex-1 relative">
-                    <textarea
-                      className="w-full resize-none rounded-xl border border-line bg-line-soft/40 px-3.5 py-2.5 text-[13px] text-ink placeholder:text-ink-soft focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-300 transition-all leading-[1.6]"
-                      rows={1}
-                      placeholder={sendToWhatsApp ? "اكتب ردًا للمستفيد…" : "اكتب ملاحظة داخلية…"}
-                      value={replyText}
-                      onChange={e => {
-                        setReplyText(e.target.value);
-                        e.target.style.height = "auto";
-                        e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
-                      }}
-                      onKeyDown={e => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          sendReply();
-                        }
-                      }}
-                      style={{ minHeight: "42px" }}
-                    />
-                  </div>
-                  <button onClick={sendReply} disabled={sending || !replyText.trim()}
-                    className={cx("flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all",
-                      sending || !replyText.trim()
-                        ? "bg-line-soft text-ink-soft cursor-not-allowed"
-                        : "bg-brand-600 text-white hover:bg-brand-700 active:scale-95 shadow-sm")}>
-                    {sending ? (
-                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                    ) : (
-                      <Icon d={I.arrow} className="w-4 h-4 flip" />
-                    )}
-                  </button>
-                </div>
+            <div className="border-t border-line bg-white p-3">
+              <div className="flex items-center gap-2 mb-2.5">
+                <button onClick={() => setSendToWhatsApp(!sendToWhatsApp)}
+                  className={cx("relative w-9 h-5 rounded-full transition-colors flex-shrink-0", sendToWhatsApp ? "bg-brand-600" : "bg-line-soft")}>
+                  <span className={cx("absolute top-[3px] left-[3px] w-4 h-4 rounded-full bg-white shadow-sm transition-transform", sendToWhatsApp && "translate-x-4")} />
+                </button>
+                <span className="text-[11px] text-ink-muted">
+                  {sendToWhatsApp ? "إرسال عبر واتساب" : "ملاحظة داخلية"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  className="flex-1 h-10 rounded-xl border border-line bg-line-soft/30 px-4 text-[13px] text-ink placeholder:text-ink-soft focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-300 transition-all"
+                  placeholder={sendToWhatsApp ? "اكتب ردًا للمستفيد…" : "اكتب ملاحظة داخلية…"}
+                  value={replyText}
+                  onChange={e => setReplyText(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      sendReply();
+                    }
+                  }}
+                />
+                <button onClick={sendReply} disabled={sending || !replyText.trim()}
+                  className={cx("flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all",
+                    sending || !replyText.trim()
+                      ? "bg-line-soft text-ink-soft cursor-not-allowed"
+                      : "bg-brand-600 text-white hover:bg-brand-700 active:scale-95 shadow-sm")}>
+                  {sending ? (
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  ) : (
+                    <Icon d={I.arrow} className="w-4 h-4 flip" />
+                  )}
+                </button>
               </div>
             </div>
           </div>
