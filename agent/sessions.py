@@ -7,7 +7,7 @@ import json
 import os
 import sqlite3
 from typing import Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 DB_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
 DB_PATH = os.path.join(DB_DIR, "sessions.db")
@@ -49,7 +49,8 @@ def _init_table():
 
 
 def _now() -> datetime:
-    return datetime.utcnow()
+    """Naive UTC, matching the backend's timestamp convention."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def _now_iso() -> str:
@@ -62,7 +63,12 @@ def _estimate_tokens(text: str) -> int:
 
 
 def _trim_history(history: list) -> list:
-    """Trim history to stay within token limits while keeping recent messages."""
+    """Trim history to stay within token limits while keeping recent messages.
+
+    Cuts only at a `user` message. An assistant message carrying tool_calls and
+    the `tool` messages answering it must stay together — starting a request
+    with an orphaned tool result is rejected by the API.
+    """
     if not history:
         return history
 
@@ -70,13 +76,13 @@ def _trim_history(history: list) -> list:
         _estimate_tokens(json.dumps(msg, ensure_ascii=False))
         for msg in history
     )
-
     if total_tokens <= MAX_HISTORY_TOKENS:
         return history
 
-    # Keep last MIN_HISTORY_KEEP messages, trim older ones
-    trimmed = history[-MIN_HISTORY_KEEP:]
-    return trimmed
+    cut = max(0, len(history) - MIN_HISTORY_KEEP)
+    while cut < len(history) and history[cut].get("role") != "user":
+        cut += 1
+    return history[cut:] if cut < len(history) else history[-MIN_HISTORY_KEEP:]
 
 
 def get_session(phone: str) -> dict:
@@ -139,19 +145,54 @@ def _save_session(phone: str, sess: dict):
     conn.commit()
 
 
+def _as_openai(entry: dict) -> dict:
+    """Accept both the current OpenAI-shaped entries and the legacy
+    Gemini-style {"role": "user"|"model", "parts": [{"text": ...}]} rows that
+    older sessions.db files contain."""
+    if "parts" not in entry:
+        return entry
+    text = " ".join(p.get("text", "") for p in entry.get("parts", [])
+                    if isinstance(p, dict) and p.get("text"))
+    role = "assistant" if entry.get("role") == "model" else "user"
+    return {"role": role, "content": text, "at": entry.get("at")}
+
+
 def get_history(phone: str) -> list[dict]:
-    """Get conversation history for a phone, trimmed to fit token limits."""
+    """Conversation history as OpenAI messages, trimmed to fit token limits."""
     sess = get_session(phone)
-    history = sess["history"][-MAX_HISTORY:]
+    history = [_as_openai(m) for m in sess["history"][-MAX_HISTORY:]]
     return _trim_history(history)
 
 
-def add_to_history(phone: str, role: str, parts: list[dict]):
-    """Append a message to conversation history."""
+def append_message(phone: str, message: dict):
+    """Append one OpenAI-format message to the conversation.
+
+    Tool calls and tool results are stored too. Previously only the plain text
+    turns were kept, so on the next message the model could no longer see which
+    tools had actually run — and would happily announce "your file has been
+    created" without ever having called create_file.
+    """
     sess = get_session(phone)
-    sess["history"].append({"role": role, "parts": parts})
+    sess["history"].append({**message, "at": _now_iso()})
     sess["last_active"] = _now()
     _save_session(phone, sess)
+
+
+def append_messages(phone: str, messages: list[dict]):
+    if not messages:
+        return
+    sess = get_session(phone)
+    stamp = _now_iso()
+    for m in messages:
+        sess["history"].append({**m, "at": stamp})
+    sess["last_active"] = _now()
+    _save_session(phone, sess)
+
+
+def add_to_history(phone: str, role: str, parts: list[dict]):
+    """Legacy helper kept for older callers (demo/test scripts)."""
+    text = " ".join(p.get("text", "") for p in parts if isinstance(p, dict) and p.get("text"))
+    append_message(phone, {"role": "assistant" if role == "model" else role, "content": text})
 
 
 def set_context(phone: str, context: dict):

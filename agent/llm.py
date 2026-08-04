@@ -1,10 +1,13 @@
 """
 LLM agent loop with tool calling (OpenAI-compatible API).
 Handles the conversation flow: user message → LLM → tool calls → reply.
-Supports primary + fallback models for reliability.
+
+Targets a self-hosted vLLM (Qwen3.6-27B-FP8) by default; any OpenAI-compatible
+endpoint works via LLM_BASE_URL / LLM_MODEL.
 """
 import json
 import logging
+import threading
 import time
 from typing import Optional
 from openai import OpenAI
@@ -24,29 +27,50 @@ MAX_RETRIES = 2
 RETRY_DELAY = 1.0  # seconds
 
 # Rate limiting
-_last_request_time = 0
-_MIN_REQUEST_INTERVAL = 0.2  # 200ms between requests = 5 RPM max
+_last_request_time = 0.0
+_rate_lock = threading.Lock()
+_MIN_REQUEST_INTERVAL = 0.2  # 200ms between requests
 
 
 def _get_client():
-    """Lazy-initialize the OpenAI client pointing to vLLM."""
+    """Lazy-initialize the OpenAI-compatible client."""
     global _client
     if _client is None:
-        _client = OpenAI(
-            api_key=settings.llm_api_key or "none",
-            base_url=settings.llm_base_url + "/v1",
-        )
+        base = settings.llm_base_url.rstrip("/")
+        if not base.endswith("/v1"):
+            base += "/v1"
+        _client = OpenAI(api_key=settings.llm_api_key or "none", base_url=base,
+                         timeout=settings.llm_timeout_seconds)
     return _client
 
 
 def _rate_limit():
-    """Enforce minimum interval between API calls."""
+    """Enforce a minimum interval between API calls (thread-safe)."""
     global _last_request_time
-    now = time.time()
-    elapsed = now - _last_request_time
-    if elapsed < _MIN_REQUEST_INTERVAL:
-        time.sleep(_MIN_REQUEST_INTERVAL - elapsed)
-    _last_request_time = time.time()
+    with _rate_lock:
+        elapsed = time.time() - _last_request_time
+        if elapsed < _MIN_REQUEST_INTERVAL:
+            time.sleep(_MIN_REQUEST_INTERVAL - elapsed)
+        _last_request_time = time.time()
+
+
+def _sampling(stream=False):
+    """Request parameters shared by the streaming and blocking paths."""
+    kwargs = {
+        "tools": TOOLS_OPENAI,
+        "tool_choice": "auto",
+        "temperature": settings.llm_temperature,
+        "top_p": settings.llm_top_p,
+        "max_tokens": settings.llm_max_tokens,
+        # top_k is not an OpenAI-standard field; vLLM takes it via extra_body.
+        "extra_body": {
+            "top_k": settings.llm_top_k,
+            "chat_template_kwargs": {"enable_thinking": settings.llm_enable_thinking},
+        },
+    }
+    if stream:
+        kwargs["stream"] = True
+    return kwargs
 
 
 def _execute_tool_with_retry(tool_name: str, tool_args: dict) -> dict:
@@ -105,118 +129,51 @@ def _count_message_tokens(messages: list) -> int:
 
 
 def _call_llm(messages: list, model: str = None):
-    """Call LLM with fallback model support."""
+    """Call the LLM, falling back to the secondary model if one is configured."""
     model = model or settings.llm_model
     try:
         _rate_limit()
         return _get_client().chat.completions.create(
-            model=model,
-            messages=messages,
-            tools=TOOLS_OPENAI,
-            temperature=0.3,
-            max_tokens=1024,
-        )
+            model=model, messages=messages, **_sampling())
     except Exception as e:
-        logger.warning(f"Primary model {model} failed: {e}")
-        if model != settings.llm_fallback_model:
+        logger.warning(f"Model {model} failed: {e}")
+        if settings.llm_fallback_model and model != settings.llm_fallback_model:
             logger.info(f"Trying fallback model: {settings.llm_fallback_model}")
             _rate_limit()
             return _get_client().chat.completions.create(
-                model=settings.llm_fallback_model,
-                messages=messages,
-                tools=TOOLS_OPENAI,
-                temperature=0.3,
-                max_tokens=1024,
-            )
+                model=settings.llm_fallback_model, messages=messages, **_sampling())
         raise
 
 
 def _call_llm_stream(messages: list, model: str = None):
-    """Call LLM with streaming enabled."""
+    """Call the LLM with streaming enabled."""
     model = model or settings.llm_model
     try:
         _rate_limit()
         return _get_client().chat.completions.create(
-            model=model,
-            messages=messages,
-            tools=TOOLS_OPENAI,
-            temperature=0.3,
-            max_tokens=1024,
-            stream=True,
-        )
+            model=model, messages=messages, **_sampling(stream=True))
     except Exception as e:
-        logger.warning(f"Primary model {model} failed: {e}")
-        if model != settings.llm_fallback_model:
+        logger.warning(f"Model {model} failed: {e}")
+        if settings.llm_fallback_model and model != settings.llm_fallback_model:
             logger.info(f"Trying fallback model: {settings.llm_fallback_model}")
             _rate_limit()
             return _get_client().chat.completions.create(
-                model=settings.llm_fallback_model,
-                messages=messages,
-                tools=TOOLS_OPENAI,
-                temperature=0.3,
-                max_tokens=1024,
-                stream=True,
-            )
+                model=settings.llm_fallback_model, messages=messages, **_sampling(stream=True))
         raise
 
 
-def _convert_history(history: list, system_msg: Optional[str] = None) -> list:
-    """Convert Gemini-style history to OpenAI message format."""
-    messages = []
+def _build_messages(history: list, system_msg: str) -> list:
+    """Prepend the system prompt to the stored conversation.
 
-    if system_msg:
-        messages.append({"role": "system", "content": system_msg})
-
+    History is already in OpenAI shape (sessions._as_openai upgrades any legacy
+    rows), so this only strips bookkeeping keys the API does not accept.
+    """
+    messages = [{"role": "system", "content": system_msg}]
     for msg in history:
-        role = msg.get("role", "")
-        parts = msg.get("parts", [])
-
-        if role == "user":
-            # Check if this is a function_response (tool result)
-            for part in parts:
-                if isinstance(part, dict) and "function_response" in part:
-                    fr = part["function_response"]
-                    messages.append({
-                        "role": "tool",
-                        "tool_call_id": fr.get("name", ""),
-                        "content": json.dumps(fr.get("response", {}), ensure_ascii=False),
-                    })
-                    return  # function_response is always a standalone message
-
-            # Regular user message
-            text = " ".join(
-                p.get("text", "") for p in parts if isinstance(p, dict) and "text" in p
-            )
-            if text:
-                messages.append({"role": "user", "content": text})
-
-        elif role == "model":
-            # Check if this contains function_call (tool call)
-            has_tool_call = False
-            for part in parts:
-                if isinstance(part, dict) and "function_call" in part:
-                    has_tool_call = True
-                    fc = part["function_call"]
-                    messages.append({
-                        "role": "assistant",
-                        "content": None,
-                        "tool_calls": [{
-                            "id": f"call_{fc.get('name', 'unknown')}",
-                            "type": "function",
-                            "function": {
-                                "name": fc.get("name", ""),
-                                "arguments": json.dumps(fc.get("args", {}), ensure_ascii=False),
-                            },
-                        }],
-                    })
-
-            if not has_tool_call:
-                text = " ".join(
-                    p.get("text", "") for p in parts if isinstance(p, dict) and "text" in p
-                )
-                if text:
-                    messages.append({"role": "assistant", "content": text})
-
+        clean = {k: v for k, v in msg.items() if k in
+                 ("role", "content", "tool_calls", "tool_call_id", "name")}
+        if clean.get("role"):
+            messages.append(clean)
     return messages
 
 
@@ -225,31 +182,26 @@ def handle_message(phone: str, user_text: str) -> str:
     Process an incoming user message through the LLM agent loop.
     Returns the agent's Arabic text reply.
     """
-    # Track incoming message
     analytics.track_message(phone, is_user=True)
-    
-    # 1. Load conversation history
+
+    # 1. Load history and append the new user turn
     history = sessions.get_history(phone)
+    user_msg = {"role": "user", "content": user_text}
+    history.append(user_msg)
+    sessions.append_message(phone, user_msg)
 
-    # 2. Add user message
-    user_part = {"text": user_text}
-    history.append({"role": "user", "parts": [user_part]})
-    sessions.add_to_history(phone, "user", [user_part])
-
-    # 3. Build context injection
-    context = sessions.get_context(phone)
-    context_msg = _build_context_message(phone, context)
-
-    # 4. Convert to OpenAI format
-    # Append context to system message instead of wasting a turn
+    # 2. Context goes on the system message rather than burning a turn
+    context_msg = _build_context_message(phone, sessions.get_context(phone))
     system_msg = SYSTEM_PROMPT
     if context_msg:
         system_msg = SYSTEM_PROMPT + "\n\n---\n\n## Current Context\n" + context_msg
-    messages = _convert_history(history, system_msg=system_msg)
+    messages = _build_messages(history, system_msg)
 
-    # 5. Call LLM with tools (loop for tool calls)
+    # Everything produced this turn is written back to the session at the end,
+    # so the next turn can see which tools actually ran and what they returned.
+    turn: list[dict] = []
+
     for round_num in range(MAX_TOOL_ROUNDS):
-        # Log token count for monitoring
         token_count = _count_message_tokens(messages)
         if token_count > 3000:
             logger.warning(f"High token count: {token_count} (round {round_num})")
@@ -258,37 +210,37 @@ def handle_message(phone: str, user_text: str) -> str:
             response = _call_llm(messages)
         except Exception as e:
             logger.error(f"LLM API error (all models failed): {e}")
+            sessions.append_messages(phone, turn)
             return _map_error_to_friendly(str(e))
 
         choice = response.choices[0] if response.choices else None
         if not choice or not choice.message:
+            sessions.append_messages(phone, turn)
             return "عذراً، لم أتمكن من فهم طلبك. يرجى إعادة الصياغة."
 
         message = choice.message
 
-        # Handle reasoning models (Qwen, DeepSeek) that put thinking in reasoning field
-        # If content is None but reasoning exists, use reasoning as the content
-        if message.content is None and hasattr(message, 'reasoning') and message.reasoning:
-            message.content = message.reasoning
+        # This model returns its chain of thought in `reasoning`, separate from
+        # the answer in `content`. Never promote reasoning into the reply — it
+        # is internal deliberation, not something to send a beneficiary.
+        reasoning = getattr(message, "reasoning", None)
+        if reasoning and not message.content:
+            logger.info(f"Model reasoning (not sent): {str(reasoning)[:300]}")
 
-        # Check if response has tool calls
         if message.tool_calls:
-            # Add assistant message with tool calls to history
             assistant_msg = {
                 "role": "assistant",
                 "content": message.content,
                 "tool_calls": [{
                     "id": tc.id,
                     "type": "function",
-                    "function": {
-                        "name": tc.function.name,
-                        "arguments": tc.function.arguments,
-                    },
+                    "function": {"name": tc.function.name,
+                                 "arguments": tc.function.arguments},
                 } for tc in message.tool_calls],
             }
             messages.append(assistant_msg)
+            turn.append(assistant_msg)
 
-            # Execute each tool call
             for tc in message.tool_calls:
                 tool_name = tc.function.name
                 try:
@@ -297,35 +249,28 @@ def handle_message(phone: str, user_text: str) -> str:
                     tool_args = {}
 
                 logger.info(f"Tool call: {tool_name}({json.dumps(tool_args, ensure_ascii=False)[:200]})")
-
-                # Execute the tool with retry
                 tool_result = _execute_tool_with_retry(tool_name, tool_args)
-                tool_success = "error" not in tool_result
-                analytics.track_tool_call(phone, tool_name, success=tool_success)
+                analytics.track_tool_call(phone, tool_name, success="error" not in tool_result)
                 logger.info(f"Tool result: {json.dumps(tool_result, ensure_ascii=False)[:300]}")
 
-                # Add tool result to messages
-                messages.append({
-                    "role": "tool",
-                    "tool_call_id": tc.id,
-                    "content": json.dumps(tool_result, ensure_ascii=False),
-                })
+                tool_msg = {"role": "tool", "tool_call_id": tc.id,
+                            "content": json.dumps(tool_result, ensure_ascii=False)}
+                messages.append(tool_msg)
+                turn.append(tool_msg)
 
-                # Update session context based on tool calls
                 _update_session_from_tool(phone, tool_name, tool_args, tool_result)
 
         else:
-            # No tool calls — extract text reply
-            reply_text = message.content or ""
-            if reply_text:
-                sessions.add_to_history(phone, "model", [{"text": reply_text}])
-                analytics.track_message(phone, is_user=False)
-                return reply_text.strip()
-            else:
-                analytics.track_message(phone, is_user=False)
-                return "عذراً، لم أتمكن من إيجاد إجابة مناسبة."
+            reply_text = (message.content or "").strip()
+            if not reply_text:
+                reply_text = "عذراً، لم أتمكن من إيجاد إجابة مناسبة."
+            turn.append({"role": "assistant", "content": reply_text})
+            sessions.append_messages(phone, turn)
+            analytics.track_message(phone, is_user=False)
+            return reply_text
 
     # If we exhausted tool rounds
+    sessions.append_messages(phone, turn)
     analytics.track_message(phone, is_user=False)
     return "عذراً، أحتاج خطوات إضافية. يرجى التواصل مع موظف خدمة المستفيدين."
 
@@ -335,25 +280,19 @@ def handle_message_stream(phone: str, user_text: str):
     Process an incoming user message with streaming support.
     Yields partial responses: ('text', chunk), ('tool', tool_name), ('done', full_reply)
     """
-    # 1. Load conversation history
     history = sessions.get_history(phone)
+    user_msg = {"role": "user", "content": user_text}
+    history.append(user_msg)
+    sessions.append_message(phone, user_msg)
 
-    # 2. Add user message
-    user_part = {"text": user_text}
-    history.append({"role": "user", "parts": [user_part]})
-    sessions.add_to_history(phone, "user", [user_part])
-
-    # 3. Build context injection
-    context = sessions.get_context(phone)
-    context_msg = _build_context_message(phone, context)
-
-    # 4. Convert to OpenAI format
+    context_msg = _build_context_message(phone, sessions.get_context(phone))
     system_msg = SYSTEM_PROMPT
     if context_msg:
         system_msg = SYSTEM_PROMPT + "\n\n---\n\n## Current Context\n" + context_msg
-    messages = _convert_history(history, system_msg=system_msg)
+    messages = _build_messages(history, system_msg)
 
-    # 5. Call LLM with tools (loop for tool calls)
+    turn: list[dict] = []
+
     for round_num in range(MAX_TOOL_ROUNDS):
         token_count = _count_message_tokens(messages)
         if token_count > 3000:
@@ -363,6 +302,7 @@ def handle_message_stream(phone: str, user_text: str):
             stream = _call_llm_stream(messages)
         except Exception as e:
             logger.error(f"LLM API error (all models failed): {e}")
+            sessions.append_messages(phone, turn)
             yield ("text", _map_error_to_friendly(str(e)))
             return
 
@@ -402,11 +342,6 @@ def handle_message_stream(phone: str, user_text: str):
             if finish_reason == "stop" or finish_reason == "tool_calls":
                 break
 
-        # Handle reasoning models
-        if full_content == "" and hasattr(stream, 'reasoning') and stream.reasoning:
-            full_content = stream.reasoning
-            yield ("text", full_content)
-
         # Check if we have tool calls
         if tool_calls_data:
             # Build assistant message
@@ -423,12 +358,13 @@ def handle_message_stream(phone: str, user_text: str):
                 } for tc in tool_calls_data.values()],
             }
             messages.append(assistant_msg)
+            turn.append(assistant_msg)
 
             # Execute each tool call
             for tc in tool_calls_data.values():
                 tool_name = tc["name"]
                 yield ("tool", tool_name)
-                
+
                 try:
                     tool_args = json.loads(tc["arguments"])
                 except json.JSONDecodeError:
@@ -438,23 +374,21 @@ def handle_message_stream(phone: str, user_text: str):
                 tool_result = _execute_tool_with_retry(tool_name, tool_args)
                 logger.info(f"Tool result: {json.dumps(tool_result, ensure_ascii=False)[:300]}")
 
-                messages.append({
-                    "role": "tool",
-                    "tool_call_id": tc["id"],
-                    "content": json.dumps(tool_result, ensure_ascii=False),
-                })
+                tool_msg = {"role": "tool", "tool_call_id": tc["id"],
+                            "content": json.dumps(tool_result, ensure_ascii=False)}
+                messages.append(tool_msg)
+                turn.append(tool_msg)
 
                 _update_session_from_tool(phone, tool_name, tool_args, tool_result)
         else:
-            # No tool calls — done
-            if full_content:
-                sessions.add_to_history(phone, "model", [{"text": full_content}])
-                yield ("done", full_content.strip())
-            else:
-                yield ("done", "عذراً، لم أتمكن من إيجاد إجابة مناسبة.")
+            reply = (full_content or "").strip() or "عذراً، لم أتمكن من إيجاد إجابة مناسبة."
+            turn.append({"role": "assistant", "content": reply})
+            sessions.append_messages(phone, turn)
+            yield ("done", reply)
             return
 
     # Exhausted tool rounds
+    sessions.append_messages(phone, turn)
     yield ("done", "عذراً، أحتاج خطوات إضافية. يرجى التواصل مع موظف خدمة المستفيدين.")
 
 

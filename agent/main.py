@@ -16,10 +16,10 @@ from typing import Optional
 from agent.config import settings
 from agent.whatsapp import (
     verify_webhook, validate_signature, extract_message,
-    send_text, send_template, normalize_phone_for_lookup,
+    send_text, send_template, send_read_receipt, normalize_phone_for_lookup,
 )
 from agent.sessions import get_session, set_context, get_context, clear_session, clear_all_sessions
-from agent import gemini as agent
+from agent import llm as agent
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -131,11 +131,13 @@ async def webhook_receive(request: Request):
     logger.info(f"Inbound from {sender}: [{msg_type}] {text[:100]}")
 
     # 6. Send read receipt (optional but recommended)
+    # send_read_receipt used to be called without being imported, so this block
+    # raised NameError on every message and the bare except hid it.
     if message_id and settings.whatsapp_access_token:
         try:
             send_read_receipt(message_id)
-        except Exception:
-            pass  # Non-critical
+        except Exception as e:
+            logger.debug(f"Read receipt failed (non-critical): {e}")
 
     # 7. Handle non-text messages
     if msg_type != "text" or not text:
@@ -195,7 +197,8 @@ def _load_context(phone: str, text: str):
 def _send_reply_baileys(to: str, text: str):
     """Send reply via Baileys bridge HTTP server."""
     import httpx
-    bridge_port = int(os.environ.get("BRIDGE_PORT", "8002"))
+    # 8002 is the agent's own port — the old default made this POST to itself.
+    bridge_port = int(os.environ.get("BRIDGE_PORT", "8003"))
     try:
         resp = httpx.post(
             f"http://localhost:{bridge_port}/send",
@@ -323,8 +326,13 @@ async def agent_sessions_clear_all():
 def root():
     return {
         "service": "Kayan WhatsApp Agent",
-        "version": "1.0.0",
-        "agent": "DeepSeek V4 Flash",
+        "version": "1.1.0",
+        # Report what is actually configured instead of a hardcoded name that
+        # drifted from the model in use (it said "DeepSeek V4 Flash" while
+        # calling Qwen through OpenRouter).
+        "model": settings.llm_model,
+        "llm_base_url": settings.llm_base_url,
+        "thinking_enabled": settings.llm_enable_thinking,
         "backend": settings.backend_url,
         "webhook": "/webhook",
         "health": "/health",
