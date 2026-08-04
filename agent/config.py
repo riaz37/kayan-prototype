@@ -16,9 +16,11 @@ class Settings(BaseSettings):
     port: int = 8002
 
     # ---- LLM
-    # Self-hosted vLLM (Qwen3.6-27B-FP8). Previously this pointed at OpenRouter's
-    # free tier, which meant the provider/model had to be swapped by hand
-    # whenever a key ran out — see git history for five such swaps.
+    # Any OpenAI-compatible endpoint. Set LLM_BASE_URL / LLM_MODEL in .env —
+    # the default here is a local vLLM so that no real endpoint is hardcoded in
+    # a public repository. Previously this pointed at OpenRouter's free tier,
+    # which meant the provider had to be swapped by hand whenever a key ran out
+    # (git history shows five such swaps).
     llm_base_url: str = "http://localhost:8000"
     llm_api_key: str = "none"
     llm_model: str = "qwen"
