@@ -464,11 +464,16 @@ def _build_context_message(phone: str, context: Optional[dict]) -> str:
         return ""
 
     if not context.get("known"):
-        return (
-            f"سياق المحادثة: متصل جديد (غير مسجل في النظام). رقم الجوال: {phone}. "
-            "ابدأ بالترحيب واسأل عن أهدافه. "
-            f"عند إنشاء تذكرة استخدم phone={phone}."
-        )
+        # Check if we have any collected slots for this unknown user
+        collected = sessions.get_session(phone).get("collected_slots", {})
+        ctx_parts = [
+            f"سياق المحادثة: متصل جديد (غير مسجل في النظام). رقم الجوال: {phone}.",
+            "ابدأ بالترحيب واسأل عن أهدافه.",
+            f"عند إنشاء تذكرة استخدم phone={phone}.",
+        ]
+        if collected:
+            ctx_parts.append(f"معلومات تم جمعها مسبقاً: {json.dumps(collected, ensure_ascii=False)}")
+        return "\n".join(ctx_parts)
 
     beneficiary_id = context.get("beneficiary_id", "")
     name = context.get("name_ar", "")

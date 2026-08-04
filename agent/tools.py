@@ -175,6 +175,13 @@ def handle_cancel_flow() -> dict:
             "reply_ar": "تم الإلغاء. كيف أقدر أساعدك في شيء ثاني؟"}
 
 
+def handle_save_collected_info(phone: str, key: str, value: str) -> dict:
+    """Save a collected piece of information to the session."""
+    from agent import sessions
+    sessions.set_slot(phone, key, value)
+    return {"saved": True, "key": key, "value": value}
+
+
 
 # ============================================================ Tool Router
 
@@ -200,7 +207,8 @@ TOOL_HANDLERS = {
     "create_ticket": lambda **kw: handle_create_ticket(**kw),
     "get_beneficiary_history": lambda **kw: handle_get_beneficiary_history(**kw),
     "list_programs": lambda **kw: handle_list_programs(**kw),
-    "cancel_flow": lambda **kw: handle_cancel_flow(**kw),
+    "cancel_flow": lambda **kw: handle_cancel_flow(),
+    "save_collected_info": lambda **kw: handle_save_collected_info(**kw),
 }
 
 
@@ -566,6 +574,22 @@ TOOLS_OPENAI = [
             "parameters": {
                 "type": "object",
                 "properties": {},
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "save_collected_info",
+            "description": "Save a piece of information the user provided (orphan category, name, city, etc.) to remember it for later. Use this AFTER the user provides info, so you don't ask again.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "phone": {"type": "string", "description": "Phone number"},
+                    "key": {"type": "string", "description": "What was collected: orphan_category, name, city, birth_year, etc."},
+                    "value": {"type": "string", "description": "The value the user provided"},
+                },
+                "required": ["phone", "key", "value"],
             },
         },
     },
