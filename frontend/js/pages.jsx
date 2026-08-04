@@ -845,53 +845,127 @@ function BeneficiarySheet({ id, onClose }) {
 }
 
 /* ============================================================ Requests */
+const DEFAULT_DOCS = "تعريف الراتب، عقد الإيجار";
+const DEFAULT_REASON = {
+  accepted: "استيفاء الشروط ووجود احتياج مؤكد",
+  docs_required: "يلزم استكمال المستندات المطلوبة",
+  declined: "لا يوجد احتياج مؤكد حسب التقييم",
+};
+
+const DECISION_META = {
+  accepted:      { title: "اعتماد الطلب", verb: "قبول" },
+  docs_required: { title: "طلب استكمال مستندات", verb: "مستندات" },
+  declined:      { title: "الاعتذار عن الطلب", verb: "اعتذار" },
+};
+
+/* One decision flow shared by the Requests table and the Committee board, so
+   the two cannot drift apart. Returns { open, node } — render node once. */
+function useDecisionModal(onDone) {
+  const [state, setState] = useState({ open: false, type: null, request: null });
+  const [amount, setAmount] = useState("");
+  const [docs, setDocs] = useState(DEFAULT_DOCS);
+  const [reason, setReason] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
+  const open = (request, type) => {
+    setState({ open: true, type, request });
+    setError(null);
+    setAmount(String(request?.requested_amount_sar ?? ""));
+    setDocs(DEFAULT_DOCS);
+    setReason(DEFAULT_REASON[type] || "");
+  };
+  const close = () => { if (!submitting) setState({ open: false, type: null, request: null }); };
+
+  const submit = async () => {
+    const { type, request } = state;
+    const id = request?.id || request?.support_request_id;
+    if (!id) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      // reason_ar is required by the API for EVERY decision type. Sending it
+      // only for "declined" made accept and docs_required fail with a 422.
+      const body = { decision: type, reason_ar: reason || DEFAULT_REASON[type] };
+      if (type === "accepted") {
+        const value = parseFloat(amount);
+        if (!Number.isFinite(value) || value <= 0) {
+          setError("أدخل مبلغًا صحيحًا أكبر من صفر");
+          setSubmitting(false);
+          return;
+        }
+        body.approved_amount_sar = value;
+      } else if (type === "docs_required") {
+        body.required_documents_ar = docs.split(/[،,]/).map(s => s.trim()).filter(Boolean);
+      }
+      await A.post(`/support-requests/${id}/decision`, body);
+      setState({ open: false, type: null, request: null });
+      onDone?.();
+    } catch (e) {
+      // Surface the API's reason (ceiling exceeded, already decided…) instead
+      // of a bare "خطأ في تسجيل القرار".
+      setError(e?.message || "تعذّر تسجيل القرار");
+    }
+    setSubmitting(false);
+  };
+
+  const node = state.open && state.type ? (
+    <U.Modal open onClose={close}
+      title={DECISION_META[state.type].title}
+      sub={state.request
+        ? `${state.request.id || state.request.support_request_id} — ${state.request.name_ar || ""}`
+        : ""}
+      footer={
+        <>
+          <Button variant="outline" onClick={close} disabled={submitting}>إلغاء</Button>
+          <Button variant={state.type === "declined" ? "danger" : "default"}
+            onClick={submit} disabled={submitting}>
+            {submitting ? "جاري التسجيل…" : "تأكيد"}
+          </Button>
+        </>
+      }>
+      <div className="space-y-3">
+        {state.type === "accepted" && (
+          <>
+            <p className="text-[13px] text-ink-muted">المبلغ المعتمد للصرف:</p>
+            <Input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0" />
+            <div className="flex items-center justify-between text-[12px] text-ink-muted">
+              <span>المبلغ المطلوب:</span>
+              <span className="tabular font-medium">{money(state.request?.requested_amount_sar)}</span>
+            </div>
+          </>
+        )}
+        {state.type === "docs_required" && (
+          <>
+            <p className="text-[13px] text-ink-muted">المستندات المطلوبة (مفصولة بفاصلة):</p>
+            <textarea rows={2} value={docs} onChange={e => setDocs(e.target.value)}
+              className="w-full rounded-lg border border-line px-3 py-2 text-[13px] text-ink focus:outline-none focus:ring-2 focus:ring-brand-200" />
+          </>
+        )}
+        <p className="text-[13px] text-ink-muted">
+          {state.type === "declined" ? "سبب الاعتذار:" : "سبب القرار:"}
+        </p>
+        <textarea rows={3} value={reason} onChange={e => setReason(e.target.value)}
+          className="w-full rounded-lg border border-line px-3 py-2 text-[13px] text-ink focus:outline-none focus:ring-2 focus:ring-brand-200" />
+        {error && (
+          <p className="text-[12.5px] text-rose-700 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
+            {error}
+          </p>
+        )}
+      </div>
+    </U.Modal>
+  ) : null;
+
+  return { open, node, busy: submitting };
+}
+
 function RequestsPage() {
   const [prog, setProg] = useState(""); const [q, setQ] = useState("");
   const rq = A.useApi("/support-requests", "support-requests");
   const pr = A.useApi("/programs", "programs");
   const rows = (rq.data?.requests || []).filter(r => (!prog || r.program_id === prog) &&
     (!q || (r.title_ar + r.name_ar).includes(q)));
-  const [deciding, setDeciding] = useState(null);
-  const [modal, setModal] = useState({ open: false, type: null, request: null });
-  const [modalAmount, setModalAmount] = useState("15000");
-  const [modalDocs, setModalDocs] = useState("تعريف الراتب، عقد الإيجار");
-  const [modalReason, setModalReason] = useState("لا يوجد اuiltin مؤكد حسب التقييم");
-  const [submitting, setSubmitting] = useState(false);
-
-  const openDecisionModal = (request, type) => {
-    setModal({ open: true, type, request });
-    setModalAmount("15000");
-    setModalDocs("تعريف الراتب، عقد الإيجار");
-    setModalReason("لا يوجد اuiltin مؤكد حسب التقييم");
-  };
-
-  const submitDecision = async () => {
-    const { type, request } = modal;
-    if (!request) return;
-    setSubmitting(true);
-    try {
-      const body = { decision: type };
-      if (type === "accepted") {
-        body.approved_amount_sar = parseFloat(modalAmount) || 15000;
-      } else if (type === "docs_required") {
-        body.required_documents_ar = modalDocs.split(",").map(s => s.trim());
-      } else {
-        body.reason_ar = modalReason;
-      }
-      await A.post(`/support-requests/${request.id}/decision`, body);
-      rq.refresh();
-      setModal({ open: false, type: null, request: null });
-    } catch(e) {
-      alert("خطأ في تسجيل القرار");
-    }
-    setSubmitting(false);
-  };
-
-  const decisionMeta = {
-    accepted: { title: "اعتماد الطلب", color: "emerald" },
-    declined: { title: "رفض الطلب", color: "rose" },
-    docs_required: { title: "طلب استكمال مستندات", color: "amber" },
-  };
+  const decision = useDecisionModal(() => rq.refresh());
 
   return (
     <div className="space-y-4">
@@ -930,12 +1004,15 @@ function RequestsPage() {
               <Td>
                 {r.stage === "committee" && (
                   <div className="flex gap-1">
-                    <Button size="sm" variant="outline" disabled={deciding === r.id}
-                      onClick={() => openDecisionModal(r, "accepted")}>
+                    <Button size="sm" variant="outline" onClick={() => decision.open(r, "accepted")}>
                       قبول
                     </Button>
-                    <Button size="sm" variant="ghost" disabled={deciding === r.id}
-                      onClick={() => openDecisionModal(r, "declined")}>رفض</Button>
+                    <Button size="sm" variant="outline" onClick={() => decision.open(r, "docs_required")}>
+                      مستندات
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => decision.open(r, "declined")}>
+                      اعتذار
+                    </Button>
                   </div>
                 )}
                 {r.stage === "decided" && r.approved_amount_sar && <span className="text-[12px] text-emerald-600 font-medium">✓ معتمد</span>}
@@ -945,46 +1022,7 @@ function RequestsPage() {
         </Table>
       </Card>
 
-      {modal.open && modal.type && (
-        <U.Modal open={modal.open}
-          onClose={() => !submitting && setModal({ open: false, type: null, request: null })}
-          title={decisionMeta[modal.type].title}
-          sub={modal.request ? `${modal.request.id} — ${modal.request.name_ar}` : ""}
-          footer={
-            <>
-              <Button variant="outline" onClick={() => setModal({ open: false, type: null, request: null })} disabled={submitting}>إلغاء</Button>
-              <Button variant={modal.type === "declined" ? "danger" : "default"} onClick={submitDecision} disabled={submitting}>
-                {submitting ? "جاري التسجيل…" : "تأكيد"}
-              </Button>
-            </>
-          }>
-          {modal.type === "accepted" && (
-            <div className="space-y-3">
-              <p className="text-[13px] text-ink-muted">أدخل المبلغ المعتمد للصرف:</p>
-              <Input type="number" value={modalAmount}
-                onChange={e => setModalAmount(e.target.value)} placeholder="15000" />
-              <div className="flex items-center justify-between text-[12px] text-ink-muted">
-                <span>المبلغ المطلوب:</span>
-                <span className="tabular font-medium">{money(modal.request?.requested_amount_sar)}</span>
-              </div>
-            </div>
-          )}
-          {modal.type === "docs_required" && (
-            <div className="space-y-3">
-              <p className="text-[13px] text-ink-muted">المستندات المطلوبة (مفصولة بفاصلة):</p>
-              <textarea className="w-full rounded-lg border border-line px-3 py-2 text-[13px] text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-brand-200"
-                rows={3} value={modalDocs} onChange={e => setModalDocs(e.target.value)} />
-            </div>
-          )}
-          {modal.type === "declined" && (
-            <div className="space-y-3">
-              <p className="text-[13px] text-ink-muted">سبب رفض الطلب:</p>
-              <textarea className="w-full rounded-lg border border-line px-3 py-2 text-[13px] text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-brand-200"
-                rows={3} value={modalReason} onChange={e => setModalReason(e.target.value)} />
-            </div>
-          )}
-        </U.Modal>
-      )}
+      {decision.node}
     </div>
   );
 }
@@ -993,33 +1031,9 @@ function RequestsPage() {
 function CommitteePage() {
   const cq = A.useApi("/committee/queue", "committee");
   const rows = cq.data?.queue || [];
-  const [deciding, setDeciding] = useState(null);
-
-  const handleDecision = async (id, decision) => {
-    const labels = { accepted: "اعتماد الطلب", declined: "رفض الطلب", docs_required: "طلب استكمال مستندات" };
-    if (!confirm(`${labels[decision]}؟`)) return;
-    let amount = null, reason = "قرار اللجنة", docs = null;
-    if (decision === "accepted") {
-      const a = prompt("المبلغ المطلوب (ريال):", "15000");
-      if (a === null) return;
-      amount = parseFloat(a) || 15000;
-    } else if (decision === "docs_required") {
-      docs = prompt("المستندات المطلوبة (مفصولة بفاصلة):", "تعريف الراتب، عقد الإيجار");
-      if (docs === null) return;
-      docs = docs.split(",").map(s => s.trim());
-    } else {
-      reason = prompt("سبب الاعتذار:", "لا يوجد احتياج مؤكد حسب التقييم");
-      if (reason === null) return;
-    }
-    setDeciding(id);
-    try {
-      await A.post(`/support-requests/${id}/decision`, {
-        decision, approved_amount_sar: amount, reason_ar: reason, required_documents_ar: docs
-      });
-      cq.refresh();
-    } catch(e) { console.error(e); alert("خطأ في تسجيل القرار"); }
-    setDeciding(null);
-  };
+  // Was three chained window.prompt() calls, which cannot show the case being
+  // decided and gave no way to report why the API refused.
+  const decision = useDecisionModal(() => cq.refresh());
 
   return (
     <div className="space-y-4">
@@ -1066,19 +1080,19 @@ function CommitteePage() {
               </p>
             )}
             <div className="flex gap-2">
-              <Button size="sm" className="flex-1" disabled={deciding === r.support_request_id}
-                onClick={() => handleDecision(r.support_request_id, "accepted")}>
-                <Icon d={I.check} className="w-3.5 h-3.5" /> {deciding === r.support_request_id ? "..." : "قبول"}
+              <Button size="sm" className="flex-1" onClick={() => decision.open(r, "accepted")}>
+                <Icon d={I.check} className="w-3.5 h-3.5" /> قبول
               </Button>
-              <Button size="sm" variant="outline" className="flex-1" disabled={deciding === r.support_request_id}
-                onClick={() => handleDecision(r.support_request_id, "docs_required")}>استكمال مستندات</Button>
-              <Button size="sm" variant="ghost" disabled={deciding === r.support_request_id}
-                onClick={() => handleDecision(r.support_request_id, "declined")}>اعتذار</Button>
+              <Button size="sm" variant="outline" className="flex-1"
+                onClick={() => decision.open(r, "docs_required")}>استكمال مستندات</Button>
+              <Button size="sm" variant="ghost"
+                onClick={() => decision.open(r, "declined")}>اعتذار</Button>
             </div>
           </Card>
         ))}
       </div>
       {!rows.length && <Card><Empty icon={I.scale} title="لا توجد حالات معروضة على اللجنة" /></Card>}
+      {decision.node}
     </div>
   );
 }
@@ -1090,26 +1104,46 @@ function FinancePage() {
   const sp = A.useApi("/sponsorships", "sponsorships");
   const d = run.data || {}, o = ov.data || {};
   const [acting, setActing] = useState(null);
+  const [notice, setNotice] = useState(null);
 
   const handleApprove = async (id) => {
-    if (!confirm("اعتماد الدفعة؟")) return;
-    setActing(id);
-    try { await A.post(`/disbursements/${id}/approve`, { approved_by: "STF-06" }); run.refresh(); }
-    catch(e) { console.error(e); alert("خطأ في الاعتماد"); }
+    setActing(id); setNotice(null);
+    try {
+      await A.post(`/disbursements/${id}/approve`, { approved_by: "STF-06" });
+      run.refresh();
+    } catch (e) {
+      // e.message carries the API's Arabic explanation (e.g. "لا يوجد ايبان…").
+      setNotice({ tone: "error", text: e?.message || "تعذّر اعتماد الدفعة" });
+    }
     setActing(null);
   };
 
   const handlePay = async (id) => {
-    if (!confirm("صرف الدفعة للحساب البنكي؟")) return;
-    setActing(id);
-    try { await A.post(`/disbursements/${id}/pay`); run.refresh(); ov.refresh(); }
-    catch(e) { console.error(e); alert("خطأ في الصرف — تأكد من بيانات الحساب البنكي"); }
+    setActing(id); setNotice(null);
+    try {
+      const res = await A.post(`/disbursements/${id}/pay`);
+      run.refresh(); ov.refresh();
+      setNotice({ tone: "ok", text: res?.reply_ar || "تم الصرف بنجاح" });
+    } catch (e) {
+      setNotice({ tone: "error", text: e?.message || "تعذّر صرف الدفعة" });
+    }
     setActing(null);
   };
 
   return (
     <div className="space-y-4">
       <PageHead title="الصرف والكفالات" sub="جدول الصرف الشهري والتحويلات للمستفيدين" />
+      {notice && (
+        <Card className={cx("px-4 py-3 flex items-start justify-between gap-3",
+          notice.tone === "error" ? "border-rose-200 bg-rose-50/60" : "border-emerald-200 bg-emerald-50/60")}>
+          <p className={cx("text-[12.5px]", notice.tone === "error" ? "text-rose-700" : "text-emerald-700")}>
+            {notice.text}
+          </p>
+          <button onClick={() => setNotice(null)} className="text-ink-soft hover:text-ink shrink-0">
+            <Icon d={I.x} className="w-3.5 h-3.5" />
+          </button>
+        </Card>
+      )}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Stat label="إجمالي المصروف" value={money(o.payments_total_sar)} icon={I.wallet} tone="green" />
         <Stat label="مستحق خلال 60 يوم" value={money(d.total_sar)} icon={I.clock} tone="amber"
@@ -1126,7 +1160,10 @@ function FinancePage() {
             {(d.disbursements || []).slice(0, 14).map(x => (
               <tr key={x.id}>
                 <Td><span className="tabular text-[12.5px]">{x.due_date}</span></Td>
-                <Td><span className="tabular text-[12px] text-ink-muted">{x.beneficiary_id}</span></Td>
+                <Td>
+                  <span className="text-[12.5px] text-ink">{x.name_ar || "—"}</span>
+                  <span className="block tabular text-[11px] text-ink-soft">{x.beneficiary_id}</span>
+                </Td>
                 <Td><span className="tabular text-[12.5px] font-medium">{money(x.amount)}</span></Td>
                 <Td><Badge tone={STATUS_TONE[x.status]} dot>
                   {{ scheduled:"مجدول", approved:"معتمد", pending_approval:"بانتظار الاعتماد" }[x.status] || x.status}</Badge></Td>

@@ -289,9 +289,33 @@ const Field = ({ label, value, mono }) => (
 );
 
 /* ---------------------------------------------- API client */
-const API_BASE = window.location.hostname === "localhost"
-  ? "https://kayan-prototype-production.up.railway.app"
-  : "https://kayan-prototype-production.up.railway.app";
+/* Resolution order:
+     1. ?api=<url>            — override for one session (persisted)
+     2. window.KAYAN_API_BASE — set by a <script> tag or config.js
+     3. localhost             — the local backend, so `./run.sh` is self-contained
+     4. otherwise             — the deployed backend
+   Previously both branches of this were the same hardcoded Railway URL, so a
+   developer running the console locally still hit production. */
+const DEFAULT_REMOTE_API = "https://kayan-prototype-production.up.railway.app";
+
+function resolveApiBase() {
+  const param = new URLSearchParams(window.location.search).get("api");
+  if (param) {
+    try { localStorage.setItem("kayan-api-base", param); } catch (e) { /* private mode */ }
+    return param.replace(/\/$/, "");
+  }
+  let stored = null;
+  try { stored = localStorage.getItem("kayan-api-base"); } catch (e) { /* private mode */ }
+  if (stored) return stored.replace(/\/$/, "");
+  if (window.KAYAN_API_BASE) return String(window.KAYAN_API_BASE).replace(/\/$/, "");
+  const host = window.location.hostname;
+  if (host === "localhost" || host === "127.0.0.1" || host === "[::1]") {
+    return "http://localhost:8001";
+  }
+  return DEFAULT_REMOTE_API;
+}
+
+const API_BASE = resolveApiBase();
 let SNAP = null;
 
 async function loadSnapshot() {
@@ -313,27 +337,34 @@ async function get(path, fallbackKey) {
   }
 }
 
-/** POST to an API endpoint. */
-async function post(path, body) {
+/** Send a request and, on failure, throw an Error carrying the parsed body.
+ *  The API explains refusals in `detail.reply_ar` (ceiling exceeded, file not
+ *  approved, window closed…). Throwing only the status code discarded all of
+ *  that and left the console showing a generic "خطأ". */
+async function send(method, path, body) {
   const r = await fetch(API_BASE + path, {
-    method: "POST",
+    method,
     headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify(body),
+    body: JSON.stringify(body ?? {}),
   });
-  if (!r.ok) throw new Error(r.status);
-  return r.json();
+  let payload = null;
+  try { payload = await r.json(); } catch (e) { payload = null; }
+  if (!r.ok) {
+    const detail = payload?.detail;
+    const message = (typeof detail === "string" && detail)
+      || detail?.reply_ar || detail?.message
+      || (Array.isArray(detail) ? detail.map(d => d.msg).join("، ") : null)
+      || `HTTP ${r.status}`;
+    const err = new Error(message);
+    err.status = r.status;
+    err.detail = detail;
+    throw err;
+  }
+  return payload;
 }
 
-/** PATCH to an API endpoint. */
-async function patch(path, body) {
-  const r = await fetch(API_BASE + path, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify(body),
-  });
-  if (!r.ok) throw new Error(r.status);
-  return r.json();
-}
+const post = (path, body) => send("POST", path, body);
+const patch = (path, body) => send("PATCH", path, body);
 
 function useApi(path, fallbackKey, deps = []) {
   const [state, setState] = useState({ loading: true, data: null, live: false });
@@ -497,4 +528,4 @@ function t(key) {
 window.UI = { cx, nf, money, num, dateAr, timeAgo, Icon, I, Card, CardHead, Button, Badge, TONE,
   STATUS_TONE, FILE_STATUS_AR, STAGE_AR, Input, Select, Progress, Ring, Avatar, Stat, Table, Td,
   Tabs, Sheet, Modal, Empty, Skeleton, Field, t, useLang, setLang, getLang };
-window.API = { get, post, patch, useApi, loadSnapshot };
+window.API = { get, post, patch, useApi, loadSnapshot, API_BASE };

@@ -3,6 +3,14 @@
 set -e
 cd "$(dirname "$0")"
 [ -d node_modules ] || npm install --no-audit --no-fund
+mkdir -p dist/vendor
+
+# Vendor React locally. index.html used to pull both UMD bundles from unpkg at
+# runtime, so a CDN hiccup (or an offline demo) rendered a blank console.
+echo "vendoring react..."
+cp node_modules/react/umd/react.production.min.js dist/vendor/react.js
+cp node_modules/react-dom/umd/react-dom.production.min.js dist/vendor/react-dom.js
+
 echo "compiling JSX..."
 npx babel js --out-dir dist --extensions .jsx --out-file-extension .js --quiet
 echo "wrapping bundles..."
