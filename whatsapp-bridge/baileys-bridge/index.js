@@ -109,6 +109,41 @@ async function sendMessage(phone, text) {
 }
 
 /**
+ * Send typing indicator (presence update)
+ */
+async function sendTypingIndicator(phone) {
+    if (!sock) {
+        console.error('❌ Not connected to WhatsApp');
+        return false;
+    }
+    try {
+        const jid = phone.includes('@') ? phone : `${phone}@s.whatsapp.net`;
+        await sock.sendPresenceUpdate('composing', jid);
+        console.log(`⌨️ Typing indicator sent to ${phone}`);
+        return true;
+    } catch (e) {
+        console.error(`❌ Failed to send typing indicator to ${phone}: ${e.message}`);
+        return false;
+    }
+}
+
+/**
+ * Stop typing indicator
+ */
+async function stopTypingIndicator(phone) {
+    if (!sock) {
+        return false;
+    }
+    try {
+        const jid = phone.includes('@') ? phone : `${phone}@s.whatsapp.net`;
+        await sock.sendPresenceUpdate('paused', jid);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+/**
  * Handle incoming messages
  */
 function handleMessages(messages) {
@@ -146,6 +181,27 @@ const httpServer = http.createServer((req, res) => {
                     return;
                 }
                 const ok = await sendMessage(phone, text);
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ ok }));
+            } catch (e) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: e.message }));
+            }
+        });
+    } else if (req.method === 'POST' && req.url === '/typing') {
+        let body = '';
+        req.on('data', chunk => body += chunk);
+        req.on('end', async () => {
+            try {
+                const { phone, typing } = JSON.parse(body);
+                if (!phone) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'phone required' }));
+                    return;
+                }
+                const ok = typing !== false 
+                    ? await sendTypingIndicator(phone) 
+                    : await stopTypingIndicator(phone);
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ ok }));
             } catch (e) {

@@ -150,7 +150,12 @@ async def webhook_receive(request: Request):
     if not sess.get("context"):
         _load_context(sender, text)
 
-    # 10. Process through agent
+    # 10. Send typing indicator (Baileys only)
+    is_baileys = payload.get("entry", [{}])[0].get("changes", [{}])[0].get("value", {}).get("metadata", {}).get("phone_number_id") == "baileys"
+    if is_baileys:
+        _send_typing_baileys(sender, True)
+
+    # 11. Process through agent
     try:
         reply = agent.handle_message(sender, text)
     except Exception as e:
@@ -163,10 +168,13 @@ async def webhook_receive(request: Request):
         else:
             reply = "Sorry, a technical error occurred. Please try again or contact beneficiary services."
 
+    # 12. Stop typing indicator (Baileys only)
+    if is_baileys:
+        _send_typing_baileys(sender, False)
+
     logger.info(f"Reply to {sender}: {reply[:100]}")
 
-    # 11. Send reply — detect Baileys bridge vs Meta API
-    is_baileys = payload.get("entry", [{}])[0].get("changes", [{}])[0].get("value", {}).get("metadata", {}).get("phone_number_id") == "baileys"
+    # 13. Send reply — detect Baileys bridge vs Meta API
     if is_baileys:
         _send_reply_baileys(sender, reply)
     else:
@@ -205,6 +213,21 @@ def _send_reply_baileys(to: str, text: str):
         logger.info(f"Baileys reply to {to}: {resp.json()}")
     except Exception as e:
         logger.error(f"Failed to send via Baileys: {e}")
+
+
+def _send_typing_baileys(to: str, typing: bool = True):
+    """Send typing indicator via Baileys bridge HTTP server."""
+    import httpx
+    bridge_port = int(os.environ.get("BRIDGE_PORT", "8002"))
+    try:
+        resp = httpx.post(
+            f"http://localhost:{bridge_port}/typing",
+            json={"phone": to, "typing": typing},
+            timeout=5,
+        )
+        logger.debug(f"Baileys typing to {to}: {resp.json()}")
+    except Exception as e:
+        logger.debug(f"Failed to send typing indicator via Baileys: {e}")
 
 
 def _send_reply(to: str, text: str):
