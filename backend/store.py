@@ -12,7 +12,7 @@ mid-transaction left the write lock held, and every later write in the process
 failed with "database is locked" until restart. Autocommit means there is no
 open transaction to leak. Use tx() where several statements must land together.
 """
-import json, os, sqlite3, threading
+import json, os, sqlite3, threading, unicodedata
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 
@@ -446,10 +446,51 @@ def parse(ts):
     return datetime.fromisoformat(ts.replace("Z", ""))
 
 
+def phone_digits(p) -> str:
+    """Every digit in a phone number, in order, as ASCII.
+
+    Arabic-Indic numerals count: ``"٠٥٩"``.isdigit() is True in Python but
+    ``int()`` of the joined string is not what anyone wants, and a caller
+    who dictates their number over the phone can easily produce them.
+    """
+    out = []
+    for ch in str(p or ""):
+        if ch.isascii():
+            if ch.isdigit():
+                out.append(ch)
+        elif ch.isdigit():                    # ٠١٢٣ / ۰۱۲۳
+            out.append(str(unicodedata.digit(ch)))
+    return "".join(out)
+
+
+# Every number in this system is a mobile — it is what the file is reached
+# on and what WhatsApp is keyed by. Saudi mobiles are 10 digits local
+# (05XXXXXXXX) and 12 with the country code; every number in the seeded and
+# live data is 11 or more. A floor of 7 (E.164's shortest legal number)
+# would accept "0501234" — two thirds of a dictated Saudi mobile — as
+# whole, which is the failure this exists to catch, so the floor is the
+# shortest real mobile rather than the shortest legal number.
+MIN_PHONE_DIGITS = 9
+MAX_PHONE_DIGITS = 15
+
+
+def usable_phone(p) -> bool:
+    """Could someone actually ring this?
+
+    Voice made this worth enforcing. A caller reads their number out in
+    groups, the pause closes the utterance, and the agent is handed
+    ``"0171"`` — which the API used to accept as a phone number, answer
+    "not registered", and then store on a real file. See the phone-number
+    section of SIP_INTEGRATION.md.
+    """
+    return MIN_PHONE_DIGITS <= len(phone_digits(p)) <= MAX_PHONE_DIGITS
+
+
 def norm_phone(p):
     if not p:
         return ""
-    p = "".join(ch for ch in str(p) if ch.isdigit() or ch == "+").lstrip("+")
+    p = phone_digits(p) if not str(p).lstrip("+").isascii() else \
+        "".join(ch for ch in str(p) if ch.isdigit() or ch == "+").lstrip("+")
     if p.startswith("00966"):
         p = p[2:]
     if p.startswith("05"):

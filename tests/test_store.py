@@ -153,3 +153,31 @@ def test_sla_handles_missing_timestamps(db):
                           "opened_at": None})["remaining_ar"] == "-"
     assert db.ticket_sla({"status": "closed", "department_id": "DEP-BEN",
                           "opened_at": None})["breached"] is False
+
+
+# --------------------------------------------- a phone number you can ring
+def test_half_a_dictated_number_is_not_a_phone_number(db):
+    """Voice made this worth enforcing.
+
+    A caller reads their number in groups, the pause closes the utterance,
+    and what reaches the API is "0171". Every digit-count in the system was
+    implicit, so that was accepted as a phone number.
+    """
+    for fragment in ("0171", "05", "", None, "1000", "1" * 16,
+                     # Two thirds of a Saudi mobile. E.164's floor of 7
+                     # would call this whole; every real number in this
+                     # system is 11 digits or more.
+                     "0501234", "01712345"):
+        assert not db.usable_phone(fragment), f"{fragment!r} is not dialable"
+    for real in ("0501234567", "966501234567", "+966 50 123 4567",
+                 "01712345678"):
+        assert db.usable_phone(real), f"{real!r} is dialable"
+
+
+def test_arabic_indic_numerals_normalise_to_a_saudi_number(db):
+    """`"٠٥٩".isdigit()` is True in Python, so the old filter kept the
+    Arabic characters and the 05 -> 966 rewrite never fired — a caller who
+    dictated their number in Arabic numerals got a different key from the
+    same number typed in Latin ones."""
+    assert db.phone_digits("٠٥٩٤٦٤٩٢٦١") == "0594649261"
+    assert db.norm_phone("٠٥٩٤٦٤٩٢٦١") == db.norm_phone("0594649261")

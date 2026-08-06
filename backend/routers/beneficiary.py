@@ -27,6 +27,18 @@ class PhoneIn(BaseModel):
                          "re-registering. Always call this before starting a new registration.")
 def check_phone(body: PhoneIn):
     p = db.norm_phone(body.phone)
+    if not db.usable_phone(p):
+        # Not an error — answering the question honestly. Over the phone a
+        # caller reads their number in groups and the pause between them
+        # closes the utterance, so what arrives here is "0171". Replying
+        # "not registered" to that used to send the agent straight on to
+        # create-file with a four-digit phone number. Saying how many
+        # digits were heard is what lets it ask for the REST of the number
+        # instead of starting the whole exchange again.
+        return {"registered": False, "valid": False, "phone": p,
+                "digits_heard": len(db.phone_digits(p)),
+                "digits_expected": db.MIN_PHONE_DIGITS,
+                "reply_ar": _incomplete_phone_ar(p)}
     acc = db.accounts.get(p)
     b = db.beneficiary_by_phone(p)
     if acc or b:
@@ -38,8 +50,23 @@ def check_phone(body: PhoneIn):
             "reply_ar": "رقم الجوال مسجل مسبقا لديكم حساب سابق. الرجاء تسجيل الدخول مباشرة. "
                         "وان نسيتم كلمة المرور تواصلوا مع خدمات المستفيدين على 0506094154.",
         }
-    return {"registered": False, "phone": p,
+    return {"registered": False, "valid": True, "phone": p,
             "reply_ar": "الرقم غير مسجل. يمكننا البدء بانشاء حساب جديد."}
+
+
+def _incomplete_phone_ar(p: str) -> str:
+    """What to say about a number that cannot be dialled.
+
+    Spelled out digit by digit because the agent reads this aloud on a
+    call, and because repeating what was heard is how the caller works out
+    which group went missing.
+    """
+    heard = db.phone_digits(p)
+    if not heard:
+        return "ما وصلني رقم جوال. ممكن تعطوني رقم الجوال كامل؟"
+    spaced = " ".join(heard)
+    return (f"الرقم اللي وصلني ناقص: {spaced} — {len(heard)} ارقام فقط. "
+            "ممكن تكملون باقي الرقم؟")
 
 
 # ============================================================ eligibility gate
@@ -86,6 +113,17 @@ class CreateFileIn(BaseModel):
                          "progressively — call /beneficiary/{id}/completeness to see what is still needed.")
 def create_file(body: CreateFileIn):
     p = db.norm_phone(body.phone)
+    if not db.usable_phone(p):
+        # The file's phone number is how the association reaches this
+        # family — it goes into SEC-CONTACT as both mobile and whatsapp,
+        # and it is the key /registration/check-phone matches on later.
+        # A file created with half a dictated number is a beneficiary
+        # nobody can call and a duplicate waiting to happen, so this
+        # refuses rather than storing it. 409 + reply_ar so the agent can
+        # read the reason out.
+        raise HTTPException(409, {"error": "invalid_phone",
+                                  "digits_heard": len(db.phone_digits(p)),
+                                  "reply_ar": _incomplete_phone_ar(p)})
     if db.beneficiary_by_phone(p):
         raise HTTPException(409, "رقم الجوال مسجل مسبقا — this phone already has a file")
     ct = next((c for c in db.case_types if c["id"] == body.case_type), None)

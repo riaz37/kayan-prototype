@@ -154,3 +154,42 @@ def test_zero_amount_decision_cannot_be_enrolled(client, db, request_id):
     r = client.post("/enrollments", json={
         "support_request_id": request_id, "type": "one_time", "months": 1})
     assert r.status_code == 409
+
+
+# ------------------------------------------- numbers dictated over the phone
+def test_check_phone_says_how_much_of_the_number_it_heard(client):
+    """Answering "not registered" to half a dictated number sent the agent
+    straight on to create-file with a four-digit phone.
+
+    Reporting how many digits arrived is what lets it ask for the REST of
+    the number instead of starting the whole exchange again — which on a
+    real call ran four times before the caller gave up.
+    """
+    r = client.post("/registration/check-phone", json={"phone": "0171"})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["valid"] is False
+    assert body["registered"] is False
+    assert body["digits_heard"] == 4
+    assert "0 1 7 1" in body["reply_ar"], "read back digit by digit, for TTS"
+
+    ok = client.post("/registration/check-phone",
+                     json={"phone": "0501234567"}).json()
+    assert ok["valid"] is True
+
+
+def test_a_file_cannot_be_created_under_half_a_number(client, db):
+    """The file's phone is how the association reaches the family, and the
+    key check-phone matches on later. Half a number is a beneficiary nobody
+    can call and a duplicate waiting to happen."""
+    before = len(db.load_table("beneficiaries"))
+    r = client.post("/beneficiary/create-file", json={
+        "phone": "0171", "case_type": "CT-IND",
+        "orphan_category_id": "OC-UNK",
+        "full_name_ar": "اختبار الرقم الناقص", "city": "الرياض"})
+    assert r.status_code == 409, r.text
+    detail = r.json()["detail"]
+    assert detail["error"] == "invalid_phone"
+    assert detail["reply_ar"]
+    # …and nothing was written — the point of the whole exercise.
+    assert len(db.load_table("beneficiaries")) == before
