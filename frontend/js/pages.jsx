@@ -1566,6 +1566,255 @@ function AgentTestPage() {
   );
 }
 
+
+/* ================================================================ Voice test
+   Talk to the same agent that answers the phone, from the browser.
+
+   This exists so the voice channel can be demonstrated and debugged without
+   a PBX, a SIP extension or a softphone: the microphone goes straight to the
+   voice engine over a WebSocket, and the engine runs the identical
+   STT -> agent -> TTS pipeline a real call runs. What you hear here is what
+   a caller hears.
+
+   Audio in is 16 kHz mono PCM16; audio out arrives as JSON headers followed
+   by raw PCM at whatever rate the synthesizer produced. */
+function VoiceTestPage() {
+  const [phone, setPhone] = useState("96655000000");
+  const [state, setState] = useState("idle");   // idle|connecting|listening|thinking|speaking
+  const [turns, setTurns] = useState([]);
+  const [tool, setTool] = useState(null);
+  const [error, setError] = useState("");
+  const endRef = useRef(null);
+  const ws = useRef(null);
+  const mic = useRef(null);          // {ctx, stream, node, source}
+  const out = useRef(null);          // {ctx, playAt, queued}
+  const pending = useRef(null);      // {rate, chunks[]} being received
+  const { t } = U;
+
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [turns, tool]);
+  useEffect(() => () => stop(), []);   // always release the microphone
+
+  const say = (role, text) => setTurns(prev => {
+    // The engine sends the reply sentence by sentence as it is spoken;
+    // append to the open agent turn rather than making a bubble per sentence.
+    if (role === "assistant" && prev.length && prev[prev.length - 1].role === "assistant") {
+      const copy = prev.slice();
+      copy[copy.length - 1] = { ...copy[copy.length - 1], text: copy[copy.length - 1].text + " " + text };
+      return copy;
+    }
+    return [...prev, { role, text }];
+  });
+
+  /* ---- playback: queue each chunk after the previous one ends ---- */
+  function playPcm(pcm, rate) {
+    const ctx = out.current?.ctx;
+    if (!ctx) return;
+    const view = new DataView(pcm.buffer, pcm.byteOffset, pcm.byteLength);
+    const samples = pcm.byteLength / 2;
+    const buf = ctx.createBuffer(1, samples, rate);
+    const channel = buf.getChannelData(0);
+    for (let i = 0; i < samples; i++) channel[i] = view.getInt16(i * 2, true) / 32768;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    const at = Math.max(ctx.currentTime, out.current.playAt);
+    src.start(at);
+    out.current.playAt = at + buf.duration;
+    // Held so a barge-in can stop them. Chunks are scheduled several
+    // seconds ahead, so without this the agent keeps talking over someone
+    // who has already interrupted it — and the microphone keeps hearing it.
+    out.current.queued.push(src);
+  }
+
+  /* Stop everything scheduled but not yet heard. The engine sends `flush`
+     when it decides the visitor has interrupted; the phone transport does
+     the same thing to its RTP playout buffer. */
+  function flushPlayback() {
+    if (!out.current) return;
+    for (const src of out.current.queued) {
+      try { src.stop(); } catch (e) { /* already finished */ }
+    }
+    out.current.queued = [];
+    out.current.playAt = 0;
+    pending.current = null;
+  }
+
+  async function start() {
+    setError(""); setTurns([]); setTool(null); setState("connecting");
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          channelCount: 1,
+          // Ask for everything the browser has. Its echo canceller is the
+          // first line of defence against the microphone hearing the
+          // agent's own reply — the engine's level gate is the second,
+          // because this one only cancels what the browser knows it is
+          // rendering, and never what leaks acoustically from a speaker.
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+    } catch (e) {
+      setError(t("voiceMicDenied")); setState("idle"); return;
+    }
+    let sessionId;
+    try {
+      const r = await fetch(A.VOICE_BASE + "/voice/session", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      if (!r.ok) throw new Error(r.status);
+      sessionId = (await r.json()).session_id;
+    } catch (e) {
+      stream.getTracks().forEach(tr => tr.stop());
+      setError(t("voiceEngineDown")); setState("idle"); return;
+    }
+
+    // 16 kHz in — the rate the STT server wants, so nothing resamples twice.
+    const ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+    const source = ctx.createMediaStreamSource(stream);
+    const node = ctx.createScriptProcessor(2048, 1, 1);
+    const playCtx = new (window.AudioContext || window.webkitAudioContext)();
+    out.current = { ctx: playCtx, playAt: 0, queued: [] };
+
+    const url = A.VOICE_BASE.replace(/^http/, "ws") + "/voice/ws/" + sessionId;
+    const socket = new WebSocket(url);
+    socket.binaryType = "arraybuffer";
+    ws.current = socket;
+
+    socket.onopen = () => {
+      node.onaudioprocess = (ev) => {
+        if (socket.readyState !== WebSocket.OPEN) return;
+        const input = ev.inputBuffer.getChannelData(0);
+        const pcm = new Int16Array(input.length);
+        for (let i = 0; i < input.length; i++) {
+          const v = Math.max(-1, Math.min(1, input[i]));
+          pcm[i] = v < 0 ? v * 0x8000 : v * 0x7fff;
+        }
+        socket.send(pcm.buffer);
+      };
+      source.connect(node);
+      node.connect(ctx.destination);   // Safari will not run the node otherwise
+    };
+
+    socket.onmessage = (ev) => {
+      if (typeof ev.data !== "string") {
+        if (pending.current) playPcm(new Uint8Array(ev.data), pending.current.rate);
+        return;
+      }
+      let msg; try { msg = JSON.parse(ev.data); } catch { return; }
+      if (msg.type === "state") setState(msg.value);
+      else if (msg.type === "text") say(msg.role, msg.text);
+      else if (msg.type === "tool") setTool(msg.name);
+      else if (msg.type === "audio") pending.current = { rate: msg.rate };
+      else if (msg.type === "audio_end") pending.current = null;
+      else if (msg.type === "flush") flushPlayback();
+      else if (msg.type === "reset") setTurns(prev =>
+        prev.length && prev[prev.length - 1].role === "assistant" ? prev.slice(0, -1) : prev);
+      else if (msg.type === "error") setError(msg.text || "");
+    };
+    socket.onerror = () => setError(t("voiceEngineDown"));
+    socket.onclose = () => { if (mic.current) stop(); };
+
+    mic.current = { ctx, stream, node, source };
+    setState("listening");
+  }
+
+  function stop() {
+    try { ws.current?.readyState === WebSocket.OPEN && ws.current.send(JSON.stringify({ type: "stop" })); } catch (e) { /* closing anyway */ }
+    try { ws.current?.close(); } catch (e) { /* already gone */ }
+    ws.current = null;
+    if (mic.current) {
+      const { ctx, stream, node, source } = mic.current;
+      try { node.onaudioprocess = null; source.disconnect(); node.disconnect(); } catch (e) { /* torn down */ }
+      stream.getTracks().forEach(tr => tr.stop());   // drops the browser's mic indicator
+      try { ctx.close(); } catch (e) { /* already closed */ }
+      mic.current = null;
+    }
+    if (out.current) { try { out.current.ctx.close(); } catch (e) { /* already closed */ } out.current = null; }
+    pending.current = null;
+    setState("idle"); setTool(null);
+  }
+
+  /* The agent keys a conversation on the phone number, so a browser test
+     inherits whatever that number said on WhatsApp or on a call before —
+     across days. That continuity is a real feature on a phone line, and a
+     trap on a test page: an exchange that went wrong yesterday keeps
+     steering today's, and there was no way to clear it from here. */
+  async function resetConversation() {
+    setTurns([]); setTool(null); setError("");
+    try {
+      // The backend proxies /agent/* through to :8002, same as the chat test.
+      await A.post(`/agent/session/${encodeURIComponent(phone)}/reset`, {});
+    } catch (e) {
+      setError(t("voiceResetFailed"));
+    }
+  }
+
+  const live = state !== "idle";
+  const tone = { listening: "green", thinking: "amber", speaking: "sky", connecting: "slate" }[state] || "slate";
+
+  return (
+    <div className="space-y-4">
+      <PageHead
+        title={t("voiceTestTitle")}
+        sub={t("voiceTestSub")}
+        right={
+          <Button variant="outline" onClick={resetConversation} disabled={live}>
+            <Icon d={I.x} className="w-4 h-4" /> {t("voiceReset")}
+          </Button>
+        }
+      />
+
+      <Card className="p-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="text-[13px] font-medium text-ink whitespace-nowrap">
+            {t("callerNumber")}
+          </label>
+          <Input value={phone} onChange={e => setPhone(e.target.value)}
+                 disabled={live} dir="ltr" className="flex-1 max-w-xs" />
+          {live ? (
+            <Button onClick={stop} variant="danger">{t("voiceHangUp")}</Button>
+          ) : (
+            <Button onClick={start}>{t("voiceStart")}</Button>
+          )}
+          <Badge tone={tone} dot>{t("voiceState_" + state) || state}</Badge>
+          {tool && <Badge tone="slate">{tool}</Badge>}
+        </div>
+        {error && <p className="mt-3 text-[12.5px] text-rose-600">{error}</p>}
+        <p className="mt-3 text-[12px] text-ink-muted">{t("voiceHint")}</p>
+      </Card>
+
+      <Card className="flex flex-col" style={{ height: "460px" }}>
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {turns.length === 0 && (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <div className="p-3 rounded-xl bg-line-soft text-ink-soft mb-3">
+                <Icon d={I.spark} className="w-5 h-5" />
+              </div>
+              <p className="text-[14px] font-medium text-ink">{t("voiceEmpty")}</p>
+              <p className="text-[12.5px] text-ink-muted mt-1">{t("voiceEmptySub")}</p>
+            </div>
+          )}
+          {turns.map((turn, i) => (
+            <div key={i} className={cx("flex", turn.role === "user" ? "justify-end" : "justify-start")}>
+              <div className={cx("max-w-[80%] rounded-2xl px-4 py-2.5",
+                turn.role === "user"
+                  ? "bg-brand-600 text-white rounded-br-md"
+                  : "bg-white border border-line text-ink rounded-bl-md shadow-card")}>
+                <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{turn.text}</p>
+              </div>
+            </div>
+          ))}
+          <div ref={endRef} />
+        </div>
+      </Card>
+    </div>
+  );
+}
+
 window.PAGES = { Dashboard, KanbanPage, TicketsPage, TicketSheet, BeneficiariesPage,
   BeneficiarySheet, RequestsPage, CommitteePage, FinancePage, ChannelsPage, ProgramsPage,
-  AgentTestPage };
+  AgentTestPage, VoiceTestPage };

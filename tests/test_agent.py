@@ -115,10 +115,23 @@ def test_prompt_forbids_unverified_confirmations():
 
 
 def test_every_declared_tool_has_a_handler():
-    from agent.tools import TOOLS_OPENAI, TOOL_HANDLERS
+    """Every tool the model can see, on any channel, must be executable."""
+    from agent.tools import VOICE_TOOLS_OPENAI, TOOL_HANDLERS
 
-    declared = {t["function"]["name"] for t in TOOLS_OPENAI}
+    declared = {t["function"]["name"] for t in VOICE_TOOLS_OPENAI}
     assert declared == set(TOOL_HANDLERS), "declared tools and handlers disagree"
+
+
+def test_call_control_tools_are_voice_only():
+    """A model that can see end_call on WhatsApp will eventually call it."""
+    from agent.tools import TOOLS_OPENAI, VOICE_ACTION_TOOLS, tools_for
+
+    whatsapp = {t["function"]["name"] for t in TOOLS_OPENAI}
+    voice = {t["function"]["name"] for t in tools_for("voice")}
+    for name in VOICE_ACTION_TOOLS:
+        assert name not in whatsapp, f"{name} must not be offered on WhatsApp"
+        assert name in voice, f"{name} must be offered on a call"
+    assert whatsapp < voice, "voice should be a superset of the text tools"
 
 
 def test_unknown_tool_returns_an_error_not_an_exception():
@@ -164,7 +177,7 @@ def _events(response):
 def test_chat_streams_sse_by_default(agent_client, monkeypatch):
     client, agent_main = agent_client
 
-    def fake_stream(phone, text):
+    def fake_stream(phone, text, **kw):
         yield ("text", "وعليكم ")
         yield ("text", "السلام")
         yield ("done", "وعليكم السلام")
@@ -185,7 +198,7 @@ def test_chat_emits_tool_and_reset_events(agent_client, monkeypatch):
     console shows the model's throat-clearing as if it were the answer."""
     client, agent_main = agent_client
 
-    def fake_stream(phone, text):
+    def fake_stream(phone, text, **kw):
         yield ("text", "دعني أتحقق")
         yield ("reset", None)
         yield ("tool", "check_phone")
@@ -204,7 +217,8 @@ def test_chat_emits_tool_and_reset_events(agent_client, monkeypatch):
 def test_chat_stream_false_returns_the_original_json(agent_client, monkeypatch):
     """Scripts and the WhatsApp path still need one blocking response."""
     client, agent_main = agent_client
-    monkeypatch.setattr(agent_main.agent, "handle_message", lambda p, t: "رد كامل")
+    monkeypatch.setattr(agent_main.agent, "handle_message",
+                        lambda p, t, **kw: "رد كامل")
 
     r = client.post("/agent/chat?stream=false",
                     json={"from_number": "966500000012", "text_ar": "مرحبا"})
@@ -215,7 +229,7 @@ def test_chat_stream_false_returns_the_original_json(agent_client, monkeypatch):
 def test_chat_stream_reports_errors_as_an_event(agent_client, monkeypatch):
     client, agent_main = agent_client
 
-    def boom(phone, text):
+    def boom(phone, text, **kw):
         yield ("text", "…")
         raise RuntimeError("llm exploded")
 

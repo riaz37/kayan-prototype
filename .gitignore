@@ -69,6 +69,12 @@ whatsapp-bridge/**/whatsapp_qr.png
 data/*.db
 data/*.db-shm
 data/*.db-wal
+# Voice engine output. Call logs carry beneficiary phone numbers and full
+# Arabic transcripts, and the recordings are the calls themselves — the same
+# class of data as sessions.db, which was committed once already.
+data/voice.log
+data/calls/
+*.wav
 
 # MCP config (may contain local/secret settings)
 .mcp.json

@@ -34,7 +34,11 @@ class Settings(BaseSettings):
     llm_top_p: float = 0.95
     llm_top_k: int = 20
     llm_max_tokens: int = 1024
-    llm_timeout_seconds: float = 60.0
+    # Must stay BELOW the voice engine's agent_timeout_seconds (45s):
+    # whoever gives up first decides what the caller hears. If the
+    # engine times out first it walks away from a request that is
+    # still generating, and the model stays busy serving nobody.
+    llm_timeout_seconds: float = 40.0
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 

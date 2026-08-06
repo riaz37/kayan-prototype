@@ -23,6 +23,9 @@ for (const f of ["ui.js","pages.js","app.js"]) {
 }
 console.log("  wrapped 3 bundles");
 '
+echo "checking pages render..."
+node render_check.js
+
 echo "building CSS..."
 npx tailwindcss -i src.css -o dist/app.css --minify 2>/dev/null
 echo "done -> dist/"

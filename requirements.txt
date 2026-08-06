@@ -2,3 +2,17 @@ fastapi>=0.110
 uvicorn[standard]>=0.27
 pydantic>=2.5
 httpx>=0.27
+pydantic-settings>=2.0
+
+# ---- voice / SIP engine (voice/)
+# pyVoIP is pinned: voice/transport/rtp_patch.py replaces internals of this
+# exact version, and voice/sip_dialog.py works around bugs it still has.
+pyVoIP==1.6.8
+# Used for the anti-alias filter before downsampling to the phone band.
+# Optional at runtime (the filter is skipped without it), required for
+# audio that does not alias.
+numpy>=1.26
+openai>=1.40
+# Note: the engine uses the stdlib `audioop`, removed in Python 3.13.
+# On 3.13+ add: audioop-lts
+

@@ -6,6 +6,7 @@ OpenAI function calling schema (for vLLM/Qwen). Handlers make HTTP calls to the 
 from typing import Optional
 import time
 import httpx
+from agent import callctx
 from agent.config import settings
 
 BACKEND = settings.backend_url
@@ -15,35 +16,75 @@ _faq_cache = {}
 _FAQ_CACHE_TTL = 3600  # 1 hour
 
 
+def _result(resp) -> dict:
+    """The tool result the model sees, error responses included.
+
+    FastAPI wraps a refusal as ``{"detail": …}``, and returning that
+    verbatim hid two things at once: the model had to know to look inside
+    `detail` for the Arabic explanation, and `llm.py` — which decides a
+    tool worked by testing for an "error" key — counted every 409 as a
+    success. So a business rule that refused ("الحد الاعلى لهذا الطلب…")
+    streamed to the caller as `tool_result ok=true`.
+
+    Errors are flattened to a dict that always carries `error`, and
+    `reply_ar` when the endpoint provided one to read out.
+    """
+    try:
+        data = resp.json()
+    except ValueError:
+        data = {}
+    if resp.status_code < 400:
+        return data if isinstance(data, dict) else {"result": data}
+    detail = data.get("detail") if isinstance(data, dict) else None
+    if isinstance(detail, dict):
+        # Structured refusal: {"error": …, "reply_ar": …}
+        return {"error": detail.get("error", f"http_{resp.status_code}"),
+                "status": resp.status_code, **detail}
+    return {"error": str(detail or data or resp.status_code),
+            "status": resp.status_code,
+            **({"reply_ar": detail} if isinstance(detail, str)
+               and any("؀" <= c <= "ۿ" for c in detail) else {})}
+
+
 def _get(path: str, params: Optional[dict] = None) -> dict:
-    resp = httpx.get(f"{BACKEND}{path}", params=params, timeout=30)
-    return resp.json()
+    return _result(httpx.get(f"{BACKEND}{path}", params=params, timeout=30))
 
 
 def _post(path: str, body: Optional[dict] = None) -> dict:
-    resp = httpx.post(f"{BACKEND}{path}", json=body or {}, timeout=30)
-    return resp.json()
+    return _result(httpx.post(f"{BACKEND}{path}", json=body or {}, timeout=30))
 
 
 def _patch(path: str, body: Optional[dict] = None) -> dict:
-    resp = httpx.patch(f"{BACKEND}{path}", json=body or {}, timeout=30)
-    return resp.json()
+    return _result(httpx.patch(f"{BACKEND}{path}", json=body or {}, timeout=30))
 
 
 # ============================================================ Tool Handlers
 
-def handle_check_phone(phone: str) -> dict:
-    return _post("/registration/check-phone", {"phone": phone})
+def handle_check_phone(phone: str = "") -> dict:
+    return _post("/registration/check-phone", {"phone": _phone_or_caller(phone)})
 
 
 def handle_check_eligibility(orphan_category_id: str) -> dict:
     return _post("/registration/check-eligibility", {"orphan_category_id": orphan_category_id})
 
 
-def handle_create_file(phone: str, case_type: str, orphan_category_id: str,
-                       full_name_ar: str, city: str) -> dict:
+def _phone_or_caller(phone: str = "") -> str:
+    """The number to act on: what the model supplied, or the caller's own.
+
+    The line already knows who is ringing. When the model omits the
+    argument — which it should, on a call — this fills in the ANI instead
+    of sending the backend an empty string. It deliberately does NOT
+    override a number the model did supply: a caller may be registering a
+    different number from the handset they are calling on, and silently
+    substituting the ANI would file them under the wrong one.
+    """
+    return phone or callctx.phone() or ""
+
+
+def handle_create_file(case_type: str, orphan_category_id: str,
+                       full_name_ar: str, city: str, phone: str = "") -> dict:
     return _post("/beneficiary/create-file", {
-        "phone": phone, "case_type": case_type,
+        "phone": _phone_or_caller(phone), "case_type": case_type,
         "orphan_category_id": orphan_category_id,
         "full_name_ar": full_name_ar, "city": city,
     })
@@ -140,8 +181,11 @@ def handle_search_faqs(q: str) -> dict:
     # Cache miss - fetch from backend
     result = _get("/faqs/search", {"q": q})
 
-    # Store in cache
-    _faq_cache[cache_key] = (now, result)
+    # Store in cache — but never a failure. The TTL is an hour, and caching
+    # one blip meant every caller asking the same question for the next
+    # hour got the error back without the backend being touched again.
+    if "error" not in result:
+        _faq_cache[cache_key] = (now, result)
     return result
 
 
@@ -152,6 +196,7 @@ def handle_create_ticket(subject_ar: str, channel: str, phone: str = "",
         "subject_ar": subject_ar, "channel": channel,
         "department_id": department_id, "priority": priority,
     }
+    phone = _phone_or_caller(phone)
     if phone:
         body["phone"] = phone
     if beneficiary_id:
@@ -174,6 +219,41 @@ def handle_cancel_flow() -> dict:
     return {"cancelled": True,
             "reply_ar": "تم الإلغاء. كيف أقدر أساعدك في شيء ثاني؟"}
 
+
+# ============================================================ Voice-only tools
+# Offered to the model only on a phone call (VOICE_TOOLS_OPENAI). Both act
+# on the live SIP call, so they read its id from agent.callctx rather than
+# taking it as a parameter the model would eventually hallucinate.
+#
+# The engine watches the tool *names* go past in the SSE stream and acts on
+# them once the agent's closing words have finished playing out. The
+# handlers here do the database half; the engine does the telephony half.
+
+def handle_transfer_to_human(reason_ar: str,
+                             department_id: str = "DEP-BEN") -> dict:
+    """Escalate a live call: create a ticket carrying the call context."""
+    cid = callctx.call_id()
+    if not cid:
+        # Reachable if the model calls this from WhatsApp, where there is
+        # no call to transfer. Say so plainly rather than half-doing it.
+        return {"error": "no_active_call",
+                "reply_ar": "التحويل متاح فقط اثناء المكالمة الهاتفية."}
+    return _post(f"/voice/transfer/{cid}",
+                 {"reason_ar": reason_ar, "department_id": department_id})
+
+
+def handle_end_call(reason_ar: str = "") -> dict:
+    """Signal that the call should end after the agent's closing words.
+
+    The hangup itself belongs to the engine — it has to wait for the
+    goodbye to finish playing out, and has to survive the caller cutting in
+    with "wait, one more thing". All this does is record the intent.
+    """
+    if not callctx.call_id():
+        return {"error": "no_active_call",
+                "reply_ar": "انهاء المكالمة متاح فقط اثناء المكالمة."}
+    return {"ending": True, "reason_ar": reason_ar,
+            "reply_ar": "تم. شكرا لتواصلكم مع جمعية كيان للايتام."}
 
 
 # ============================================================ Tool Router
@@ -201,7 +281,13 @@ TOOL_HANDLERS = {
     "get_beneficiary_history": lambda **kw: handle_get_beneficiary_history(**kw),
     "list_programs": lambda **kw: handle_list_programs(**kw),
     "cancel_flow": lambda **kw: handle_cancel_flow(**kw),
+    "transfer_to_human": lambda **kw: handle_transfer_to_human(**kw),
+    "end_call": lambda **kw: handle_end_call(**kw),
 }
+
+# Names the voice engine acts on when it sees them stream past. Kept next
+# to the handlers so adding a third call-control tool cannot forget one.
+VOICE_ACTION_TOOLS = ("transfer_to_human", "end_call")
 
 
 def execute_tool(name: str, args: dict) -> dict:
@@ -222,13 +308,18 @@ TOOLS_OPENAI = [
         "type": "function",
         "function": {
             "name": "check_phone",
-            "description": "Check if a phone number is already registered in the system. Use this first when a new user contacts us.",
+            "description": (
+                "Check if a phone number is already registered in the system. Use this first when a "
+                "new user contacts us. Leave `phone` out to check the number this conversation is "
+                "coming from — on a phone call that is the caller's own number and you already have "
+                "it, so do NOT ask them to read it out. Returns valid=false with digits_heard when "
+                "the number given is too short to dial."),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "phone": {"type": "string", "description": "Phone number (e.g. 0501234567)"},
+                    "phone": {"type": "string", "description": "Phone number (e.g. 0501234567). Omit to use the number the caller is calling from."},
                 },
-                "required": ["phone"],
+                "required": [],
             },
         },
     },
@@ -253,17 +344,21 @@ TOOLS_OPENAI = [
         "type": "function",
         "function": {
             "name": "create_file",
-            "description": "Create a new beneficiary file. Use after verifying identity and eligibility.",
+            "description": (
+                "Create a new beneficiary file. Use after verifying identity and eligibility. "
+                "Leave `phone` out to file the caller under the number they are calling from — "
+                "only pass it when they explicitly asked to register a DIFFERENT number. A number "
+                "with fewer than 7 digits is refused, so never send a partial one."),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "phone": {"type": "string", "description": "Phone number"},
+                    "phone": {"type": "string", "description": "Phone number. Omit to use the caller's own number."},
                     "case_type": {"type": "string", "description": "CT-IND for independent, CT-FOSTER for foster family"},
                     "orphan_category_id": {"type": "string", "description": "Orphan category ID"},
                     "full_name_ar": {"type": "string", "description": "Full Arabic name (رباعي)"},
                     "city": {"type": "string", "description": "City name"},
                 },
-                "required": ["phone", "case_type", "orphan_category_id", "full_name_ar", "city"],
+                "required": ["case_type", "orphan_category_id", "full_name_ar", "city"],
             },
         },
     },
@@ -570,3 +665,72 @@ TOOLS_OPENAI = [
         },
     },
 ]
+
+
+# ============================================================ Voice tool schemas
+# Only offered on a phone call. Deliberately absent on WhatsApp: a model
+# that can see "end_call" will eventually call it on a text conversation,
+# where it means nothing.
+
+VOICE_ONLY_TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "transfer_to_human",
+            "description": (
+                "Transfer this phone call to a human member of staff. Use when the caller "
+                "explicitly asks for a person, when they are distressed, when the matter is a "
+                "complaint, or when you have tried and cannot help. Say one short sentence "
+                "telling them you are connecting them BEFORE calling this — the call is "
+                "transferred as soon as you stop speaking. Do not call this and ask a question "
+                "in the same reply."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "reason_ar": {
+                        "type": "string",
+                        "description": "Why the call is being escalated, in Arabic. The staff "
+                                       "member sees this as the ticket subject.",
+                    },
+                    "department_id": {
+                        "type": "string",
+                        "description": "Department to route to: DEP-BEN (beneficiary services, "
+                                       "the default), DEP-FIN (finance/payments), "
+                                       "DEP-KAF (sponsorship).",
+                    },
+                },
+                "required": ["reason_ar"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "end_call",
+            "description": (
+                "Hang up the phone call. Use ONLY when the caller has said goodbye or clearly "
+                "has nothing further. Say your closing line BEFORE calling this — the call ends "
+                "as soon as you stop speaking. Never call this while a question is unanswered."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "reason_ar": {
+                        "type": "string",
+                        "description": "Short note in Arabic on how the call ended, for the log.",
+                    },
+                },
+            },
+        },
+    },
+]
+
+# What the model sees on a phone call: everything WhatsApp has, plus call
+# control.
+VOICE_TOOLS_OPENAI = TOOLS_OPENAI + VOICE_ONLY_TOOLS
+
+
+def tools_for(channel: str) -> list:
+    """The tool schemas offered on a given channel."""
+    return VOICE_TOOLS_OPENAI if channel == "voice" else TOOLS_OPENAI

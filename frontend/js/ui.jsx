@@ -316,6 +316,25 @@ function resolveApiBase() {
 }
 
 const API_BASE = resolveApiBase();
+
+/* The voice engine is a separate process on :8004 (the browser talks to it
+   directly over a WebSocket — audio never goes through the backend).
+   Same resolution order as the API base: ?voice= wins and is remembered,
+   otherwise it is assumed to sit beside the backend. */
+function resolveVoiceBase() {
+  const param = new URLSearchParams(window.location.search).get("voice");
+  if (param) {
+    try { localStorage.setItem("kayan-voice-base", param); } catch (e) { /* private mode */ }
+    return param.replace(/\/$/, "");
+  }
+  let stored = null;
+  try { stored = localStorage.getItem("kayan-voice-base"); } catch (e) { /* private mode */ }
+  if (stored) return stored.replace(/\/$/, "");
+  if (window.KAYAN_VOICE_BASE) return String(window.KAYAN_VOICE_BASE).replace(/\/$/, "");
+  return API_BASE.replace(/:8001$/, ":8004");
+}
+
+const VOICE_BASE = resolveVoiceBase();
 let SNAP = null;
 
 async function loadSnapshot() {
@@ -437,6 +456,24 @@ const TRANSLATIONS = {
     channels: "قنوات الوكلاء",
     agentGroup: "الوكيل",
     agentTest: "اختبار الوكيل",
+    voiceTest: "اختبار المكالمة",
+    voiceTestTitle: "اختبار المكالمة الصوتية",
+    voiceTestSub: "تحدث مع نفس الوكيل الذي يرد على الهاتف، من المتصفح مباشرة",
+    voiceReset: "محادثة جديدة",
+    voiceResetFailed: "تعذر مسح المحادثة السابقة",
+    callerNumber: "رقم المتصل",
+    voiceStart: "ابدأ المكالمة",
+    voiceHangUp: "انه المكالمة",
+    voiceHint: "استخدم رقم مستفيد مسجل ليتعرف عليك الوكيل. تحدث بشكل طبيعي، ويمكنك مقاطعته.",
+    voiceEmpty: "لا توجد مكالمة نشطة",
+    voiceEmptySub: "اضغط ابدأ المكالمة وتحدث بالعربية",
+    voiceMicDenied: "تعذر الوصول الى الميكروفون. يرجى السماح بالوصول من اعدادات المتصفح.",
+    voiceEngineDown: "تعذر الاتصال بخدمة الصوت. تاكد من تشغيلها على المنفذ 8004.",
+    voiceState_idle: "غير متصل",
+    voiceState_connecting: "جاري الاتصال",
+    voiceState_listening: "يستمع",
+    voiceState_thinking: "يفكر",
+    voiceState_speaking: "يتحدث",
     // Topbar
     search: "ابحث عن مستفيد، تذكرة، أو طلب…",
     connected: "متصل بالنظام",
@@ -493,6 +530,24 @@ const TRANSLATIONS = {
     channels: "Channels",
     agentGroup: "Agent",
     agentTest: "Agent Test",
+    voiceTest: "Voice Test",
+    voiceTestTitle: "Voice call test",
+    voiceTestSub: "Talk to the same agent that answers the phone, from the browser",
+    voiceReset: "New conversation",
+    voiceResetFailed: "Could not clear the previous conversation",
+    callerNumber: "Caller number",
+    voiceStart: "Start call",
+    voiceHangUp: "Hang up",
+    voiceHint: "Use a registered beneficiary's number so the agent identifies you. Speak naturally — you can interrupt it.",
+    voiceEmpty: "No active call",
+    voiceEmptySub: "Press Start call and speak in Arabic",
+    voiceMicDenied: "Could not access the microphone. Allow access in your browser settings.",
+    voiceEngineDown: "Could not reach the voice engine. Check it is running on port 8004.",
+    voiceState_idle: "Idle",
+    voiceState_connecting: "Connecting",
+    voiceState_listening: "Listening",
+    voiceState_thinking: "Thinking",
+    voiceState_speaking: "Speaking",
     // Topbar
     search: "Search beneficiary, ticket, or request…",
     connected: "Connected",
@@ -564,4 +619,4 @@ function t(key) {
 window.UI = { cx, nf, money, num, dateAr, timeAgo, Icon, I, Card, CardHead, Button, Badge, TONE,
   STATUS_TONE, FILE_STATUS_AR, STAGE_AR, Input, Select, Progress, Ring, Avatar, Stat, Table, Td,
   Tabs, Sheet, Modal, Empty, Skeleton, Field, t, useLang, setLang, getLang };
-window.API = { get, post, patch, postStream, useApi, loadSnapshot, API_BASE };
+window.API = { get, post, patch, postStream, useApi, loadSnapshot, API_BASE, VOICE_BASE };

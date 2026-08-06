@@ -52,6 +52,21 @@ def _is_duplicate(message_id: str) -> bool:
 class ChatRequest(BaseModel):
     from_number: str
     text_ar: str
+    # "whatsapp" (default) or "voice". Selects the system prompt and the
+    # tool list — a phone call also gets transfer_to_human / end_call.
+    channel: str = "whatsapp"
+    # The live SIP call this turn belongs to, when channel == "voice".
+    call_id: Optional[str] = None
+    # Pre-loaded beneficiary context. The voice engine already fetched it
+    # from POST /voice/call-start, and passing it here keeps the agent from
+    # falling back to _load_context — which posts to /whatsapp/inbound and
+    # would open a 24-hour WhatsApp window for someone who only phoned.
+    context: Optional[dict] = None
+    # Out-of-band facts for this turn only: something happened on the
+    # channel that the agent could not know (a transfer that failed, a line
+    # the engine spoke on its behalf). Goes in the system prompt, never in
+    # the message history — it is not something the user said.
+    system_note: Optional[str] = None
 
 
 class ChatResponse(BaseModel):
@@ -267,21 +282,35 @@ async def agent_chat(req: ChatRequest, stream: bool = True):
     SSE events, one JSON object per `data:` line:
         {"type":"delta","text":"…"}   append to the visible reply
         {"type":"tool","name":"…"}    a tool started running
+        {"type":"tool_result","name":"…","ok":bool}  …and whether it worked
         {"type":"reset"}              discard what is shown; it was preamble
         {"type":"done","reply":"…","context":{…},"known_beneficiary":bool}
         {"type":"error","message":"…"}
     """
     phone = req.from_number
     text = req.text_ar
-    logger.info(f"Agent chat from {phone}: {text[:100]}")
+    channel = req.channel or "whatsapp"
+    logger.info(f"Agent chat [{channel}] from {phone}: {text[:100]}")
 
-    # Load context if first message
-    if not get_session(phone).get("context"):
-        _load_context(phone, text)
+    if req.context is not None:
+        # The caller already knows who this is (voice: from /voice/call-start).
+        set_context(phone, req.context)
+    elif not get_session(phone).get("context"):
+        # Load context if first message. Only the WhatsApp path may do this:
+        # _load_context opens a WhatsApp session window, which is a lie about
+        # a channel the beneficiary never used.
+        if channel == "voice":
+            logger.warning(
+                f"Voice turn for {phone} with no context supplied — "
+                "continuing without it rather than opening a WhatsApp window")
+        else:
+            _load_context(phone, text)
 
     if not stream:
         try:
-            reply = agent.handle_message(phone, text)
+            reply = agent.handle_message(phone, text, channel=channel,
+                                         call_id=req.call_id,
+                                         system_note=req.system_note)
         except Exception as e:
             logger.error(f"Agent error: {e}")
             reply = _error_reply(text)
@@ -295,11 +324,15 @@ async def agent_chat(req: ChatRequest, stream: bool = True):
     def event_stream():
         final = ""
         try:
-            for kind, value in agent.handle_message_stream(phone, text):
+            for kind, value in agent.handle_message_stream(
+                    phone, text, channel=channel, call_id=req.call_id,
+                    system_note=req.system_note):
                 if kind == "text":
                     yield sse({"type": "delta", "text": value})
                 elif kind == "tool":
                     yield sse({"type": "tool", "name": value})
+                elif kind == "tool_result":
+                    yield sse({"type": "tool_result", **value})
                 elif kind == "reset":
                     yield sse({"type": "reset"})
                 elif kind == "done":

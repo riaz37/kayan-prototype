@@ -24,6 +24,7 @@ function getNav() {
     ]},
     { group: t("agentGroup"), items: [
       { id: "agent-test",    label: t("agentTest"),    icon: I.spark },
+      { id: "voice-test",    label: t("voiceTest"),    icon: I.phone || I.spark },
     ]},
   ];
 }
@@ -159,6 +160,7 @@ function App() {
     programs: () => <P.ProgramsPage />,
     channels: () => <P.ChannelsPage />,
     "agent-test": () => <P.AgentTestPage />,
+    "voice-test": () => <P.VoiceTestPage />,
   }[page] || (() => <P.Dashboard go={go} />);
 
   return (
