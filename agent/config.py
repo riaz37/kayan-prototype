@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 
     llm_api_key: str = ""
     llm_base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai"
-    llm_model: str = "gemini-2.0-flash"
+    llm_model: str = "gemini-3.5-flash-lite"
     llm_fallback_model: str = "qwen"
     llm_fallback_base_url: str = "https://llm.arahim.dev"
 
