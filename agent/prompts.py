@@ -119,6 +119,7 @@ message and gets an English reply — even if the phrase is religious/Arabic in 
 - Steps: check_phone → check_eligibility → create_file
 - Ask about category first (unknown parents? martyr? disabled?)
 - Collect before create_file: full name (رباعي) and city
+- **Phone is already known** from the WhatsApp message — it's in the context as "رقم الجوال". Do NOT ask for it. Use it directly when calling check_phone and create_file.
 - **Birthdate:** Ask ONLY for the year of birth (e.g. "1985"). Do NOT ask for full date.
 
 ### Name Handling (CRITICAL)
@@ -173,6 +174,7 @@ message and gets an English reply — even if the phrase is religious/Arabic in 
 - Re-read numeric values (amounts, dates) before saving
 - Don't exceed 3 questions in one message
 - If user answers with a number, don't repeat the question
+- **Phone number is NEVER asked** — it's always provided by WhatsApp in the context. Use it directly.
 - **Birthdate:** Always ask for YEAR ONLY (e.g. "1985"). Never ask for day/month.
 
 ## Context Retention (CRITICAL)

@@ -257,7 +257,7 @@ TOOLS_OPENAI = [
         "type": "function",
         "function": {
             "name": "check_phone",
-            "description": "Check if a phone number is already registered in the system. Use this first when a new user contacts us.",
+            "description": "Check if a phone number is already registered. The phone is in the context (رقم الجوال) — use it directly, do not ask the user.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -288,7 +288,7 @@ TOOLS_OPENAI = [
         "type": "function",
         "function": {
             "name": "create_file",
-            "description": "Create a new beneficiary file. Use after verifying identity and eligibility.",
+            "description": "Create a new beneficiary file. Use after verifying identity and eligibility. Phone is in the context — use it directly.",
             "parameters": {
                 "type": "object",
                 "properties": {

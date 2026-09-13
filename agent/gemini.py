@@ -525,6 +525,7 @@ def _build_context_message(phone: str, context: Optional[dict]) -> str:
         ctx_parts = [
             f"سياق المحادثة: متصل جديد (غير مسجل في النظام). رقم الجوال: {phone}.",
             "ابدأ بالترحيب واسأل عن أهدافه.",
+            "لا تسأل عن رقم الجوال — هو معك في السياق. استخدمه مباشرة في check_phone و create_file.",
             f"عند إنشاء تذكرة استخدم phone={phone}.",
         ]
         if collected:
