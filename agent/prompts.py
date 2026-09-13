@@ -152,11 +152,18 @@ message and gets an English reply — even if the phrase is religious/Arabic in 
 - Create the ticket with the information you have
 - Give them ticket number and SLA
 - Use channel: whatsapp, phone from context
+- After creating, optionally use list_staff + assign_ticket if user requests a specific staff member
 
 ### Distress Signal (Agent 5 - escalation)
 - Any mention of children in danger, severe distress, or emergency
 - Steps: create_ticket with high priority + empathy message IMMEDIATELY
 - Do NOT ask for details first
+
+### Reply to Ticket (Agent 5 - follow-up)
+- When a staff member needs to reply to an existing ticket
+- Use get_ticket first to see the conversation history
+- Use reply_to_ticket to post the reply (sends via WhatsApp by default)
+- The ticket auto-transitions to "waiting_customer" after reply
 
 ---
 

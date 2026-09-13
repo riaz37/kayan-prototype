@@ -182,6 +182,29 @@ def handle_save_collected_info(phone: str, key: str, value: str) -> dict:
     return {"saved": True, "key": key, "value": value}
 
 
+def handle_list_staff() -> dict:
+    """List available staff for ticket assignment."""
+    return _get("/crm/staff")
+
+
+def handle_get_ticket(ticket_id: str) -> dict:
+    """Get full ticket detail including conversation history."""
+    return _get(f"/crm/tickets/{ticket_id}")
+
+
+def handle_assign_ticket(ticket_id: str, staff_id: str) -> dict:
+    """Assign a ticket to a staff member."""
+    return _patch(f"/crm/tickets/{ticket_id}/assign", {"staff_id": staff_id})
+
+
+def handle_reply_to_ticket(ticket_id: str, body_ar: str, send_to_whatsapp: bool = True) -> dict:
+    """Reply on a ticket. Sends via WhatsApp if send_to_whatsapp=True."""
+    return _post(f"/crm/tickets/{ticket_id}/reply", {
+        "body_ar": body_ar,
+        "sender": "agent",
+        "send_to_whatsapp": send_to_whatsapp,
+    })
+
 
 # ============================================================ Tool Router
 
@@ -205,6 +228,10 @@ TOOL_HANDLERS = {
     "add_request_detail": lambda **kw: handle_add_request_detail(**kw),
     "search_faqs": lambda **kw: handle_search_faqs(**kw),
     "create_ticket": lambda **kw: handle_create_ticket(**kw),
+    "list_staff": lambda **kw: handle_list_staff(),
+    "get_ticket": lambda **kw: handle_get_ticket(**kw),
+    "assign_ticket": lambda **kw: handle_assign_ticket(**kw),
+    "reply_to_ticket": lambda **kw: handle_reply_to_ticket(**kw),
     "get_beneficiary_history": lambda **kw: handle_get_beneficiary_history(**kw),
     "list_programs": lambda **kw: handle_list_programs(**kw),
     "cancel_flow": lambda **kw: handle_cancel_flow(),
@@ -538,6 +565,66 @@ TOOLS_OPENAI = [
                     "first_message_ar": {"type": "string", "description": "First message from the user"},
                 },
                 "required": ["subject_ar", "channel"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "list_staff",
+            "description": "List available staff members for ticket assignment. Use before assign_ticket to find the right staff_id.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_ticket",
+            "description": "Get full ticket detail including conversation history, SLA status, and beneficiary info.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticket_id": {"type": "string", "description": "Ticket ID (e.g. TK-2026-0001)"},
+                },
+                "required": ["ticket_id"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "assign_ticket",
+            "description": "Assign a ticket to a staff member. Use list_staff first to get available staff_ids.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticket_id": {"type": "string", "description": "Ticket ID to assign"},
+                    "staff_id": {"type": "string", "description": "Staff member ID (e.g. STF-02)"},
+                },
+                "required": ["ticket_id", "staff_id"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "reply_to_ticket",
+            "description": "Post a reply on a ticket. Sends via WhatsApp to the beneficiary if send_to_whatsapp=True.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticket_id": {"type": "string", "description": "Ticket ID to reply on"},
+                    "body_ar": {"type": "string", "description": "Reply message in Arabic"},
+                    "send_to_whatsapp": {
+                        "type": "boolean",
+                        "description": "If true, sends via WhatsApp to the beneficiary. Default true.",
+                    },
+                },
+                "required": ["ticket_id", "body_ar"],
             },
         },
     },

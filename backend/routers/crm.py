@@ -508,7 +508,7 @@ def call_start(body: CallStartIn):
     b = db.beneficiary_by_phone(p)
     cid = db.next_id("call", "CALL-")
     sess = {"id": cid, "sip_call_id": body.sip_call_id or f"sip-{cid}@kayan.pbx",
-            "direction": body.direction, "from_number": p, "to_number": body.to_number,
+            "direction": body.direction, "phone": p, "from_number": p, "to_number": body.to_number,
             "beneficiary_id": (b or {}).get("id"), "identified": bool(b),
             "language": "ar", "dialect": None, "started_at": db.now_iso(),
             "duration_sec": 0, "outcome": None, "intent": None, "transcript_available": True}
@@ -610,8 +610,8 @@ def _context_for(b):
         "name_ar": b["sections"]["SEC-BASIC"]["full_name_ar"],
         "file_status": b["status"], "completion_pct": comp["completion_pct"],
         "missing_documents": [d["name_ar"] for d in comp["missing_documents"]],
-        "open_requests": [{"id": r["id"], "title_ar": r["title_ar"], "stage": r["stage"]}
-                          for r in reqs if r["stage"] != "decided"],
+        "open_requests": [{"id": r["id"], "title_ar": r.get("title_ar", r.get("description_ar", "")), "stage": r["stage"]}
+                           for r in reqs if r["stage"] != "decided"],
         "decided_requests": len([r for r in reqs if r["stage"] == "decided"]),
         "open_tickets": open_tickets,
         "next_disbursement": nxt,

@@ -223,9 +223,9 @@ def list_sponsorships(beneficiary_id: Optional[str] = Query(None)):
 def list_events(status: Optional[str] = Query(None, examples=["scheduled"])):
     rows = db.events
     if status:
-        rows = [e for e in rows if e["status"] == status]
+        rows = [e for e in rows if e.get("status") == status]
     return {"count": len(rows),
-            "events": [{**e, "program_ar": db.program_name(e["program_id"])} for e in rows]}
+            "events": [{**e, "program_ar": db.program_name(e.get("program_id"))} for e in rows]}
 
 
 class RegisterEventIn(BaseModel):

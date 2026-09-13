@@ -173,9 +173,10 @@ def add_detail(request_id: str, body: AddDetailIn):
     sr = db.get_support_request(request_id)
     if not sr:
         raise HTTPException(404, "Support request not found")
-    sr["case_description_ar"] += f"\n[{db.now_iso()}] {body.additional_detail_ar}"
+    desc = sr.get("case_description_ar") or sr.get("description_ar") or ""
+    sr["description_ar"] = desc + f"\n[{db.now_iso()}] {body.additional_detail_ar}"
     return {"support_request_id": request_id,
-            "case_description_ar": sr["case_description_ar"],
+            "case_description_ar": sr["description_ar"],
             "reply_ar": "شكرا لتوضيحكم، تم اضافة التفاصيل الى الطلب."}
 
 
