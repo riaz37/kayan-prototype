@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     llm_model: str = "qwen/qwen-2.5-72b-instruct"
     llm_fallback_model: str = ""
 
+    embedding_base_url: str = "https://embedd.arahim.dev"
+    embedding_model: str = "qwen3-embedding-0.6b"
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 

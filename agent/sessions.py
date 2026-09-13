@@ -42,10 +42,15 @@ def _init_table():
             current_flow TEXT,
             collected_slots TEXT DEFAULT '{}',
             last_active TEXT,
-            created_at TEXT
+            created_at TEXT,
+            memory_summarized_at TEXT
         )
     """)
     conn.commit()
+    cols = {row[1] for row in conn.execute("PRAGMA table_info(sessions)")}
+    if "memory_summarized_at" not in cols:
+        conn.execute("ALTER TABLE sessions ADD COLUMN memory_summarized_at TEXT")
+        conn.commit()
 
 
 def _now() -> datetime:
@@ -97,6 +102,8 @@ def get_session(phone: str) -> dict:
         }
         # Mark inactive if timeout exceeded, but keep history
         if (_now() - last_active) > SESSION_TIMEOUT:
+            if sess["history"] and row["memory_summarized_at"] != row["last_active"]:
+                _summarize_to_memory(phone, sess["history"], row["last_active"])
             sess["context"] = None
             sess["current_flow"] = None
             sess["collected_slots"] = {}
@@ -119,6 +126,19 @@ def get_session(phone: str) -> dict:
     )
     conn.commit()
     return sess
+
+
+def _summarize_to_memory(phone: str, history: list, last_active_iso: str):
+    """Fire-and-forget: summarize an idle session's history into long-term memory."""
+    from agent import memory
+    import logging
+    try:
+        memory.save_memory(phone, history)
+    except Exception as e:
+        logging.getLogger(__name__).warning(f"Failed to save long-term memory for {phone}: {e}")
+    conn = _get_conn()
+    conn.execute("UPDATE sessions SET memory_summarized_at = ? WHERE phone = ?", (last_active_iso, phone))
+    conn.commit()
 
 
 def _save_session(phone: str, sess: dict):

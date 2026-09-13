@@ -326,6 +326,13 @@ async def agent_session_history(phone: str):
     return {"phone": phone, "history": sess.get("history", [])}
 
 
+@app.get("/agent/memory/{phone}", tags=["agent"])
+async def agent_memory(phone: str):
+    """Get long-term (vector-store) memories saved for a phone."""
+    from agent import memory
+    return {"phone": phone, "memories": memory.list_memories(phone)}
+
+
 @app.post("/agent/session/{phone}/reset", tags=["agent"])
 async def agent_session_reset(phone: str):
     """Reset a session — clears history and context."""

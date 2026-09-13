@@ -15,6 +15,7 @@ from agent.prompts import SYSTEM_PROMPT
 from agent.tools import TOOLS_OPENAI, execute_tool
 from agent import sessions
 from agent import analytics
+from agent import memory
 
 logger = logging.getLogger(__name__)
 
@@ -265,6 +266,16 @@ def handle_message(phone: str, user_text: str) -> str:
     system_msg = SYSTEM_PROMPT
     if context_msg:
         system_msg = SYSTEM_PROMPT + "\n\n---\n\n## Current Context\n" + context_msg
+
+    try:
+        past_memories = memory.search_memories(phone, user_text)
+    except Exception as e:
+        logger.warning(f"Memory search failed: {e}")
+        past_memories = []
+    if past_memories:
+        mem_lines = "\n".join(f"- ({m['created_at'][:10]}) {m['summary']}" for m in past_memories)
+        system_msg += "\n\n---\n\n## Relevant Past Conversations\n" + mem_lines
+
     messages = _convert_history(history, system_msg=system_msg)
 
     # 5. Call LLM with tools (loop for tool calls)
@@ -384,6 +395,16 @@ def handle_message_stream(phone: str, user_text: str):
     system_msg = SYSTEM_PROMPT
     if context_msg:
         system_msg = SYSTEM_PROMPT + "\n\n---\n\n## Current Context\n" + context_msg
+
+    try:
+        past_memories = memory.search_memories(phone, user_text)
+    except Exception as e:
+        logger.warning(f"Memory search failed: {e}")
+        past_memories = []
+    if past_memories:
+        mem_lines = "\n".join(f"- ({m['created_at'][:10]}) {m['summary']}" for m in past_memories)
+        system_msg += "\n\n---\n\n## Relevant Past Conversations\n" + mem_lines
+
     messages = _convert_history(history, system_msg=system_msg)
 
     # 5. Call LLM with tools (loop for tool calls)
