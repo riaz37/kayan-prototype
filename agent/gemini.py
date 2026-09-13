@@ -16,6 +16,7 @@ from agent.tools import TOOLS_OPENAI, execute_tool
 from agent import sessions
 from agent import analytics
 from agent import memory
+from agent.intent_router import classify
 
 logger = logging.getLogger(__name__)
 
@@ -260,6 +261,15 @@ def handle_message(phone: str, user_text: str) -> str:
     # 3. Build context injection
     context = sessions.get_context(phone)
     context_msg = _build_context_message(phone, context)
+
+    # 3b. Intent routing — deterministic classification before LLM
+    intent = classify(user_text)
+    if intent.forced_context:
+        logger.info(f"Intent routed: {intent.name} (confidence={intent.confidence})")
+        if context_msg:
+            context_msg += f"\n\n## Intent Router\n{intent.forced_context}"
+        else:
+            context_msg = f"## Intent Router\n{intent.forced_context}"
 
     # 4. Convert to OpenAI format
     # Append context to system message instead of wasting a turn
