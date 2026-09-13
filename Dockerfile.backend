@@ -13,7 +13,7 @@ COPY agent/requirements.txt ./agent/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir -r agent/requirements.txt
 
-# Copy application code
+# Copy application code (always fresh - no cache)
 COPY backend/ backend/
 COPY agent/ agent/
 
@@ -32,6 +32,10 @@ EXPOSE 8001 8002
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')" || exit 1
+
+# Cache bust - change this to force full rebuild
+ARG BUILD_ID=unknown
+ENV BUILD_ID=$BUILD_ID
 
 CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 # rebuild 1789307121
