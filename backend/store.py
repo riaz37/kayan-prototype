@@ -88,7 +88,8 @@ def _init_db():
             mandatory INTEGER DEFAULT 1,
             status TEXT DEFAULT 'missing',
             file_path TEXT,
-            created_at TEXT
+            created_at TEXT,
+            updated_at TEXT
         );
 
         CREATE TABLE IF NOT EXISTS financial_profiles (
@@ -266,6 +267,15 @@ def _init_db():
         );
     """)
     conn.commit()
+    _migrate_db(conn)
+
+
+def _migrate_db(conn):
+    """Add columns to tables that pre-date them (CREATE TABLE IF NOT EXISTS won't do this)."""
+    cols = {row["name"] for row in conn.execute("PRAGMA table_info(documents)")}
+    if "updated_at" not in cols:
+        conn.execute("ALTER TABLE documents ADD COLUMN updated_at TEXT")
+        conn.commit()
 
 
 _init_db()

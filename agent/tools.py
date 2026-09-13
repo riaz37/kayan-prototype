@@ -380,7 +380,7 @@ TOOLS_OPENAI = [
                     "beneficiary_id": {"type": "string", "description": "Beneficiary ID"},
                     "document_type_id": {
                         "type": "string",
-                        "description": "Document type ID (e.g. DOC-NATID, DOC-SALARY, DOC-RENT, DOC-BANK, DOC-PHOTO)",
+                        "description": "Document type ID: DOC-ID, DOC-ORPHAN, DOC-FAMILY, DOC-HOUSING, DOC-SALARY, DOC-SOCIAL, DOC-CITIZEN, DOC-SIMAH, DOC-MEDICAL, DOC-CUSTODY. Use get_completeness first to see which of these apply to this file.",
                     },
                     "status": {
                         "type": "string",

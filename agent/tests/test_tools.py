@@ -6,6 +6,7 @@ Run: python3 -m agent.tests.test_tools
 import json
 import sys
 import os
+import uuid
 
 # Add parent to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -77,7 +78,7 @@ def test_sessions():
     )
 
     print("\n=== Session Tests ===")
-    phone = "966500999001"
+    phone = "9665" + uuid.uuid4().hex[:8]  # unique per run so history assertions stay deterministic
 
     sess = get_session(phone)
     assert sess["phone"] == phone, "Session phone mismatch"

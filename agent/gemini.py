@@ -5,6 +5,7 @@ Supports primary + fallback models for reliability.
 """
 import json
 import logging
+import re
 import time
 from typing import Optional
 from openai import OpenAI
@@ -66,22 +67,37 @@ def _execute_tool_with_retry(tool_name: str, tool_args: dict) -> dict:
             return {"error": str(e)}
 
 
-# User-friendly error messages for common backend errors
+# User-friendly error messages for common backend errors, per language
 ERROR_MESSAGES = {
-    "404": "الخدمة غير متوفرة حاليًا. يرجى المحاولة لاحقًا.",
-    "500": "حدث خطأ تقني. يرجى المحاولة مرة أخرى.",
-    "502": "الخدمة غير متوفرة حاليًا. يرجى المحاولة لاحقًا.",
-    "503": "الخدمة مزدحمة. يرجى المحاولة بعد قليل.",
-    "timeout": "استغرق الطلب وقتًا طويلًا. يرجى المحاولة مرة أخرى.",
+    "ar": {
+        "404": "الخدمة غير متوفرة حاليًا. يرجى المحاولة لاحقًا.",
+        "500": "حدث خطأ تقني. يرجى المحاولة مرة أخرى.",
+        "502": "الخدمة غير متوفرة حاليًا. يرجى المحاولة لاحقًا.",
+        "503": "الخدمة مزدحمة. يرجى المحاولة بعد قليل.",
+        "timeout": "استغرق الطلب وقتًا طويلًا. يرجى المحاولة مرة أخرى.",
+    },
+    "en": {
+        "404": "The service is currently unavailable. Please try again later.",
+        "500": "A technical error occurred. Please try again.",
+        "502": "The service is currently unavailable. Please try again later.",
+        "503": "The service is busy. Please try again shortly.",
+        "timeout": "The request took too long. Please try again.",
+    },
 }
 
 
-def _map_error_to_friendly(error: str) -> str:
-    """Map backend errors to user-friendly Arabic messages."""
-    for code, msg in ERROR_MESSAGES.items():
+def _is_arabic(text: str) -> bool:
+    """Detect Arabic text by Unicode range, matching agent/main.py's detection."""
+    return bool(re.search(r'[؀-ۿ]', text or ""))
+
+
+def _map_error_to_friendly(error: str, user_text: str = "") -> str:
+    """Map backend errors to user-friendly messages in the user's language."""
+    lang = "ar" if _is_arabic(user_text) else "en"
+    for code, msg in ERROR_MESSAGES[lang].items():
         if code in error:
             return msg
-    return "عذراً، حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى."
+    return "عذراً، حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى." if lang == "ar" else "Sorry, an unexpected error occurred. Please try again."
 
 
 def _estimate_tokens(text: str) -> int:
@@ -114,7 +130,8 @@ def _call_llm(messages: list, model: str = None):
             messages=messages,
             tools=TOOLS_OPENAI,
             temperature=0.3,
-            max_tokens=1024,
+            max_tokens=4096,
+            extra_body={"chat_template_kwargs": {"enable_thinking": False}},
         )
     except Exception as e:
         logger.warning(f"Primary model {model} failed: {e}")
@@ -126,7 +143,8 @@ def _call_llm(messages: list, model: str = None):
                 messages=messages,
                 tools=TOOLS_OPENAI,
                 temperature=0.3,
-                max_tokens=1024,
+                max_tokens=4096,
+                extra_body={"chat_template_kwargs": {"enable_thinking": False}},
             )
         raise
 
@@ -143,6 +161,7 @@ def _call_llm_stream(messages: list, model: str = None):
             temperature=0.3,
             max_tokens=1024,
             stream=True,
+            extra_body={"chat_template_kwargs": {"enable_thinking": False}},
         )
     except Exception as e:
         logger.warning(f"Primary model {model} failed: {e}")
@@ -156,6 +175,7 @@ def _call_llm_stream(messages: list, model: str = None):
                 temperature=0.3,
                 max_tokens=1024,
                 stream=True,
+                extra_body={"chat_template_kwargs": {"enable_thinking": False}},
             )
         raise
 
@@ -258,13 +278,24 @@ def handle_message(phone: str, user_text: str) -> str:
             response = _call_llm(messages)
         except Exception as e:
             logger.error(f"LLM API error (all models failed): {e}")
-            return _map_error_to_friendly(str(e))
+            return _map_error_to_friendly(str(e), user_text)
 
         choice = response.choices[0] if response.choices else None
         if not choice or not choice.message:
-            return "عذراً، لم أتمكن من فهم طلبك. يرجى إعادة الصياغة."
+            return ("عذراً، لم أتمكن من فهم طلبك. يرجى إعادة الصياغة." if _is_arabic(user_text)
+                    else "Sorry, I couldn't understand your request. Please rephrase it.")
 
         message = choice.message
+
+        # Truncated mid-reasoning: no usable content, and any reasoning text is
+        # unfinished (can end mid-sentence or in a degenerate repetition loop).
+        # Never surface it — fail gracefully instead.
+        if choice.finish_reason == "length" and message.content is None:
+            logger.warning(f"LLM truncated before producing content (round {round_num})")
+            analytics.track_message(phone, is_user=False)
+            return ("عذراً، أحتاج وقتاً أطول للرد. يرجى إعادة صياغة طلبك بشكل أبسط أو التواصل مع موظف خدمة المستفيدين."
+                    if _is_arabic(user_text) else
+                    "Sorry, I need more time to respond. Please rephrase your request more simply or contact a beneficiary service employee.")
 
         # Handle reasoning models (Qwen, DeepSeek) that put thinking in reasoning field
         # If content is None but reasoning exists, use reasoning as the content
@@ -323,11 +354,13 @@ def handle_message(phone: str, user_text: str) -> str:
                 return reply_text.strip()
             else:
                 analytics.track_message(phone, is_user=False)
-                return "عذراً، لم أتمكن من إيجاد إجابة مناسبة."
+                return ("عذراً، لم أتمكن من إيجاد إجابة مناسبة." if _is_arabic(user_text)
+                        else "Sorry, I couldn't find a suitable answer.")
 
     # If we exhausted tool rounds
     analytics.track_message(phone, is_user=False)
-    return "عذراً، أحتاج خطوات إضافية. يرجى التواصل مع موظف خدمة المستفيدين."
+    return ("عذراً، أحتاج خطوات إضافية. يرجى التواصل مع موظف خدمة المستفيدين." if _is_arabic(user_text)
+            else "Sorry, I need additional steps. Please contact a beneficiary service employee.")
 
 
 def handle_message_stream(phone: str, user_text: str):
@@ -363,7 +396,7 @@ def handle_message_stream(phone: str, user_text: str):
             stream = _call_llm_stream(messages)
         except Exception as e:
             logger.error(f"LLM API error (all models failed): {e}")
-            yield ("text", _map_error_to_friendly(str(e)))
+            yield ("text", _map_error_to_friendly(str(e), user_text))
             return
 
         # Process streaming response
@@ -451,11 +484,13 @@ def handle_message_stream(phone: str, user_text: str):
                 sessions.add_to_history(phone, "model", [{"text": full_content}])
                 yield ("done", full_content.strip())
             else:
-                yield ("done", "عذراً، لم أتمكن من إيجاد إجابة مناسبة.")
+                yield ("done", "عذراً، لم أتمكن من إيجاد إجابة مناسبة." if _is_arabic(user_text)
+                       else "Sorry, I couldn't find a suitable answer.")
             return
 
     # Exhausted tool rounds
-    yield ("done", "عذراً، أحتاج خطوات إضافية. يرجى التواصل مع موظف خدمة المستفيدين.")
+    yield ("done", "عذراً، أحتاج خطوات إضافية. يرجى التواصل مع موظف خدمة المستفيدين." if _is_arabic(user_text)
+           else "Sorry, I need additional steps. Please contact a beneficiary service employee.")
 
 
 def _build_context_message(phone: str, context: Optional[dict]) -> str:
