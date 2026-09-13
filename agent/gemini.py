@@ -370,6 +370,17 @@ def handle_message(phone: str, user_text: str) -> str:
             # No tool calls — extract text reply
             reply_text = message.content or ""
             if reply_text:
+                # Hallucination detection: if reply claims a tool action was done
+                # but no tool was actually called, force the LLM to call it
+                hallucination = _detect_hallucination(reply_text, user_text)
+                if hallucination:
+                    logger.warning(f"Hallucination detected: {hallucination}")
+                    messages.append({
+                        "role": "user",
+                        "content": f"⚠️ {hallucination} You MUST call the tool now. Do not fabricate results.",
+                    })
+                    continue  # retry this round
+
                 sessions.add_to_history(phone, "model", [{"text": reply_text}])
                 analytics.track_message(phone, is_user=False)
                 return reply_text.strip()
@@ -596,3 +607,34 @@ def _update_session_from_tool(phone: str, tool_name: str, args: dict, result: di
         ctx["known"] = True
         ctx["beneficiary_id"] = result.get("beneficiary_id", "")
         sessions.set_context(phone, ctx)
+
+
+# ── Hallucination detection ──────────────────────────────────────
+
+# Patterns that indicate the LLM claims to have done something requiring a tool
+_HALLUCINATION_PATTERNS = [
+    # Ticket claims
+    (r"(?:ticket|تذكرة)\s*(?:number|رقم)?\s*(?:is|:)?\s*(?:TKT-|ت-)", "create_ticket"),
+    (r"(?:I've|I have|تم)\s*(?:created|إنشاء|انشأت)\s*(?:a\s*)?(?:ticket|تذكرة)", "create_ticket"),
+    (r"(?:Your|رقم)\s*(?:ticket|تذكرة)\s*(?:number|رقم)?\s*(?:is|:)?\s*TKT-", "create_ticket"),
+    # File claims
+    (r"(?:file|ملف)\s*(?:number|رقم)?\s*(?:is|:)?\s*(?:KY-|BEN-)", "create_file"),
+    (r"(?:I've|I have|تم)\s*(?:created|إنشاء)\s*(?:a\s*)?(?:file|ملف)", "create_file"),
+    # Request claims
+    (r"(?:request|طلب)\s*(?:number|رقم)?\s*(?:is|:)?\s*SR-", "create_support_request"),
+]
+
+
+def _detect_hallucination(reply_text: str, user_text: str) -> str | None:
+    """
+    Detect if the LLM claims to have done something that requires a tool call.
+    Returns an error message to inject, or None if no hallucination detected.
+    """
+    text_lower = reply_text.lower()
+    for pattern, required_tool in _HALLUCINATION_PATTERNS:
+        if re.search(pattern, text_lower, re.IGNORECASE):
+            return (
+                f"You claimed to have called {required_tool} but you did NOT actually call it. "
+                f"You MUST call the {required_tool} tool before telling the user the result."
+            )
+    return None
