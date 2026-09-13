@@ -21,6 +21,7 @@ from agent.intent_router import classify
 logger = logging.getLogger(__name__)
 
 _client = None
+_fallback_client = None
 
 MAX_TOOL_ROUNDS = 10
 MAX_RETRIES = 2
@@ -32,14 +33,25 @@ _MIN_REQUEST_INTERVAL = 0.2  # 200ms between requests = 5 RPM max
 
 
 def _get_client():
-    """Lazy-initialize the OpenAI client pointing to vLLM."""
+    """Lazy-initialize the OpenAI client pointing to primary LLM provider."""
     global _client
     if _client is None:
         _client = OpenAI(
             api_key=settings.llm_api_key or "none",
-            base_url=settings.llm_base_url + "/v1",
+            base_url=settings.llm_base_url + "/v1" if "generativelanguage" not in settings.llm_base_url else settings.llm_base_url,
         )
     return _client
+
+
+def _get_fallback_client():
+    """Lazy-initialize the OpenAI client pointing to fallback LLM provider."""
+    global _fallback_client
+    if _fallback_client is None:
+        _fallback_client = OpenAI(
+            api_key=settings.llm_api_key or "none",
+            base_url=settings.llm_fallback_base_url + "/v1",
+        )
+    return _fallback_client
 
 
 def _rate_limit():
@@ -125,22 +137,25 @@ def _count_message_tokens(messages: list) -> int:
 def _call_llm(messages: list, model: str = None):
     """Call LLM with fallback model support."""
     model = model or settings.llm_model
+    is_gemini = "generativelanguage" in settings.llm_base_url
     try:
         _rate_limit()
-        return _get_client().chat.completions.create(
-            model=model,
-            messages=messages,
-            tools=TOOLS_OPENAI,
-            temperature=0.3,
-            max_tokens=4096,
-            extra_body={"chat_template_kwargs": {"enable_thinking": False}},
-        )
+        kwargs = {
+            "model": model,
+            "messages": messages,
+            "tools": TOOLS_OPENAI,
+            "temperature": 0.3,
+            "max_tokens": 4096,
+        }
+        if not is_gemini:
+            kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
+        return _get_client().chat.completions.create(**kwargs)
     except Exception as e:
         logger.warning(f"Primary model {model} failed: {e}")
-        if model != settings.llm_fallback_model:
+        if settings.llm_fallback_model and model != settings.llm_fallback_model:
             logger.info(f"Trying fallback model: {settings.llm_fallback_model}")
             _rate_limit()
-            return _get_client().chat.completions.create(
+            return _get_fallback_client().chat.completions.create(
                 model=settings.llm_fallback_model,
                 messages=messages,
                 tools=TOOLS_OPENAI,
@@ -154,23 +169,26 @@ def _call_llm(messages: list, model: str = None):
 def _call_llm_stream(messages: list, model: str = None):
     """Call LLM with streaming enabled."""
     model = model or settings.llm_model
+    is_gemini = "generativelanguage" in settings.llm_base_url
     try:
         _rate_limit()
-        return _get_client().chat.completions.create(
-            model=model,
-            messages=messages,
-            tools=TOOLS_OPENAI,
-            temperature=0.3,
-            max_tokens=1024,
-            stream=True,
-            extra_body={"chat_template_kwargs": {"enable_thinking": False}},
-        )
+        kwargs = {
+            "model": model,
+            "messages": messages,
+            "tools": TOOLS_OPENAI,
+            "temperature": 0.3,
+            "max_tokens": 1024,
+            "stream": True,
+        }
+        if not is_gemini:
+            kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
+        return _get_client().chat.completions.create(**kwargs)
     except Exception as e:
         logger.warning(f"Primary model {model} failed: {e}")
-        if model != settings.llm_fallback_model:
+        if settings.llm_fallback_model and model != settings.llm_fallback_model:
             logger.info(f"Trying fallback model: {settings.llm_fallback_model}")
             _rate_limit()
-            return _get_client().chat.completions.create(
+            return _get_fallback_client().chat.completions.create(
                 model=settings.llm_fallback_model,
                 messages=messages,
                 tools=TOOLS_OPENAI,
