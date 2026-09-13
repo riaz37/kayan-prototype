@@ -137,7 +137,8 @@ def _count_message_tokens(messages: list) -> int:
 def _call_llm(messages: list, model: str = None):
     """Call LLM with fallback model support."""
     model = model or settings.llm_model
-    is_gemini = "generativelanguage" in settings.llm_base_url
+    is_gemini = "gemini" in model.lower() or "generativelanguage" in (settings.llm_base_url or "")
+    logger.info(f"LLM call: model={model}, is_gemini={is_gemini}, base_url={settings.llm_base_url}")
     try:
         _rate_limit()
         kwargs = {
@@ -155,21 +156,23 @@ def _call_llm(messages: list, model: str = None):
         if settings.llm_fallback_model and model != settings.llm_fallback_model:
             logger.info(f"Trying fallback model: {settings.llm_fallback_model}")
             _rate_limit()
-            return _get_fallback_client().chat.completions.create(
-                model=settings.llm_fallback_model,
-                messages=messages,
-                tools=TOOLS_OPENAI,
-                temperature=0.3,
-                max_tokens=4096,
-                extra_body={"chat_template_kwargs": {"enable_thinking": False}},
-            )
+            fb_kwargs = {
+                "model": settings.llm_fallback_model,
+                "messages": messages,
+                "tools": TOOLS_OPENAI,
+                "temperature": 0.3,
+                "max_tokens": 4096,
+            }
+            if "gemini" not in settings.llm_fallback_model.lower():
+                fb_kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
+            return _get_fallback_client().chat.completions.create(**fb_kwargs)
         raise
 
 
 def _call_llm_stream(messages: list, model: str = None):
     """Call LLM with streaming enabled."""
     model = model or settings.llm_model
-    is_gemini = "generativelanguage" in settings.llm_base_url
+    is_gemini = "gemini" in model.lower() or "generativelanguage" in (settings.llm_base_url or "")
     try:
         _rate_limit()
         kwargs = {
