@@ -11,6 +11,9 @@ WORKDIR /app
 ARG BUILD_ID=unknown
 ENV BUILD_ID=$BUILD_ID
 
+# Force cache invalidation for code changes
+COPY .docker-build-stamp /tmp/.build-stamp
+
 # Install Python dependencies
 COPY requirements.txt ./
 COPY agent/requirements.txt ./agent/requirements.txt
