@@ -1,0 +1,62 @@
+[
+  {
+    "id": "EVT-13001",
+    "name_ar": "ملتقى ابناء كيان السنوي",
+    "city": "الرياض",
+    "date": "2026-06-27",
+    "status": "completed",
+    "capacity": 120,
+    "registered": 39,
+    "program_id": "PRG-TRN"
+  },
+  {
+    "id": "EVT-13002",
+    "name_ar": "رحلة ترفيهية لابناء الجمعية",
+    "city": "جدة",
+    "date": "2026-05-29",
+    "status": "completed",
+    "capacity": 50,
+    "registered": 45,
+    "program_id": "PRG-QOL"
+  },
+  {
+    "id": "EVT-13003",
+    "name_ar": "ورشة تاهيل لسوق العمل",
+    "city": "الرياض",
+    "date": "2026-05-25",
+    "status": "completed",
+    "capacity": 120,
+    "registered": 61,
+    "program_id": "PRG-ILM"
+  },
+  {
+    "id": "EVT-13004",
+    "name_ar": "برنامج توعوي للاسر الحاضنة",
+    "city": "الدمام",
+    "date": "2026-08-04",
+    "status": "scheduled",
+    "capacity": 200,
+    "registered": 89,
+    "program_id": "PRG-TRN"
+  },
+  {
+    "id": "EVT-13005",
+    "name_ar": "حفل تكريم المتفوقين",
+    "city": "الرياض",
+    "date": "2026-09-14",
+    "status": "scheduled",
+    "capacity": 50,
+    "registered": 31,
+    "program_id": "PRG-QOL"
+  },
+  {
+    "id": "EVT-13006",
+    "name_ar": "فعالية اليوم الوطني",
+    "city": "الرياض",
+    "date": "2026-09-03",
+    "status": "scheduled",
+    "capacity": 80,
+    "registered": 40,
+    "program_id": "PRG-TRN"
+  }
+]

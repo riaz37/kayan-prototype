@@ -1,0 +1,120 @@
+[
+  {
+    "order": 1,
+    "id": "SEC-BASIC",
+    "name_ar": "البيانات الاساسية",
+    "name_en": "Basic data",
+    "fields": [
+      "full_name_ar",
+      "national_id",
+      "birth_date",
+      "gender",
+      "marital_status",
+      "orphan_category_id",
+      "nationality"
+    ]
+  },
+  {
+    "order": 2,
+    "id": "SEC-EXTRA",
+    "name_ar": "البيانات الاضافية",
+    "name_en": "Additional data",
+    "fields": [
+      "dependents_count",
+      "income_sources",
+      "has_social_security",
+      "has_citizen_account"
+    ]
+  },
+  {
+    "order": 3,
+    "id": "SEC-JOIN",
+    "name_ar": "بيانات الانضمام للجمعية",
+    "name_en": "Association joining data",
+    "fields": [
+      "join_reason",
+      "referral_source",
+      "previous_support"
+    ]
+  },
+  {
+    "order": 4,
+    "id": "SEC-BANK",
+    "name_ar": "البيانات البنكية",
+    "name_en": "Bank data",
+    "fields": [
+      "bank_name",
+      "iban",
+      "account_holder_name"
+    ]
+  },
+  {
+    "order": 5,
+    "id": "SEC-CONTACT",
+    "name_ar": "بيانات الاتصال",
+    "name_en": "Contact data",
+    "fields": [
+      "mobile",
+      "alt_mobile",
+      "email",
+      "whatsapp"
+    ]
+  },
+  {
+    "order": 6,
+    "id": "SEC-EDU",
+    "name_ar": "المؤهل والوظيفة",
+    "name_en": "Qualification and job",
+    "fields": [
+      "education_level",
+      "employment_status",
+      "employer",
+      "monthly_salary"
+    ]
+  },
+  {
+    "order": 7,
+    "id": "SEC-HOUSING",
+    "name_ar": "بيانات السكن",
+    "name_en": "Housing data",
+    "fields": [
+      "city",
+      "district",
+      "housing_type",
+      "ownership_proof_type",
+      "rooms",
+      "monthly_rent",
+      "monthly_bills"
+    ]
+  },
+  {
+    "order": 8,
+    "id": "SEC-HEALTH",
+    "name_ar": "البيانات الصحية",
+    "name_en": "Health data",
+    "fields": [
+      "chronic_conditions",
+      "disability",
+      "has_health_insurance",
+      "monthly_medication_cost"
+    ]
+  },
+  {
+    "order": 9,
+    "id": "SEC-DEP",
+    "name_ar": "بيانات التابعين",
+    "name_en": "Dependents data",
+    "fields": [
+      "dependents"
+    ]
+  },
+  {
+    "order": 10,
+    "id": "SEC-ATTACH",
+    "name_ar": "المرفقات",
+    "name_en": "Attachments",
+    "fields": [
+      "documents"
+    ]
+  }
+]

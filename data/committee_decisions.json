@@ -1,0 +1,512 @@
+[
+  {
+    "id": "DEC-40001",
+    "support_request_id": "SR-20001",
+    "beneficiary_id": "BEN-1040",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 8103.22,
+    "committee_date": "2026-08-17T10:00:00Z",
+    "committee_members": [
+      "نورة ابراهيم",
+      "خالد الدوسري",
+      "ليلى القحطاني"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40003",
+    "support_request_id": "SR-20003",
+    "beneficiary_id": "BEN-1017",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 221.88,
+    "committee_date": "2026-06-18T10:00:00Z",
+    "committee_members": [
+      "عمر الشمري",
+      "نورة ابراهيم",
+      "هند العتيبي"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40004",
+    "support_request_id": "SR-20004",
+    "beneficiary_id": "BEN-1035",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 7500.43,
+    "committee_date": "2026-05-11T10:00:00Z",
+    "committee_members": [
+      "خالد الدوسري",
+      "عمر الشمري",
+      "هند العتيبي"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40006",
+    "support_request_id": "SR-20006",
+    "beneficiary_id": "BEN-1020",
+    "decision": "declined",
+    "decision_ar": "الاعتذار",
+    "approved_amount_sar": 0.0,
+    "committee_date": "2026-03-23T10:00:00Z",
+    "committee_members": [
+      "ليلى القحطاني",
+      "عمر الشمري",
+      "هند العتيبي"
+    ],
+    "reason_ar": "عدم انطباق شروط الاستحقاق حاليا",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40007",
+    "support_request_id": "SR-20007",
+    "beneficiary_id": "BEN-1003",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 252.03,
+    "committee_date": "2026-08-13T10:00:00Z",
+    "committee_members": [
+      "ليلى القحطاني",
+      "شادن الفصيلي",
+      "هند العتيبي"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40008",
+    "support_request_id": "SR-20008",
+    "beneficiary_id": "BEN-1010",
+    "decision": "declined",
+    "decision_ar": "الاعتذار",
+    "approved_amount_sar": 0.0,
+    "committee_date": "2026-06-01T10:00:00Z",
+    "committee_members": [
+      "ليلى القحطاني",
+      "عمر الشمري",
+      "نورة ابراهيم"
+    ],
+    "reason_ar": "عدم انطباق شروط الاستحقاق حاليا",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40010",
+    "support_request_id": "SR-20010",
+    "beneficiary_id": "BEN-1013",
+    "decision": "docs_required",
+    "decision_ar": "طلب استكمال مستندات",
+    "approved_amount_sar": 0.0,
+    "committee_date": "2026-05-21T10:00:00Z",
+    "committee_members": [
+      "خالد الدوسري",
+      "شادن الفصيلي",
+      "عمر الشمري"
+    ],
+    "reason_ar": "نقص في المستندات المطلوبة",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40014",
+    "support_request_id": "SR-20014",
+    "beneficiary_id": "BEN-1008",
+    "decision": "declined",
+    "decision_ar": "الاعتذار",
+    "approved_amount_sar": 0.0,
+    "committee_date": "2026-05-26T10:00:00Z",
+    "committee_members": [
+      "هند العتيبي",
+      "خالد الدوسري",
+      "ليلى القحطاني"
+    ],
+    "reason_ar": "عدم انطباق شروط الاستحقاق حاليا",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40015",
+    "support_request_id": "SR-20015",
+    "beneficiary_id": "BEN-1033",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 282.88,
+    "committee_date": "2026-05-16T10:00:00Z",
+    "committee_members": [
+      "عمر الشمري",
+      "هند العتيبي",
+      "نورة ابراهيم"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40016",
+    "support_request_id": "SR-20016",
+    "beneficiary_id": "BEN-1013",
+    "decision": "docs_required",
+    "decision_ar": "طلب استكمال مستندات",
+    "approved_amount_sar": 0.0,
+    "committee_date": "2026-05-24T10:00:00Z",
+    "committee_members": [
+      "خالد الدوسري",
+      "هند العتيبي",
+      "ليلى القحطاني"
+    ],
+    "reason_ar": "نقص في المستندات المطلوبة",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40018",
+    "support_request_id": "SR-20018",
+    "beneficiary_id": "BEN-1039",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 0.0,
+    "committee_date": "2026-06-02T10:00:00Z",
+    "committee_members": [
+      "شادن الفصيلي",
+      "نورة ابراهيم",
+      "هند العتيبي"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40019",
+    "support_request_id": "SR-20019",
+    "beneficiary_id": "BEN-1039",
+    "decision": "declined",
+    "decision_ar": "الاعتذار",
+    "approved_amount_sar": 0.0,
+    "committee_date": "2026-07-09T10:00:00Z",
+    "committee_members": [
+      "ليلى القحطاني",
+      "شادن الفصيلي",
+      "نورة ابراهيم"
+    ],
+    "reason_ar": "عدم انطباق شروط الاستحقاق حاليا",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40020",
+    "support_request_id": "SR-20020",
+    "beneficiary_id": "BEN-1027",
+    "decision": "declined",
+    "decision_ar": "الاعتذار",
+    "approved_amount_sar": 0.0,
+    "committee_date": "2026-07-07T10:00:00Z",
+    "committee_members": [
+      "خالد الدوسري",
+      "عمر الشمري",
+      "نورة ابراهيم"
+    ],
+    "reason_ar": "عدم انطباق شروط الاستحقاق حاليا",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40022",
+    "support_request_id": "SR-20022",
+    "beneficiary_id": "BEN-1029",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 94526.57,
+    "committee_date": "2026-07-10T10:00:00Z",
+    "committee_members": [
+      "ليلى القحطاني",
+      "هند العتيبي",
+      "نورة ابراهيم"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40023",
+    "support_request_id": "SR-20023",
+    "beneficiary_id": "BEN-1023",
+    "decision": "docs_required",
+    "decision_ar": "طلب استكمال مستندات",
+    "approved_amount_sar": 0.0,
+    "committee_date": "2026-05-06T10:00:00Z",
+    "committee_members": [
+      "ليلى القحطاني",
+      "خالد الدوسري",
+      "شادن الفصيلي"
+    ],
+    "reason_ar": "نقص في المستندات المطلوبة",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40024",
+    "support_request_id": "SR-20024",
+    "beneficiary_id": "BEN-1006",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 1996.45,
+    "committee_date": "2026-06-02T10:00:00Z",
+    "committee_members": [
+      "هند العتيبي",
+      "عمر الشمري",
+      "ليلى القحطاني"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40025",
+    "support_request_id": "SR-20025",
+    "beneficiary_id": "BEN-1026",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 0.0,
+    "committee_date": "2026-05-17T10:00:00Z",
+    "committee_members": [
+      "شادن الفصيلي",
+      "نورة ابراهيم",
+      "ليلى القحطاني"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40027",
+    "support_request_id": "SR-20027",
+    "beneficiary_id": "BEN-1010",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 544.07,
+    "committee_date": "2026-03-30T10:00:00Z",
+    "committee_members": [
+      "هند العتيبي",
+      "شادن الفصيلي",
+      "عمر الشمري"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40029",
+    "support_request_id": "SR-20029",
+    "beneficiary_id": "BEN-1038",
+    "decision": "declined",
+    "decision_ar": "الاعتذار",
+    "approved_amount_sar": 0.0,
+    "committee_date": "2026-07-09T10:00:00Z",
+    "committee_members": [
+      "هند العتيبي",
+      "نورة ابراهيم",
+      "شادن الفصيلي"
+    ],
+    "reason_ar": "عدم انطباق شروط الاستحقاق حاليا",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40030",
+    "support_request_id": "SR-20030",
+    "beneficiary_id": "BEN-1031",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 6918.95,
+    "committee_date": "2026-05-23T10:00:00Z",
+    "committee_members": [
+      "شادن الفصيلي",
+      "ليلى القحطاني",
+      "نورة ابراهيم"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40031",
+    "support_request_id": "SR-20031",
+    "beneficiary_id": "BEN-1008",
+    "decision": "docs_required",
+    "decision_ar": "طلب استكمال مستندات",
+    "approved_amount_sar": 0.0,
+    "committee_date": "2026-06-13T10:00:00Z",
+    "committee_members": [
+      "عمر الشمري",
+      "خالد الدوسري",
+      "شادن الفصيلي"
+    ],
+    "reason_ar": "نقص في المستندات المطلوبة",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40033",
+    "support_request_id": "SR-20033",
+    "beneficiary_id": "BEN-1018",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 300.66,
+    "committee_date": "2026-07-11T10:00:00Z",
+    "committee_members": [
+      "هند العتيبي",
+      "شادن الفصيلي",
+      "عمر الشمري"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40034",
+    "support_request_id": "SR-20034",
+    "beneficiary_id": "BEN-1013",
+    "decision": "declined",
+    "decision_ar": "الاعتذار",
+    "approved_amount_sar": 0.0,
+    "committee_date": "2026-05-04T10:00:00Z",
+    "committee_members": [
+      "هند العتيبي",
+      "شادن الفصيلي",
+      "عمر الشمري"
+    ],
+    "reason_ar": "عدم انطباق شروط الاستحقاق حاليا",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40036",
+    "support_request_id": "SR-20036",
+    "beneficiary_id": "BEN-1035",
+    "decision": "docs_required",
+    "decision_ar": "طلب استكمال مستندات",
+    "approved_amount_sar": 0.0,
+    "committee_date": "2026-03-26T10:00:00Z",
+    "committee_members": [
+      "هند العتيبي",
+      "شادن الفصيلي",
+      "عمر الشمري"
+    ],
+    "reason_ar": "نقص في المستندات المطلوبة",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40037",
+    "support_request_id": "SR-20037",
+    "beneficiary_id": "BEN-1007",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 0.0,
+    "committee_date": "2026-06-06T10:00:00Z",
+    "committee_members": [
+      "شادن الفصيلي",
+      "هند العتيبي",
+      "نورة ابراهيم"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40039",
+    "support_request_id": "SR-20039",
+    "beneficiary_id": "BEN-1011",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 826.95,
+    "committee_date": "2026-05-18T10:00:00Z",
+    "committee_members": [
+      "هند العتيبي",
+      "نورة ابراهيم",
+      "شادن الفصيلي"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40040",
+    "support_request_id": "SR-20040",
+    "beneficiary_id": "BEN-1026",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 633.46,
+    "committee_date": "2026-05-21T10:00:00Z",
+    "committee_members": [
+      "عمر الشمري",
+      "نورة ابراهيم",
+      "شادن الفصيلي"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40041",
+    "support_request_id": "SR-20041",
+    "beneficiary_id": "BEN-1026",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 2291.94,
+    "committee_date": "2026-03-07T10:00:00Z",
+    "committee_members": [
+      "شادن الفصيلي",
+      "عمر الشمري",
+      "ليلى القحطاني"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40044",
+    "support_request_id": "SR-20044",
+    "beneficiary_id": "BEN-1038",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 956.47,
+    "committee_date": "2026-07-18T10:00:00Z",
+    "committee_members": [
+      "هند العتيبي",
+      "خالد الدوسري",
+      "نورة ابراهيم"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  },
+  {
+    "id": "DEC-40045",
+    "support_request_id": "SR-20045",
+    "beneficiary_id": "BEN-1033",
+    "decision": "accepted",
+    "decision_ar": "قبول الطلب",
+    "approved_amount_sar": 0.0,
+    "committee_date": "2026-03-13T10:00:00Z",
+    "committee_members": [
+      "ليلى القحطاني",
+      "عمر الشمري",
+      "هند العتيبي"
+    ],
+    "reason_ar": "استيفاء الشروط ووجود احتياج مؤكد",
+    "notified_whatsapp": true,
+    "notified_sms": true
+  }
+]

@@ -1,0 +1,2327 @@
+[
+  {
+    "beneficiary_id": "BEN-1001",
+    "monthly_income_sar": 2296.14,
+    "income_breakdown": [
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 1803.61
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 492.53
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-LOAN",
+        "name_ar": "القروض والسلفات التمويلية من البنوك او الجهات التمويلية المعتمدة",
+        "monthly_sar": 1654.24,
+        "documented": true
+      },
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 317.1,
+        "documented": true
+      },
+      {
+        "type_id": "OB-RENT",
+        "name_ar": "سداد الايجار",
+        "monthly_sar": 2106.0,
+        "documented": true
+      },
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 261.43,
+        "documented": true
+      },
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 315.28,
+        "documented": true
+      },
+      {
+        "type_id": "OB-BNPL",
+        "name_ar": "الالتزامات المرتبطة بخدمات (تابي - تمارا)",
+        "monthly_sar": 414.43,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 5068.48,
+    "person_costs": [
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 1389.06
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 459.47
+      }
+    ],
+    "total_person_costs_sar": 1848.53,
+    "household_size": 4,
+    "net_monthly_sar": -4620.87,
+    "per_capita_monthly_sar": -1155.22,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1002",
+    "monthly_income_sar": 5748.31,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 2526.61
+      },
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 2159.22
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 1062.48
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 423.04,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 423.04,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 382.94
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 117.39
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 1130.9
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 392.38
+      }
+    ],
+    "total_person_costs_sar": 2023.61,
+    "household_size": 1,
+    "net_monthly_sar": 3301.66,
+    "per_capita_monthly_sar": 3301.66,
+    "need_score": 0
+  },
+  {
+    "beneficiary_id": "BEN-1003",
+    "monthly_income_sar": 0.0,
+    "income_breakdown": [],
+    "obligations": [
+      {
+        "type_id": "OB-LOAN",
+        "name_ar": "القروض والسلفات التمويلية من البنوك او الجهات التمويلية المعتمدة",
+        "monthly_sar": 2031.32,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 2031.32,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 544.44
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 1663.08
+      }
+    ],
+    "total_person_costs_sar": 2207.52,
+    "household_size": 4,
+    "net_monthly_sar": -4238.84,
+    "per_capita_monthly_sar": -1059.71,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1004",
+    "monthly_income_sar": 8468.48,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 7595.58
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 872.9
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 246.83,
+        "documented": true
+      },
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 133.63,
+        "documented": true
+      },
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 1486.27,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 1866.73,
+    "person_costs": [
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 1788.35
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 144.32
+      }
+    ],
+    "total_person_costs_sar": 1932.67,
+    "household_size": 6,
+    "net_monthly_sar": 4669.08,
+    "per_capita_monthly_sar": 778.18,
+    "need_score": 48.1
+  },
+  {
+    "beneficiary_id": "BEN-1005",
+    "monthly_income_sar": 8532.16,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 5397.86
+      },
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 3134.3
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 767.76,
+        "documented": true
+      },
+      {
+        "type_id": "OB-RENT",
+        "name_ar": "سداد الايجار",
+        "monthly_sar": 903.12,
+        "documented": true
+      },
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 452.4,
+        "documented": true
+      },
+      {
+        "type_id": "OB-NAJIZ",
+        "name_ar": "اوامر التنفيذ في منصة ناجز",
+        "monthly_sar": 1178.11,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 3301.39,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 203.33
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 2458.44
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 467.18
+      }
+    ],
+    "total_person_costs_sar": 3128.95,
+    "household_size": 6,
+    "net_monthly_sar": 2101.82,
+    "per_capita_monthly_sar": 350.3,
+    "need_score": 76.6
+  },
+  {
+    "beneficiary_id": "BEN-1006",
+    "monthly_income_sar": 10412.07,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 7358.66
+      },
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 2248.08
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 805.33
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-LOAN",
+        "name_ar": "القروض والسلفات التمويلية من البنوك او الجهات التمويلية المعتمدة",
+        "monthly_sar": 655.15,
+        "documented": true
+      },
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 1167.69,
+        "documented": true
+      },
+      {
+        "type_id": "OB-RENT",
+        "name_ar": "سداد الايجار",
+        "monthly_sar": 1655.77,
+        "documented": true
+      },
+      {
+        "type_id": "OB-BNPL",
+        "name_ar": "الالتزامات المرتبطة بخدمات (تابي - تمارا)",
+        "monthly_sar": 289.71,
+        "documented": true
+      },
+      {
+        "type_id": "OB-NAJIZ",
+        "name_ar": "اوامر التنفيذ في منصة ناجز",
+        "monthly_sar": 979.59,
+        "documented": true
+      },
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 1440.13,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 6188.04,
+    "person_costs": [
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 661.26
+      }
+    ],
+    "total_person_costs_sar": 661.26,
+    "household_size": 7,
+    "net_monthly_sar": 3562.77,
+    "per_capita_monthly_sar": 508.97,
+    "need_score": 66.1
+  },
+  {
+    "beneficiary_id": "BEN-1007",
+    "monthly_income_sar": 1888.4,
+    "income_breakdown": [
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 1170.51
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 717.89
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 385.51,
+        "documented": true
+      },
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 259.4,
+        "documented": true
+      },
+      {
+        "type_id": "OB-BNPL",
+        "name_ar": "الالتزامات المرتبطة بخدمات (تابي - تمارا)",
+        "monthly_sar": 361.72,
+        "documented": true
+      },
+      {
+        "type_id": "OB-NAJIZ",
+        "name_ar": "اوامر التنفيذ في منصة ناجز",
+        "monthly_sar": 587.74,
+        "documented": true
+      },
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 563.75,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 2158.12,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 579.98
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 678.56
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 1277.6
+      }
+    ],
+    "total_person_costs_sar": 2536.14,
+    "household_size": 4,
+    "net_monthly_sar": -2805.86,
+    "per_capita_monthly_sar": -701.47,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1008",
+    "monthly_income_sar": 11992.17,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 8330.46
+      },
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 2748.38
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 913.33
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 1008.44,
+        "documented": true
+      },
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 208.19,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 1216.63,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 282.15
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 213.74
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 475.56
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 792.9
+      }
+    ],
+    "total_person_costs_sar": 1764.35,
+    "household_size": 4,
+    "net_monthly_sar": 9011.19,
+    "per_capita_monthly_sar": 2252.8,
+    "need_score": 0
+  },
+  {
+    "beneficiary_id": "BEN-1009",
+    "monthly_income_sar": 5601.88,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 4710.11
+      },
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 891.77
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-LOAN",
+        "name_ar": "القروض والسلفات التمويلية من البنوك او الجهات التمويلية المعتمدة",
+        "monthly_sar": 2857.69,
+        "documented": true
+      },
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 566.78,
+        "documented": true
+      },
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 324.14,
+        "documented": true
+      },
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 1221.57,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 4970.18,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 332.02
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 226.35
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 514.31
+      }
+    ],
+    "total_person_costs_sar": 1072.68,
+    "household_size": 1,
+    "net_monthly_sar": -440.98,
+    "per_capita_monthly_sar": -440.98,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1010",
+    "monthly_income_sar": 3527.46,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 2747.84
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 779.62
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-BNPL",
+        "name_ar": "الالتزامات المرتبطة بخدمات (تابي - تمارا)",
+        "monthly_sar": 474.99,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 474.99,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 319.08
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 187.72
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 754.63
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 365.38
+      }
+    ],
+    "total_person_costs_sar": 1626.81,
+    "household_size": 3,
+    "net_monthly_sar": 1425.66,
+    "per_capita_monthly_sar": 475.22,
+    "need_score": 68.3
+  },
+  {
+    "beneficiary_id": "BEN-1011",
+    "monthly_income_sar": 5435.95,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 2511.64
+      },
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 2278.52
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 645.79
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-LOAN",
+        "name_ar": "القروض والسلفات التمويلية من البنوك او الجهات التمويلية المعتمدة",
+        "monthly_sar": 2138.83,
+        "documented": true
+      },
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 1196.61,
+        "documented": true
+      },
+      {
+        "type_id": "OB-RENT",
+        "name_ar": "سداد الايجار",
+        "monthly_sar": 1894.83,
+        "documented": true
+      },
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 551.07,
+        "documented": true
+      },
+      {
+        "type_id": "OB-NAJIZ",
+        "name_ar": "اوامر التنفيذ في منصة ناجز",
+        "monthly_sar": 389.31,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 6170.65,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 458.58
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 475.0
+      }
+    ],
+    "total_person_costs_sar": 933.58,
+    "household_size": 2,
+    "net_monthly_sar": -1668.28,
+    "per_capita_monthly_sar": -834.14,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1012",
+    "monthly_income_sar": 11293.74,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 8447.23
+      },
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 2242.95
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 603.56
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-LOAN",
+        "name_ar": "القروض والسلفات التمويلية من البنوك او الجهات التمويلية المعتمدة",
+        "monthly_sar": 1036.79,
+        "documented": true
+      },
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 436.44,
+        "documented": true
+      },
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 292.74,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 1765.97,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 330.57
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 634.24
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 2288.05
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 222.14
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 820.97
+      }
+    ],
+    "total_person_costs_sar": 4295.97,
+    "household_size": 4,
+    "net_monthly_sar": 5231.8,
+    "per_capita_monthly_sar": 1307.95,
+    "need_score": 12.8
+  },
+  {
+    "beneficiary_id": "BEN-1013",
+    "monthly_income_sar": 6280.28,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 6280.28
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-LOAN",
+        "name_ar": "القروض والسلفات التمويلية من البنوك او الجهات التمويلية المعتمدة",
+        "monthly_sar": 1581.32,
+        "documented": true
+      },
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 900.65,
+        "documented": true
+      },
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 330.06,
+        "documented": true
+      },
+      {
+        "type_id": "OB-BNPL",
+        "name_ar": "الالتزامات المرتبطة بخدمات (تابي - تمارا)",
+        "monthly_sar": 694.61,
+        "documented": true
+      },
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 1316.1,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 4822.74,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 447.5
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 153.72
+      }
+    ],
+    "total_person_costs_sar": 601.22,
+    "household_size": 1,
+    "net_monthly_sar": 856.32,
+    "per_capita_monthly_sar": 856.32,
+    "need_score": 42.9
+  },
+  {
+    "beneficiary_id": "BEN-1014",
+    "monthly_income_sar": 463.99,
+    "income_breakdown": [
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 463.99
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-LOAN",
+        "name_ar": "القروض والسلفات التمويلية من البنوك او الجهات التمويلية المعتمدة",
+        "monthly_sar": 2727.84,
+        "documented": true
+      },
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 1100.63,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 3828.47,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 483.86
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 629.61
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 1102.54
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 198.77
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 146.76
+      }
+    ],
+    "total_person_costs_sar": 2561.54,
+    "household_size": 6,
+    "net_monthly_sar": -5926.02,
+    "per_capita_monthly_sar": -987.67,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1015",
+    "monthly_income_sar": 5541.74,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 5541.74
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 1067.1,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 1067.1,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 493.2
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 208.78
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 2071.62
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 395.1
+      }
+    ],
+    "total_person_costs_sar": 3168.7,
+    "household_size": 1,
+    "net_monthly_sar": 1305.94,
+    "per_capita_monthly_sar": 1305.94,
+    "need_score": 12.9
+  },
+  {
+    "beneficiary_id": "BEN-1016",
+    "monthly_income_sar": 3041.26,
+    "income_breakdown": [
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 3041.26
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 628.56,
+        "documented": true
+      },
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 458.17,
+        "documented": true
+      },
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 202.19,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 1288.92,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 340.13
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 589.59
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 441.63
+      }
+    ],
+    "total_person_costs_sar": 1371.35,
+    "household_size": 5,
+    "net_monthly_sar": 380.99,
+    "per_capita_monthly_sar": 76.2,
+    "need_score": 94.9
+  },
+  {
+    "beneficiary_id": "BEN-1017",
+    "monthly_income_sar": 0.0,
+    "income_breakdown": [],
+    "obligations": [
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 435.13,
+        "documented": true
+      },
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 573.77,
+        "documented": true
+      },
+      {
+        "type_id": "OB-BNPL",
+        "name_ar": "الالتزامات المرتبطة بخدمات (تابي - تمارا)",
+        "monthly_sar": 486.98,
+        "documented": true
+      },
+      {
+        "type_id": "OB-NAJIZ",
+        "name_ar": "اوامر التنفيذ في منصة ناجز",
+        "monthly_sar": 1862.49,
+        "documented": true
+      },
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 867.33,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 4225.7,
+    "person_costs": [
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 792.01
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 152.02
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 698.58
+      }
+    ],
+    "total_person_costs_sar": 1642.61,
+    "household_size": 5,
+    "net_monthly_sar": -5868.31,
+    "per_capita_monthly_sar": -1173.66,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1018",
+    "monthly_income_sar": 1985.67,
+    "income_breakdown": [
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 1143.56
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 842.11
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 337.04,
+        "documented": true
+      },
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 163.17,
+        "documented": true
+      },
+      {
+        "type_id": "OB-BNPL",
+        "name_ar": "الالتزامات المرتبطة بخدمات (تابي - تمارا)",
+        "monthly_sar": 584.57,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 1084.78,
+    "person_costs": [
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 308.58
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 1814.44
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 427.61
+      }
+    ],
+    "total_person_costs_sar": 2550.63,
+    "household_size": 5,
+    "net_monthly_sar": -1649.74,
+    "per_capita_monthly_sar": -329.95,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1019",
+    "monthly_income_sar": 5628.43,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 4912.57
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 715.86
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 440.38,
+        "documented": true
+      },
+      {
+        "type_id": "OB-RENT",
+        "name_ar": "سداد الايجار",
+        "monthly_sar": 1540.49,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 1980.87,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 382.82
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 297.75
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 391.55
+      }
+    ],
+    "total_person_costs_sar": 1072.12,
+    "household_size": 2,
+    "net_monthly_sar": 2575.44,
+    "per_capita_monthly_sar": 1287.72,
+    "need_score": 14.2
+  },
+  {
+    "beneficiary_id": "BEN-1020",
+    "monthly_income_sar": 0.0,
+    "income_breakdown": [],
+    "obligations": [
+      {
+        "type_id": "OB-LOAN",
+        "name_ar": "القروض والسلفات التمويلية من البنوك او الجهات التمويلية المعتمدة",
+        "monthly_sar": 1006.23,
+        "documented": true
+      },
+      {
+        "type_id": "OB-RENT",
+        "name_ar": "سداد الايجار",
+        "monthly_sar": 2226.24,
+        "documented": true
+      },
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 535.32,
+        "documented": true
+      },
+      {
+        "type_id": "OB-NAJIZ",
+        "name_ar": "اوامر التنفيذ في منصة ناجز",
+        "monthly_sar": 1372.14,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 5139.93,
+    "person_costs": [
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 162.01
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 1644.9
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 289.12
+      }
+    ],
+    "total_person_costs_sar": 2096.03,
+    "household_size": 4,
+    "net_monthly_sar": -7235.96,
+    "per_capita_monthly_sar": -1808.99,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1021",
+    "monthly_income_sar": 6684.37,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 4403.97
+      },
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 1722.8
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 557.6
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-LOAN",
+        "name_ar": "القروض والسلفات التمويلية من البنوك او الجهات التمويلية المعتمدة",
+        "monthly_sar": 1528.54,
+        "documented": true
+      },
+      {
+        "type_id": "OB-RENT",
+        "name_ar": "سداد الايجار",
+        "monthly_sar": 1974.19,
+        "documented": true
+      },
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 287.01,
+        "documented": true
+      },
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 847.22,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 4636.96,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 269.71
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 418.89
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 293.89
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 225.42
+      }
+    ],
+    "total_person_costs_sar": 1207.91,
+    "household_size": 4,
+    "net_monthly_sar": 839.5,
+    "per_capita_monthly_sar": 209.88,
+    "need_score": 86.0
+  },
+  {
+    "beneficiary_id": "BEN-1022",
+    "monthly_income_sar": 0.0,
+    "income_breakdown": [],
+    "obligations": [
+      {
+        "type_id": "OB-RENT",
+        "name_ar": "سداد الايجار",
+        "monthly_sar": 1399.96,
+        "documented": true
+      },
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 338.77,
+        "documented": true
+      },
+      {
+        "type_id": "OB-BNPL",
+        "name_ar": "الالتزامات المرتبطة بخدمات (تابي - تمارا)",
+        "monthly_sar": 765.66,
+        "documented": true
+      },
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 788.5,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 3292.89,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 467.91
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 639.77
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 1299.19
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 362.87
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 797.91
+      }
+    ],
+    "total_person_costs_sar": 3567.65,
+    "household_size": 3,
+    "net_monthly_sar": -6860.54,
+    "per_capita_monthly_sar": -2286.85,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1023",
+    "monthly_income_sar": 3361.42,
+    "income_breakdown": [
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 2505.69
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 855.73
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-BNPL",
+        "name_ar": "الالتزامات المرتبطة بخدمات (تابي - تمارا)",
+        "monthly_sar": 588.78,
+        "documented": true
+      },
+      {
+        "type_id": "OB-NAJIZ",
+        "name_ar": "اوامر التنفيذ في منصة ناجز",
+        "monthly_sar": 1170.2,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 1758.98,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 492.87
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 521.64
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 341.24
+      }
+    ],
+    "total_person_costs_sar": 1355.75,
+    "household_size": 3,
+    "net_monthly_sar": 246.69,
+    "per_capita_monthly_sar": 82.23,
+    "need_score": 94.5
+  },
+  {
+    "beneficiary_id": "BEN-1024",
+    "monthly_income_sar": 4077.96,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 3391.74
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 686.22
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-LOAN",
+        "name_ar": "القروض والسلفات التمويلية من البنوك او الجهات التمويلية المعتمدة",
+        "monthly_sar": 603.13,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 603.13,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 220.87
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 448.67
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 1907.17
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 305.12
+      }
+    ],
+    "total_person_costs_sar": 2881.83,
+    "household_size": 4,
+    "net_monthly_sar": 593.0,
+    "per_capita_monthly_sar": 148.25,
+    "need_score": 90.1
+  },
+  {
+    "beneficiary_id": "BEN-1025",
+    "monthly_income_sar": 3099.6,
+    "income_breakdown": [
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 2387.9
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 711.7
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 817.64,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 817.64,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 318.01
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 342.61
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 679.3
+      }
+    ],
+    "total_person_costs_sar": 1339.92,
+    "household_size": 2,
+    "net_monthly_sar": 942.04,
+    "per_capita_monthly_sar": 471.02,
+    "need_score": 68.6
+  },
+  {
+    "beneficiary_id": "BEN-1026",
+    "monthly_income_sar": 9779.38,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 8160.03
+      },
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 1619.35
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 156.03,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 156.03,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 286.8
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 372.32
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 540.59
+      }
+    ],
+    "total_person_costs_sar": 1199.71,
+    "household_size": 5,
+    "net_monthly_sar": 8423.64,
+    "per_capita_monthly_sar": 1684.73,
+    "need_score": 0
+  },
+  {
+    "beneficiary_id": "BEN-1027",
+    "monthly_income_sar": 8224.21,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 7759.92
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 464.29
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-LOAN",
+        "name_ar": "القروض والسلفات التمويلية من البنوك او الجهات التمويلية المعتمدة",
+        "monthly_sar": 856.65,
+        "documented": true
+      },
+      {
+        "type_id": "OB-RENT",
+        "name_ar": "سداد الايجار",
+        "monthly_sar": 2183.83,
+        "documented": true
+      },
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 392.4,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 3432.88,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 483.49
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 526.86
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 718.08
+      }
+    ],
+    "total_person_costs_sar": 1728.43,
+    "household_size": 5,
+    "net_monthly_sar": 3062.9,
+    "per_capita_monthly_sar": 612.58,
+    "need_score": 59.2
+  },
+  {
+    "beneficiary_id": "BEN-1028",
+    "monthly_income_sar": 2657.99,
+    "income_breakdown": [
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 2657.99
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 224.42,
+        "documented": true
+      },
+      {
+        "type_id": "OB-RENT",
+        "name_ar": "سداد الايجار",
+        "monthly_sar": 2456.37,
+        "documented": true
+      },
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 560.22,
+        "documented": true
+      },
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 278.72,
+        "documented": true
+      },
+      {
+        "type_id": "OB-BNPL",
+        "name_ar": "الالتزامات المرتبطة بخدمات (تابي - تمارا)",
+        "monthly_sar": 218.12,
+        "documented": true
+      },
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 641.4,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 4379.25,
+    "person_costs": [
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 287.69
+      }
+    ],
+    "total_person_costs_sar": 287.69,
+    "household_size": 3,
+    "net_monthly_sar": -2008.95,
+    "per_capita_monthly_sar": -669.65,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1029",
+    "monthly_income_sar": 3632.44,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 2629.58
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 1002.86
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 249.97,
+        "documented": true
+      },
+      {
+        "type_id": "OB-NAJIZ",
+        "name_ar": "اوامر التنفيذ في منصة ناجز",
+        "monthly_sar": 1510.69,
+        "documented": true
+      },
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 884.14,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 2644.8,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 454.74
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 477.34
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 1024.2
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 242.73
+      }
+    ],
+    "total_person_costs_sar": 2199.01,
+    "household_size": 2,
+    "net_monthly_sar": -1211.37,
+    "per_capita_monthly_sar": -605.68,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1030",
+    "monthly_income_sar": 1798.55,
+    "income_breakdown": [
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 1205.92
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 592.63
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 1171.38,
+        "documented": true
+      },
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 449.52,
+        "documented": true
+      },
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 99.11,
+        "documented": true
+      },
+      {
+        "type_id": "OB-NAJIZ",
+        "name_ar": "اوامر التنفيذ في منصة ناجز",
+        "monthly_sar": 1193.89,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 2913.9,
+    "person_costs": [
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 1726.28
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 311.76
+      }
+    ],
+    "total_person_costs_sar": 2038.04,
+    "household_size": 3,
+    "net_monthly_sar": -3153.39,
+    "per_capita_monthly_sar": -1051.13,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1031",
+    "monthly_income_sar": 3801.59,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 3801.59
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 927.81,
+        "documented": true
+      },
+      {
+        "type_id": "OB-RENT",
+        "name_ar": "سداد الايجار",
+        "monthly_sar": 1145.46,
+        "documented": true
+      },
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 536.16,
+        "documented": true
+      },
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 116.99,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 2726.42,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 474.57
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 1019.53
+      }
+    ],
+    "total_person_costs_sar": 1494.1,
+    "household_size": 2,
+    "net_monthly_sar": -418.93,
+    "per_capita_monthly_sar": -209.47,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1032",
+    "monthly_income_sar": 827.1,
+    "income_breakdown": [
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 827.1
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 1037.19,
+        "documented": true
+      },
+      {
+        "type_id": "OB-RENT",
+        "name_ar": "سداد الايجار",
+        "monthly_sar": 2036.96,
+        "documented": true
+      },
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 258.94,
+        "documented": true
+      },
+      {
+        "type_id": "OB-BNPL",
+        "name_ar": "الالتزامات المرتبطة بخدمات (تابي - تمارا)",
+        "monthly_sar": 103.47,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 3436.56,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 267.58
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 243.23
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 1113.89
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 263.5
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 554.7
+      }
+    ],
+    "total_person_costs_sar": 2442.9,
+    "household_size": 5,
+    "net_monthly_sar": -5052.36,
+    "per_capita_monthly_sar": -1010.47,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1033",
+    "monthly_income_sar": 8164.93,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 8164.93
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-RENT",
+        "name_ar": "سداد الايجار",
+        "monthly_sar": 2208.33,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 2208.33,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 345.89
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 868.75
+      }
+    ],
+    "total_person_costs_sar": 1214.64,
+    "household_size": 1,
+    "net_monthly_sar": 4741.96,
+    "per_capita_monthly_sar": 4741.96,
+    "need_score": 0
+  },
+  {
+    "beneficiary_id": "BEN-1034",
+    "monthly_income_sar": 0.0,
+    "income_breakdown": [],
+    "obligations": [
+      {
+        "type_id": "OB-LOAN",
+        "name_ar": "القروض والسلفات التمويلية من البنوك او الجهات التمويلية المعتمدة",
+        "monthly_sar": 2377.68,
+        "documented": true
+      },
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 167.8,
+        "documented": true
+      },
+      {
+        "type_id": "OB-BNPL",
+        "name_ar": "الالتزامات المرتبطة بخدمات (تابي - تمارا)",
+        "monthly_sar": 767.08,
+        "documented": true
+      },
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 963.81,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 4276.37,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 171.0
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 548.42
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 1133.66
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 535.43
+      }
+    ],
+    "total_person_costs_sar": 2388.51,
+    "household_size": 6,
+    "net_monthly_sar": -6664.88,
+    "per_capita_monthly_sar": -1110.81,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1035",
+    "monthly_income_sar": 4945.97,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 4607.31
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 338.66
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 408.18,
+        "documented": true
+      },
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 308.09,
+        "documented": true
+      },
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 1073.02,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 1789.29,
+    "person_costs": [
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 639.0
+      }
+    ],
+    "total_person_costs_sar": 639.0,
+    "household_size": 6,
+    "net_monthly_sar": 2517.68,
+    "per_capita_monthly_sar": 419.61,
+    "need_score": 72.0
+  },
+  {
+    "beneficiary_id": "BEN-1036",
+    "monthly_income_sar": 1712.35,
+    "income_breakdown": [
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 1337.28
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 375.07
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 175.73,
+        "documented": true
+      },
+      {
+        "type_id": "OB-BNPL",
+        "name_ar": "الالتزامات المرتبطة بخدمات (تابي - تمارا)",
+        "monthly_sar": 617.56,
+        "documented": true
+      },
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 238.2,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 1031.49,
+    "person_costs": [
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 2230.44
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 459.49
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 166.19
+      }
+    ],
+    "total_person_costs_sar": 2856.12,
+    "household_size": 5,
+    "net_monthly_sar": -2175.26,
+    "per_capita_monthly_sar": -435.05,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1037",
+    "monthly_income_sar": 7288.8,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 6766.15
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 522.65
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-LOAN",
+        "name_ar": "القروض والسلفات التمويلية من البنوك او الجهات التمويلية المعتمدة",
+        "monthly_sar": 2826.71,
+        "documented": true
+      },
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 871.88,
+        "documented": true
+      },
+      {
+        "type_id": "OB-BNPL",
+        "name_ar": "الالتزامات المرتبطة بخدمات (تابي - تمارا)",
+        "monthly_sar": 207.39,
+        "documented": true
+      },
+      {
+        "type_id": "OB-NAJIZ",
+        "name_ar": "اوامر التنفيذ في منصة ناجز",
+        "monthly_sar": 1587.1,
+        "documented": true
+      },
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 1465.1,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 6958.18,
+    "person_costs": [
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 584.24
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 1573.04
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 425.43
+      }
+    ],
+    "total_person_costs_sar": 2582.71,
+    "household_size": 2,
+    "net_monthly_sar": -2252.09,
+    "per_capita_monthly_sar": -1126.05,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1038",
+    "monthly_income_sar": 864.74,
+    "income_breakdown": [
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 864.74
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-LOAN",
+        "name_ar": "القروض والسلفات التمويلية من البنوك او الجهات التمويلية المعتمدة",
+        "monthly_sar": 907.34,
+        "documented": true
+      },
+      {
+        "type_id": "OB-SIMAH",
+        "name_ar": "اي التزام مالي موثق ضمن تقرير سمة الائتماني",
+        "monthly_sar": 1244.71,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 2152.05,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 392.03
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 426.38
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 2150.53
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 419.85
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 374.1
+      }
+    ],
+    "total_person_costs_sar": 3762.89,
+    "household_size": 1,
+    "net_monthly_sar": -5050.2,
+    "per_capita_monthly_sar": -5050.2,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1039",
+    "monthly_income_sar": 3090.59,
+    "income_breakdown": [
+      {
+        "type": "الضمان الاجتماعي",
+        "amount_sar": 2359.86
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 730.73
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-LOAN",
+        "name_ar": "القروض والسلفات التمويلية من البنوك او الجهات التمويلية المعتمدة",
+        "monthly_sar": 1157.62,
+        "documented": true
+      },
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 681.39,
+        "documented": true
+      },
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 264.27,
+        "documented": true
+      },
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 237.59,
+        "documented": true
+      },
+      {
+        "type_id": "OB-BNPL",
+        "name_ar": "الالتزامات المرتبطة بخدمات (تابي - تمارا)",
+        "monthly_sar": 307.12,
+        "documented": true
+      },
+      {
+        "type_id": "OB-NAJIZ",
+        "name_ar": "اوامر التنفيذ في منصة ناجز",
+        "monthly_sar": 1882.25,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 4530.24,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 393.98
+      },
+      {
+        "type_id": "PC-TRANSPORT",
+        "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+        "monthly_sar": 321.63
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 208.18
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 797.93
+      }
+    ],
+    "total_person_costs_sar": 1721.72,
+    "household_size": 1,
+    "net_monthly_sar": -3161.37,
+    "per_capita_monthly_sar": -3161.37,
+    "need_score": 100
+  },
+  {
+    "beneficiary_id": "BEN-1040",
+    "monthly_income_sar": 4371.72,
+    "income_breakdown": [
+      {
+        "type": "راتب",
+        "amount_sar": 4065.69
+      },
+      {
+        "type": "حساب المواطن",
+        "amount_sar": 306.03
+      }
+    ],
+    "obligations": [
+      {
+        "type_id": "OB-CARD",
+        "name_ar": "البطاقات الائتمانية (الفيزا ونحوها)",
+        "monthly_sar": 514.03,
+        "documented": true
+      },
+      {
+        "type_id": "OB-RENT",
+        "name_ar": "سداد الايجار",
+        "monthly_sar": 912.59,
+        "documented": true
+      },
+      {
+        "type_id": "OB-UTIL",
+        "name_ar": "فواتير الكهرباء والمياه",
+        "monthly_sar": 224.33,
+        "documented": true
+      },
+      {
+        "type_id": "OB-TELECOM",
+        "name_ar": "فواتير الجوال والانترنت",
+        "monthly_sar": 210.74,
+        "documented": true
+      },
+      {
+        "type_id": "OB-BNPL",
+        "name_ar": "الالتزامات المرتبطة بخدمات (تابي - تمارا)",
+        "monthly_sar": 361.6,
+        "documented": true
+      }
+    ],
+    "total_obligations_sar": 2223.29,
+    "person_costs": [
+      {
+        "type_id": "PC-FUEL",
+        "name_ar": "البنزين",
+        "monthly_sar": 245.52
+      },
+      {
+        "type_id": "PC-GROCERY",
+        "name_ar": "المصروفات التموينية (المقاضي)",
+        "monthly_sar": 1493.84
+      },
+      {
+        "type_id": "PC-INFANT",
+        "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+        "monthly_sar": 424.52
+      },
+      {
+        "type_id": "PC-PERSONAL",
+        "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+        "monthly_sar": 879.95
+      }
+    ],
+    "total_person_costs_sar": 3043.83,
+    "household_size": 6,
+    "net_monthly_sar": -895.4,
+    "per_capita_monthly_sar": -149.23,
+    "need_score": 100
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "CT-IND",
+    "name_ar": "تسجيل مستفيد جديد",
+    "name_en": "New independent beneficiary",
+    "description_ar": "يستخدم للمستفيد المستقل الذي تجاوز عمره 18 عاما"
+  },
+  {
+    "id": "CT-FOSTER",
+    "name_ar": "تسجيل اسرة بديلة",
+    "name_en": "Foster / alternative family",
+    "description_ar": "يستخدم للاسر الحاضنة او البديلة التي ترعى يتيم او يتيمة"
+  }
+]

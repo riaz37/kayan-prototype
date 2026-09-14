@@ -1,0 +1,33 @@
+[
+  {
+    "id": "PC-FUEL",
+    "name_ar": "البنزين",
+    "counted": true
+  },
+  {
+    "id": "PC-TRANSPORT",
+    "name_ar": "تكاليف المواصلات (اوبر - كريم - جيني)",
+    "counted": true
+  },
+  {
+    "id": "PC-GROCERY",
+    "name_ar": "المصروفات التموينية (المقاضي)",
+    "counted": true
+  },
+  {
+    "id": "PC-INFANT",
+    "name_ar": "الحليب والاحتياجات الشهرية للرضيع (ان وجد)",
+    "counted": true
+  },
+  {
+    "id": "PC-PERSONAL",
+    "name_ar": "السلفات الشخصية غير الموثقة والشهرية",
+    "counted": true
+  },
+  {
+    "id": "PC-LUXURY",
+    "name_ar": "المصاريف الكمالية او الترفيهية",
+    "counted": false,
+    "note_ar": "لا يتم احتساب المصاريف الكمالية او الترفيهية ضمن الفواتير الشهرية المعتمدة"
+  }
+]

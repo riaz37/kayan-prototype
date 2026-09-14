@@ -1,0 +1,3692 @@
+[
+  {
+    "id": "DOC-7001",
+    "beneficiary_id": "BEN-1001",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2024-12-03T10:00:00Z"
+  },
+  {
+    "id": "DOC-7002",
+    "beneficiary_id": "BEN-1001",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2024-12-09T10:00:00Z"
+  },
+  {
+    "id": "DOC-7003",
+    "beneficiary_id": "BEN-1001",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7004",
+    "beneficiary_id": "BEN-1001",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7005",
+    "beneficiary_id": "BEN-1001",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7006",
+    "beneficiary_id": "BEN-1001",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2024-12-21T10:00:00Z"
+  },
+  {
+    "id": "DOC-7007",
+    "beneficiary_id": "BEN-1001",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7008",
+    "beneficiary_id": "BEN-1001",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7009",
+    "beneficiary_id": "BEN-1001",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7010",
+    "beneficiary_id": "BEN-1001",
+    "document_type_id": "DOC-CUSTODY",
+    "name_ar": "صك حضانة / وثيقة الاحتضان",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2024-12-12T10:00:00Z"
+  },
+  {
+    "id": "DOC-7011",
+    "beneficiary_id": "BEN-1002",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2024-12-10T10:00:00Z"
+  },
+  {
+    "id": "DOC-7012",
+    "beneficiary_id": "BEN-1002",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2024-12-11T10:00:00Z"
+  },
+  {
+    "id": "DOC-7013",
+    "beneficiary_id": "BEN-1002",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-12-10T10:00:00Z"
+  },
+  {
+    "id": "DOC-7014",
+    "beneficiary_id": "BEN-1002",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2024-12-14T10:00:00Z"
+  },
+  {
+    "id": "DOC-7015",
+    "beneficiary_id": "BEN-1002",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-12-02T10:00:00Z"
+  },
+  {
+    "id": "DOC-7016",
+    "beneficiary_id": "BEN-1002",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7017",
+    "beneficiary_id": "BEN-1002",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-12-05T10:00:00Z"
+  },
+  {
+    "id": "DOC-7018",
+    "beneficiary_id": "BEN-1002",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7019",
+    "beneficiary_id": "BEN-1002",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7020",
+    "beneficiary_id": "BEN-1003",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7021",
+    "beneficiary_id": "BEN-1003",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-16T10:00:00Z"
+  },
+  {
+    "id": "DOC-7022",
+    "beneficiary_id": "BEN-1003",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-15T10:00:00Z"
+  },
+  {
+    "id": "DOC-7023",
+    "beneficiary_id": "BEN-1003",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-03T10:00:00Z"
+  },
+  {
+    "id": "DOC-7024",
+    "beneficiary_id": "BEN-1003",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "not_available",
+    "note_ar": "لا يوجد",
+    "uploaded_at": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7025",
+    "beneficiary_id": "BEN-1003",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-08T10:00:00Z"
+  },
+  {
+    "id": "DOC-7026",
+    "beneficiary_id": "BEN-1003",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-03T10:00:00Z"
+  },
+  {
+    "id": "DOC-7027",
+    "beneficiary_id": "BEN-1003",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-17T10:00:00Z"
+  },
+  {
+    "id": "DOC-7028",
+    "beneficiary_id": "BEN-1003",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-02T10:00:00Z"
+  },
+  {
+    "id": "DOC-7029",
+    "beneficiary_id": "BEN-1004",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7030",
+    "beneficiary_id": "BEN-1004",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-05-07T10:00:00Z"
+  },
+  {
+    "id": "DOC-7031",
+    "beneficiary_id": "BEN-1004",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-08T10:00:00Z"
+  },
+  {
+    "id": "DOC-7032",
+    "beneficiary_id": "BEN-1004",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-05-23T10:00:00Z"
+  },
+  {
+    "id": "DOC-7033",
+    "beneficiary_id": "BEN-1004",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7034",
+    "beneficiary_id": "BEN-1004",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-05-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7035",
+    "beneficiary_id": "BEN-1004",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-05-21T10:00:00Z"
+  },
+  {
+    "id": "DOC-7036",
+    "beneficiary_id": "BEN-1004",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-05-27T10:00:00Z"
+  },
+  {
+    "id": "DOC-7037",
+    "beneficiary_id": "BEN-1004",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-05-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7038",
+    "beneficiary_id": "BEN-1005",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-04-26T10:00:00Z"
+  },
+  {
+    "id": "DOC-7039",
+    "beneficiary_id": "BEN-1005",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-04-21T10:00:00Z"
+  },
+  {
+    "id": "DOC-7040",
+    "beneficiary_id": "BEN-1005",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-04-08T10:00:00Z"
+  },
+  {
+    "id": "DOC-7041",
+    "beneficiary_id": "BEN-1005",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-04-15T10:00:00Z"
+  },
+  {
+    "id": "DOC-7042",
+    "beneficiary_id": "BEN-1005",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7043",
+    "beneficiary_id": "BEN-1005",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7044",
+    "beneficiary_id": "BEN-1005",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7045",
+    "beneficiary_id": "BEN-1005",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-04-10T10:00:00Z"
+  },
+  {
+    "id": "DOC-7046",
+    "beneficiary_id": "BEN-1005",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-04-26T10:00:00Z"
+  },
+  {
+    "id": "DOC-7047",
+    "beneficiary_id": "BEN-1006",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-19T10:00:00Z"
+  },
+  {
+    "id": "DOC-7048",
+    "beneficiary_id": "BEN-1006",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7049",
+    "beneficiary_id": "BEN-1006",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-07T10:00:00Z"
+  },
+  {
+    "id": "DOC-7050",
+    "beneficiary_id": "BEN-1006",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7051",
+    "beneficiary_id": "BEN-1006",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-12T10:00:00Z"
+  },
+  {
+    "id": "DOC-7052",
+    "beneficiary_id": "BEN-1006",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-23T10:00:00Z"
+  },
+  {
+    "id": "DOC-7053",
+    "beneficiary_id": "BEN-1006",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-05T10:00:00Z"
+  },
+  {
+    "id": "DOC-7054",
+    "beneficiary_id": "BEN-1006",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-18T10:00:00Z"
+  },
+  {
+    "id": "DOC-7055",
+    "beneficiary_id": "BEN-1006",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-21T10:00:00Z"
+  },
+  {
+    "id": "DOC-7056",
+    "beneficiary_id": "BEN-1006",
+    "document_type_id": "DOC-CUSTODY",
+    "name_ar": "صك حضانة / وثيقة الاحتضان",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-13T10:00:00Z"
+  },
+  {
+    "id": "DOC-7057",
+    "beneficiary_id": "BEN-1007",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-02-10T10:00:00Z"
+  },
+  {
+    "id": "DOC-7058",
+    "beneficiary_id": "BEN-1007",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-01-27T10:00:00Z"
+  },
+  {
+    "id": "DOC-7059",
+    "beneficiary_id": "BEN-1007",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-01-30T10:00:00Z"
+  },
+  {
+    "id": "DOC-7060",
+    "beneficiary_id": "BEN-1007",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-01-27T10:00:00Z"
+  },
+  {
+    "id": "DOC-7061",
+    "beneficiary_id": "BEN-1007",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-02-14T10:00:00Z"
+  },
+  {
+    "id": "DOC-7062",
+    "beneficiary_id": "BEN-1007",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-01-27T10:00:00Z"
+  },
+  {
+    "id": "DOC-7063",
+    "beneficiary_id": "BEN-1007",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-01-31T10:00:00Z"
+  },
+  {
+    "id": "DOC-7064",
+    "beneficiary_id": "BEN-1007",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-02-05T10:00:00Z"
+  },
+  {
+    "id": "DOC-7065",
+    "beneficiary_id": "BEN-1007",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-01-28T10:00:00Z"
+  },
+  {
+    "id": "DOC-7066",
+    "beneficiary_id": "BEN-1008",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-13T10:00:00Z"
+  },
+  {
+    "id": "DOC-7067",
+    "beneficiary_id": "BEN-1008",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7068",
+    "beneficiary_id": "BEN-1008",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-12T10:00:00Z"
+  },
+  {
+    "id": "DOC-7069",
+    "beneficiary_id": "BEN-1008",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-10T10:00:00Z"
+  },
+  {
+    "id": "DOC-7070",
+    "beneficiary_id": "BEN-1008",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-09T10:00:00Z"
+  },
+  {
+    "id": "DOC-7071",
+    "beneficiary_id": "BEN-1008",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-08T10:00:00Z"
+  },
+  {
+    "id": "DOC-7072",
+    "beneficiary_id": "BEN-1008",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7073",
+    "beneficiary_id": "BEN-1008",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-06T10:00:00Z"
+  },
+  {
+    "id": "DOC-7074",
+    "beneficiary_id": "BEN-1008",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-11T10:00:00Z"
+  },
+  {
+    "id": "DOC-7075",
+    "beneficiary_id": "BEN-1009",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7076",
+    "beneficiary_id": "BEN-1009",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-08-12T10:00:00Z"
+  },
+  {
+    "id": "DOC-7077",
+    "beneficiary_id": "BEN-1009",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-08-07T10:00:00Z"
+  },
+  {
+    "id": "DOC-7078",
+    "beneficiary_id": "BEN-1009",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-08-12T10:00:00Z"
+  },
+  {
+    "id": "DOC-7079",
+    "beneficiary_id": "BEN-1009",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-07-29T10:00:00Z"
+  },
+  {
+    "id": "DOC-7080",
+    "beneficiary_id": "BEN-1009",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-08-11T10:00:00Z"
+  },
+  {
+    "id": "DOC-7081",
+    "beneficiary_id": "BEN-1009",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7082",
+    "beneficiary_id": "BEN-1009",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7083",
+    "beneficiary_id": "BEN-1009",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-08-05T10:00:00Z"
+  },
+  {
+    "id": "DOC-7084",
+    "beneficiary_id": "BEN-1010",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-01-09T10:00:00Z"
+  },
+  {
+    "id": "DOC-7085",
+    "beneficiary_id": "BEN-1010",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-01-07T10:00:00Z"
+  },
+  {
+    "id": "DOC-7086",
+    "beneficiary_id": "BEN-1010",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-01-02T10:00:00Z"
+  },
+  {
+    "id": "DOC-7087",
+    "beneficiary_id": "BEN-1010",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-12-27T10:00:00Z"
+  },
+  {
+    "id": "DOC-7088",
+    "beneficiary_id": "BEN-1010",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-01-11T10:00:00Z"
+  },
+  {
+    "id": "DOC-7089",
+    "beneficiary_id": "BEN-1010",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "ineligible",
+    "note_ar": "عدم الاهلية",
+    "uploaded_at": "2025-01-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7090",
+    "beneficiary_id": "BEN-1010",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-12-27T10:00:00Z"
+  },
+  {
+    "id": "DOC-7091",
+    "beneficiary_id": "BEN-1010",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-12-30T10:00:00Z"
+  },
+  {
+    "id": "DOC-7092",
+    "beneficiary_id": "BEN-1010",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-01-07T10:00:00Z"
+  },
+  {
+    "id": "DOC-7093",
+    "beneficiary_id": "BEN-1010",
+    "document_type_id": "DOC-CUSTODY",
+    "name_ar": "صك حضانة / وثيقة الاحتضان",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-01-02T10:00:00Z"
+  },
+  {
+    "id": "DOC-7094",
+    "beneficiary_id": "BEN-1011",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-09-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7095",
+    "beneficiary_id": "BEN-1011",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-09-28T10:00:00Z"
+  },
+  {
+    "id": "DOC-7096",
+    "beneficiary_id": "BEN-1011",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-09-29T10:00:00Z"
+  },
+  {
+    "id": "DOC-7097",
+    "beneficiary_id": "BEN-1011",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-09-28T10:00:00Z"
+  },
+  {
+    "id": "DOC-7098",
+    "beneficiary_id": "BEN-1011",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-09-18T10:00:00Z"
+  },
+  {
+    "id": "DOC-7099",
+    "beneficiary_id": "BEN-1011",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-09-29T10:00:00Z"
+  },
+  {
+    "id": "DOC-7100",
+    "beneficiary_id": "BEN-1011",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-09-24T10:00:00Z"
+  },
+  {
+    "id": "DOC-7101",
+    "beneficiary_id": "BEN-1011",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-09-09T10:00:00Z"
+  },
+  {
+    "id": "DOC-7102",
+    "beneficiary_id": "BEN-1011",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-09-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7103",
+    "beneficiary_id": "BEN-1011",
+    "document_type_id": "DOC-CUSTODY",
+    "name_ar": "صك حضانة / وثيقة الاحتضان",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-09-23T10:00:00Z"
+  },
+  {
+    "id": "DOC-7104",
+    "beneficiary_id": "BEN-1012",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-27T10:00:00Z"
+  },
+  {
+    "id": "DOC-7105",
+    "beneficiary_id": "BEN-1012",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-03T10:00:00Z"
+  },
+  {
+    "id": "DOC-7106",
+    "beneficiary_id": "BEN-1012",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-25T10:00:00Z"
+  },
+  {
+    "id": "DOC-7107",
+    "beneficiary_id": "BEN-1012",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-03T10:00:00Z"
+  },
+  {
+    "id": "DOC-7108",
+    "beneficiary_id": "BEN-1012",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-26T10:00:00Z"
+  },
+  {
+    "id": "DOC-7109",
+    "beneficiary_id": "BEN-1012",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-09T10:00:00Z"
+  },
+  {
+    "id": "DOC-7110",
+    "beneficiary_id": "BEN-1012",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-30T10:00:00Z"
+  },
+  {
+    "id": "DOC-7111",
+    "beneficiary_id": "BEN-1012",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-12T10:00:00Z"
+  },
+  {
+    "id": "DOC-7112",
+    "beneficiary_id": "BEN-1012",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-10T10:00:00Z"
+  },
+  {
+    "id": "DOC-7113",
+    "beneficiary_id": "BEN-1012",
+    "document_type_id": "DOC-CUSTODY",
+    "name_ar": "صك حضانة / وثيقة الاحتضان",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-30T10:00:00Z"
+  },
+  {
+    "id": "DOC-7114",
+    "beneficiary_id": "BEN-1013",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-27T10:00:00Z"
+  },
+  {
+    "id": "DOC-7115",
+    "beneficiary_id": "BEN-1013",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-08T10:00:00Z"
+  },
+  {
+    "id": "DOC-7116",
+    "beneficiary_id": "BEN-1013",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-21T10:00:00Z"
+  },
+  {
+    "id": "DOC-7117",
+    "beneficiary_id": "BEN-1013",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-26T10:00:00Z"
+  },
+  {
+    "id": "DOC-7118",
+    "beneficiary_id": "BEN-1013",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-21T10:00:00Z"
+  },
+  {
+    "id": "DOC-7119",
+    "beneficiary_id": "BEN-1013",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-28T10:00:00Z"
+  },
+  {
+    "id": "DOC-7120",
+    "beneficiary_id": "BEN-1013",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-28T10:00:00Z"
+  },
+  {
+    "id": "DOC-7121",
+    "beneficiary_id": "BEN-1013",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-15T10:00:00Z"
+  },
+  {
+    "id": "DOC-7122",
+    "beneficiary_id": "BEN-1013",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-28T10:00:00Z"
+  },
+  {
+    "id": "DOC-7123",
+    "beneficiary_id": "BEN-1014",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-28T10:00:00Z"
+  },
+  {
+    "id": "DOC-7124",
+    "beneficiary_id": "BEN-1014",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-03T10:00:00Z"
+  },
+  {
+    "id": "DOC-7125",
+    "beneficiary_id": "BEN-1014",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-17T10:00:00Z"
+  },
+  {
+    "id": "DOC-7126",
+    "beneficiary_id": "BEN-1014",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-16T10:00:00Z"
+  },
+  {
+    "id": "DOC-7127",
+    "beneficiary_id": "BEN-1014",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7128",
+    "beneficiary_id": "BEN-1014",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-02T10:00:00Z"
+  },
+  {
+    "id": "DOC-7129",
+    "beneficiary_id": "BEN-1014",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-08T10:00:00Z"
+  },
+  {
+    "id": "DOC-7130",
+    "beneficiary_id": "BEN-1014",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-03T10:00:00Z"
+  },
+  {
+    "id": "DOC-7131",
+    "beneficiary_id": "BEN-1014",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-14T10:00:00Z"
+  },
+  {
+    "id": "DOC-7132",
+    "beneficiary_id": "BEN-1015",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-07-31T10:00:00Z"
+  },
+  {
+    "id": "DOC-7133",
+    "beneficiary_id": "BEN-1015",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-31T10:00:00Z"
+  },
+  {
+    "id": "DOC-7134",
+    "beneficiary_id": "BEN-1015",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7135",
+    "beneficiary_id": "BEN-1015",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-07-17T10:00:00Z"
+  },
+  {
+    "id": "DOC-7136",
+    "beneficiary_id": "BEN-1015",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-07-20T10:00:00Z"
+  },
+  {
+    "id": "DOC-7137",
+    "beneficiary_id": "BEN-1015",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-29T10:00:00Z"
+  },
+  {
+    "id": "DOC-7138",
+    "beneficiary_id": "BEN-1015",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7139",
+    "beneficiary_id": "BEN-1015",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7140",
+    "beneficiary_id": "BEN-1015",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7141",
+    "beneficiary_id": "BEN-1016",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-06-02T10:00:00Z"
+  },
+  {
+    "id": "DOC-7142",
+    "beneficiary_id": "BEN-1016",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7143",
+    "beneficiary_id": "BEN-1016",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7144",
+    "beneficiary_id": "BEN-1016",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7145",
+    "beneficiary_id": "BEN-1016",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7146",
+    "beneficiary_id": "BEN-1016",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-06-03T10:00:00Z"
+  },
+  {
+    "id": "DOC-7147",
+    "beneficiary_id": "BEN-1016",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7148",
+    "beneficiary_id": "BEN-1016",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7149",
+    "beneficiary_id": "BEN-1016",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-05-19T10:00:00Z"
+  },
+  {
+    "id": "DOC-7150",
+    "beneficiary_id": "BEN-1017",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-08-13T10:00:00Z"
+  },
+  {
+    "id": "DOC-7151",
+    "beneficiary_id": "BEN-1017",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-08-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7152",
+    "beneficiary_id": "BEN-1017",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-08-19T10:00:00Z"
+  },
+  {
+    "id": "DOC-7153",
+    "beneficiary_id": "BEN-1017",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-08-02T10:00:00Z"
+  },
+  {
+    "id": "DOC-7154",
+    "beneficiary_id": "BEN-1017",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-08-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7155",
+    "beneficiary_id": "BEN-1017",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-08-17T10:00:00Z"
+  },
+  {
+    "id": "DOC-7156",
+    "beneficiary_id": "BEN-1017",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-08-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7157",
+    "beneficiary_id": "BEN-1017",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-08-15T10:00:00Z"
+  },
+  {
+    "id": "DOC-7158",
+    "beneficiary_id": "BEN-1017",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-08-13T10:00:00Z"
+  },
+  {
+    "id": "DOC-7159",
+    "beneficiary_id": "BEN-1018",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-31T10:00:00Z"
+  },
+  {
+    "id": "DOC-7160",
+    "beneficiary_id": "BEN-1018",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-26T10:00:00Z"
+  },
+  {
+    "id": "DOC-7161",
+    "beneficiary_id": "BEN-1018",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-28T10:00:00Z"
+  },
+  {
+    "id": "DOC-7162",
+    "beneficiary_id": "BEN-1018",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-04-02T10:00:00Z"
+  },
+  {
+    "id": "DOC-7163",
+    "beneficiary_id": "BEN-1018",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-20T10:00:00Z"
+  },
+  {
+    "id": "DOC-7164",
+    "beneficiary_id": "BEN-1018",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7165",
+    "beneficiary_id": "BEN-1018",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-21T10:00:00Z"
+  },
+  {
+    "id": "DOC-7166",
+    "beneficiary_id": "BEN-1018",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-17T10:00:00Z"
+  },
+  {
+    "id": "DOC-7167",
+    "beneficiary_id": "BEN-1018",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-30T10:00:00Z"
+  },
+  {
+    "id": "DOC-7168",
+    "beneficiary_id": "BEN-1019",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7169",
+    "beneficiary_id": "BEN-1019",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7170",
+    "beneficiary_id": "BEN-1019",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-07-10T10:00:00Z"
+  },
+  {
+    "id": "DOC-7171",
+    "beneficiary_id": "BEN-1019",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-07-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7172",
+    "beneficiary_id": "BEN-1019",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7173",
+    "beneficiary_id": "BEN-1019",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7174",
+    "beneficiary_id": "BEN-1019",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7175",
+    "beneficiary_id": "BEN-1019",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7176",
+    "beneficiary_id": "BEN-1019",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-07-11T10:00:00Z"
+  },
+  {
+    "id": "DOC-7177",
+    "beneficiary_id": "BEN-1020",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-06T10:00:00Z"
+  },
+  {
+    "id": "DOC-7178",
+    "beneficiary_id": "BEN-1020",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-02-28T10:00:00Z"
+  },
+  {
+    "id": "DOC-7179",
+    "beneficiary_id": "BEN-1020",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-02T10:00:00Z"
+  },
+  {
+    "id": "DOC-7180",
+    "beneficiary_id": "BEN-1020",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-11T10:00:00Z"
+  },
+  {
+    "id": "DOC-7181",
+    "beneficiary_id": "BEN-1020",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7182",
+    "beneficiary_id": "BEN-1020",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-14T10:00:00Z"
+  },
+  {
+    "id": "DOC-7183",
+    "beneficiary_id": "BEN-1020",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-03T10:00:00Z"
+  },
+  {
+    "id": "DOC-7184",
+    "beneficiary_id": "BEN-1020",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-04T10:00:00Z"
+  },
+  {
+    "id": "DOC-7185",
+    "beneficiary_id": "BEN-1020",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-11T10:00:00Z"
+  },
+  {
+    "id": "DOC-7186",
+    "beneficiary_id": "BEN-1021",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-04-13T10:00:00Z"
+  },
+  {
+    "id": "DOC-7187",
+    "beneficiary_id": "BEN-1021",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7188",
+    "beneficiary_id": "BEN-1021",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-04-14T10:00:00Z"
+  },
+  {
+    "id": "DOC-7189",
+    "beneficiary_id": "BEN-1021",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7190",
+    "beneficiary_id": "BEN-1021",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-04-13T10:00:00Z"
+  },
+  {
+    "id": "DOC-7191",
+    "beneficiary_id": "BEN-1021",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-04-26T10:00:00Z"
+  },
+  {
+    "id": "DOC-7192",
+    "beneficiary_id": "BEN-1021",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7193",
+    "beneficiary_id": "BEN-1021",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-04-28T10:00:00Z"
+  },
+  {
+    "id": "DOC-7194",
+    "beneficiary_id": "BEN-1021",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7195",
+    "beneficiary_id": "BEN-1022",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-04-12T10:00:00Z"
+  },
+  {
+    "id": "DOC-7196",
+    "beneficiary_id": "BEN-1022",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-04-05T10:00:00Z"
+  },
+  {
+    "id": "DOC-7197",
+    "beneficiary_id": "BEN-1022",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-04-06T10:00:00Z"
+  },
+  {
+    "id": "DOC-7198",
+    "beneficiary_id": "BEN-1022",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-04-08T10:00:00Z"
+  },
+  {
+    "id": "DOC-7199",
+    "beneficiary_id": "BEN-1022",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "not_available",
+    "note_ar": "لا يوجد",
+    "uploaded_at": "2025-04-05T10:00:00Z"
+  },
+  {
+    "id": "DOC-7200",
+    "beneficiary_id": "BEN-1022",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-03-31T10:00:00Z"
+  },
+  {
+    "id": "DOC-7201",
+    "beneficiary_id": "BEN-1022",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-04-15T10:00:00Z"
+  },
+  {
+    "id": "DOC-7202",
+    "beneficiary_id": "BEN-1022",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-04-02T10:00:00Z"
+  },
+  {
+    "id": "DOC-7203",
+    "beneficiary_id": "BEN-1022",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-04-12T10:00:00Z"
+  },
+  {
+    "id": "DOC-7204",
+    "beneficiary_id": "BEN-1023",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-06-24T10:00:00Z"
+  },
+  {
+    "id": "DOC-7205",
+    "beneficiary_id": "BEN-1023",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7206",
+    "beneficiary_id": "BEN-1023",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-02T10:00:00Z"
+  },
+  {
+    "id": "DOC-7207",
+    "beneficiary_id": "BEN-1023",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-06-23T10:00:00Z"
+  },
+  {
+    "id": "DOC-7208",
+    "beneficiary_id": "BEN-1023",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-03T10:00:00Z"
+  },
+  {
+    "id": "DOC-7209",
+    "beneficiary_id": "BEN-1023",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "ineligible",
+    "note_ar": "عدم الاهلية",
+    "uploaded_at": "2026-07-10T10:00:00Z"
+  },
+  {
+    "id": "DOC-7210",
+    "beneficiary_id": "BEN-1023",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-06-29T10:00:00Z"
+  },
+  {
+    "id": "DOC-7211",
+    "beneficiary_id": "BEN-1023",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-02T10:00:00Z"
+  },
+  {
+    "id": "DOC-7212",
+    "beneficiary_id": "BEN-1023",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-04T10:00:00Z"
+  },
+  {
+    "id": "DOC-7213",
+    "beneficiary_id": "BEN-1023",
+    "document_type_id": "DOC-CUSTODY",
+    "name_ar": "صك حضانة / وثيقة الاحتضان",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7214",
+    "beneficiary_id": "BEN-1024",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-03T10:00:00Z"
+  },
+  {
+    "id": "DOC-7215",
+    "beneficiary_id": "BEN-1024",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-04-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7216",
+    "beneficiary_id": "BEN-1024",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-04-26T10:00:00Z"
+  },
+  {
+    "id": "DOC-7217",
+    "beneficiary_id": "BEN-1024",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7218",
+    "beneficiary_id": "BEN-1024",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-04-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7219",
+    "beneficiary_id": "BEN-1024",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7220",
+    "beneficiary_id": "BEN-1024",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-04-24T10:00:00Z"
+  },
+  {
+    "id": "DOC-7221",
+    "beneficiary_id": "BEN-1024",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-05-04T10:00:00Z"
+  },
+  {
+    "id": "DOC-7222",
+    "beneficiary_id": "BEN-1024",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-04-25T10:00:00Z"
+  },
+  {
+    "id": "DOC-7223",
+    "beneficiary_id": "BEN-1025",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-06-26T10:00:00Z"
+  },
+  {
+    "id": "DOC-7224",
+    "beneficiary_id": "BEN-1025",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-06-25T10:00:00Z"
+  },
+  {
+    "id": "DOC-7225",
+    "beneficiary_id": "BEN-1025",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-06-25T10:00:00Z"
+  },
+  {
+    "id": "DOC-7226",
+    "beneficiary_id": "BEN-1025",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-06-21T10:00:00Z"
+  },
+  {
+    "id": "DOC-7227",
+    "beneficiary_id": "BEN-1025",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-06T10:00:00Z"
+  },
+  {
+    "id": "DOC-7228",
+    "beneficiary_id": "BEN-1025",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7229",
+    "beneficiary_id": "BEN-1025",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-02T10:00:00Z"
+  },
+  {
+    "id": "DOC-7230",
+    "beneficiary_id": "BEN-1025",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-04T10:00:00Z"
+  },
+  {
+    "id": "DOC-7231",
+    "beneficiary_id": "BEN-1025",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-06-21T10:00:00Z"
+  },
+  {
+    "id": "DOC-7232",
+    "beneficiary_id": "BEN-1026",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-26T10:00:00Z"
+  },
+  {
+    "id": "DOC-7233",
+    "beneficiary_id": "BEN-1026",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-14T10:00:00Z"
+  },
+  {
+    "id": "DOC-7234",
+    "beneficiary_id": "BEN-1026",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-30T10:00:00Z"
+  },
+  {
+    "id": "DOC-7235",
+    "beneficiary_id": "BEN-1026",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-30T10:00:00Z"
+  },
+  {
+    "id": "DOC-7236",
+    "beneficiary_id": "BEN-1026",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-03T10:00:00Z"
+  },
+  {
+    "id": "DOC-7237",
+    "beneficiary_id": "BEN-1026",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-03T10:00:00Z"
+  },
+  {
+    "id": "DOC-7238",
+    "beneficiary_id": "BEN-1026",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-01-13T10:00:00Z"
+  },
+  {
+    "id": "DOC-7239",
+    "beneficiary_id": "BEN-1026",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-30T10:00:00Z"
+  },
+  {
+    "id": "DOC-7240",
+    "beneficiary_id": "BEN-1026",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-27T10:00:00Z"
+  },
+  {
+    "id": "DOC-7241",
+    "beneficiary_id": "BEN-1026",
+    "document_type_id": "DOC-CUSTODY",
+    "name_ar": "صك حضانة / وثيقة الاحتضان",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-29T10:00:00Z"
+  },
+  {
+    "id": "DOC-7242",
+    "beneficiary_id": "BEN-1027",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-03-29T10:00:00Z"
+  },
+  {
+    "id": "DOC-7243",
+    "beneficiary_id": "BEN-1027",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-03-26T10:00:00Z"
+  },
+  {
+    "id": "DOC-7244",
+    "beneficiary_id": "BEN-1027",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-03-28T10:00:00Z"
+  },
+  {
+    "id": "DOC-7245",
+    "beneficiary_id": "BEN-1027",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-03-14T10:00:00Z"
+  },
+  {
+    "id": "DOC-7246",
+    "beneficiary_id": "BEN-1027",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-04-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7247",
+    "beneficiary_id": "BEN-1027",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-03-24T10:00:00Z"
+  },
+  {
+    "id": "DOC-7248",
+    "beneficiary_id": "BEN-1027",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-04-02T10:00:00Z"
+  },
+  {
+    "id": "DOC-7249",
+    "beneficiary_id": "BEN-1027",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-03-24T10:00:00Z"
+  },
+  {
+    "id": "DOC-7250",
+    "beneficiary_id": "BEN-1027",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-03-14T10:00:00Z"
+  },
+  {
+    "id": "DOC-7251",
+    "beneficiary_id": "BEN-1028",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-03-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7252",
+    "beneficiary_id": "BEN-1028",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-14T10:00:00Z"
+  },
+  {
+    "id": "DOC-7253",
+    "beneficiary_id": "BEN-1028",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-03-26T10:00:00Z"
+  },
+  {
+    "id": "DOC-7254",
+    "beneficiary_id": "BEN-1028",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7255",
+    "beneficiary_id": "BEN-1028",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-03-25T10:00:00Z"
+  },
+  {
+    "id": "DOC-7256",
+    "beneficiary_id": "BEN-1028",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-03-13T10:00:00Z"
+  },
+  {
+    "id": "DOC-7257",
+    "beneficiary_id": "BEN-1028",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-18T10:00:00Z"
+  },
+  {
+    "id": "DOC-7258",
+    "beneficiary_id": "BEN-1028",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-03-21T10:00:00Z"
+  },
+  {
+    "id": "DOC-7259",
+    "beneficiary_id": "BEN-1028",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-03-11T10:00:00Z"
+  },
+  {
+    "id": "DOC-7260",
+    "beneficiary_id": "BEN-1029",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-05-12T10:00:00Z"
+  },
+  {
+    "id": "DOC-7261",
+    "beneficiary_id": "BEN-1029",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-05-08T10:00:00Z"
+  },
+  {
+    "id": "DOC-7262",
+    "beneficiary_id": "BEN-1029",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-05-07T10:00:00Z"
+  },
+  {
+    "id": "DOC-7263",
+    "beneficiary_id": "BEN-1029",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-05-07T10:00:00Z"
+  },
+  {
+    "id": "DOC-7264",
+    "beneficiary_id": "BEN-1029",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-05-23T10:00:00Z"
+  },
+  {
+    "id": "DOC-7265",
+    "beneficiary_id": "BEN-1029",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-05-26T10:00:00Z"
+  },
+  {
+    "id": "DOC-7266",
+    "beneficiary_id": "BEN-1029",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-05-16T10:00:00Z"
+  },
+  {
+    "id": "DOC-7267",
+    "beneficiary_id": "BEN-1029",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-05-24T10:00:00Z"
+  },
+  {
+    "id": "DOC-7268",
+    "beneficiary_id": "BEN-1029",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-05-26T10:00:00Z"
+  },
+  {
+    "id": "DOC-7269",
+    "beneficiary_id": "BEN-1030",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-03-11T10:00:00Z"
+  },
+  {
+    "id": "DOC-7270",
+    "beneficiary_id": "BEN-1030",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7271",
+    "beneficiary_id": "BEN-1030",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7272",
+    "beneficiary_id": "BEN-1030",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-03-10T10:00:00Z"
+  },
+  {
+    "id": "DOC-7273",
+    "beneficiary_id": "BEN-1030",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7274",
+    "beneficiary_id": "BEN-1030",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7275",
+    "beneficiary_id": "BEN-1030",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7276",
+    "beneficiary_id": "BEN-1030",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7277",
+    "beneficiary_id": "BEN-1030",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-03-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7278",
+    "beneficiary_id": "BEN-1031",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-21T10:00:00Z"
+  },
+  {
+    "id": "DOC-7279",
+    "beneficiary_id": "BEN-1031",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-28T10:00:00Z"
+  },
+  {
+    "id": "DOC-7280",
+    "beneficiary_id": "BEN-1031",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-21T10:00:00Z"
+  },
+  {
+    "id": "DOC-7281",
+    "beneficiary_id": "BEN-1031",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-13T10:00:00Z"
+  },
+  {
+    "id": "DOC-7282",
+    "beneficiary_id": "BEN-1031",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-29T10:00:00Z"
+  },
+  {
+    "id": "DOC-7283",
+    "beneficiary_id": "BEN-1031",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-12T10:00:00Z"
+  },
+  {
+    "id": "DOC-7284",
+    "beneficiary_id": "BEN-1031",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-25T10:00:00Z"
+  },
+  {
+    "id": "DOC-7285",
+    "beneficiary_id": "BEN-1031",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-17T10:00:00Z"
+  },
+  {
+    "id": "DOC-7286",
+    "beneficiary_id": "BEN-1031",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-07-29T10:00:00Z"
+  },
+  {
+    "id": "DOC-7287",
+    "beneficiary_id": "BEN-1032",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7288",
+    "beneficiary_id": "BEN-1032",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-04-23T10:00:00Z"
+  },
+  {
+    "id": "DOC-7289",
+    "beneficiary_id": "BEN-1032",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7290",
+    "beneficiary_id": "BEN-1032",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-05-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7291",
+    "beneficiary_id": "BEN-1032",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-04-19T10:00:00Z"
+  },
+  {
+    "id": "DOC-7292",
+    "beneficiary_id": "BEN-1032",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7293",
+    "beneficiary_id": "BEN-1032",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-04-15T10:00:00Z"
+  },
+  {
+    "id": "DOC-7294",
+    "beneficiary_id": "BEN-1032",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-05-02T10:00:00Z"
+  },
+  {
+    "id": "DOC-7295",
+    "beneficiary_id": "BEN-1032",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2026-05-04T10:00:00Z"
+  },
+  {
+    "id": "DOC-7296",
+    "beneficiary_id": "BEN-1033",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-27T10:00:00Z"
+  },
+  {
+    "id": "DOC-7297",
+    "beneficiary_id": "BEN-1033",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-28T10:00:00Z"
+  },
+  {
+    "id": "DOC-7298",
+    "beneficiary_id": "BEN-1033",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-14T10:00:00Z"
+  },
+  {
+    "id": "DOC-7299",
+    "beneficiary_id": "BEN-1033",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-04-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7300",
+    "beneficiary_id": "BEN-1033",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-04-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7301",
+    "beneficiary_id": "BEN-1033",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-23T10:00:00Z"
+  },
+  {
+    "id": "DOC-7302",
+    "beneficiary_id": "BEN-1033",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-14T10:00:00Z"
+  },
+  {
+    "id": "DOC-7303",
+    "beneficiary_id": "BEN-1033",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-23T10:00:00Z"
+  },
+  {
+    "id": "DOC-7304",
+    "beneficiary_id": "BEN-1033",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-03-27T10:00:00Z"
+  },
+  {
+    "id": "DOC-7305",
+    "beneficiary_id": "BEN-1034",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7306",
+    "beneficiary_id": "BEN-1034",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-11-25T10:00:00Z"
+  },
+  {
+    "id": "DOC-7307",
+    "beneficiary_id": "BEN-1034",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-11-28T10:00:00Z"
+  },
+  {
+    "id": "DOC-7308",
+    "beneficiary_id": "BEN-1034",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-12-07T10:00:00Z"
+  },
+  {
+    "id": "DOC-7309",
+    "beneficiary_id": "BEN-1034",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7310",
+    "beneficiary_id": "BEN-1034",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-11-18T10:00:00Z"
+  },
+  {
+    "id": "DOC-7311",
+    "beneficiary_id": "BEN-1034",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-02T10:00:00Z"
+  },
+  {
+    "id": "DOC-7312",
+    "beneficiary_id": "BEN-1034",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-11-17T10:00:00Z"
+  },
+  {
+    "id": "DOC-7313",
+    "beneficiary_id": "BEN-1034",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-11-20T10:00:00Z"
+  },
+  {
+    "id": "DOC-7314",
+    "beneficiary_id": "BEN-1034",
+    "document_type_id": "DOC-CUSTODY",
+    "name_ar": "صك حضانة / وثيقة الاحتضان",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7315",
+    "beneficiary_id": "BEN-1035",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-07-27T10:00:00Z"
+  },
+  {
+    "id": "DOC-7316",
+    "beneficiary_id": "BEN-1035",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-08-01T10:00:00Z"
+  },
+  {
+    "id": "DOC-7317",
+    "beneficiary_id": "BEN-1035",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-07-28T10:00:00Z"
+  },
+  {
+    "id": "DOC-7318",
+    "beneficiary_id": "BEN-1035",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-07-21T10:00:00Z"
+  },
+  {
+    "id": "DOC-7319",
+    "beneficiary_id": "BEN-1035",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-08-02T10:00:00Z"
+  },
+  {
+    "id": "DOC-7320",
+    "beneficiary_id": "BEN-1035",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-07-26T10:00:00Z"
+  },
+  {
+    "id": "DOC-7321",
+    "beneficiary_id": "BEN-1035",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-07-27T10:00:00Z"
+  },
+  {
+    "id": "DOC-7322",
+    "beneficiary_id": "BEN-1035",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-07-30T10:00:00Z"
+  },
+  {
+    "id": "DOC-7323",
+    "beneficiary_id": "BEN-1035",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-07-17T10:00:00Z"
+  },
+  {
+    "id": "DOC-7324",
+    "beneficiary_id": "BEN-1036",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-24T10:00:00Z"
+  },
+  {
+    "id": "DOC-7325",
+    "beneficiary_id": "BEN-1036",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-16T10:00:00Z"
+  },
+  {
+    "id": "DOC-7326",
+    "beneficiary_id": "BEN-1036",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-16T10:00:00Z"
+  },
+  {
+    "id": "DOC-7327",
+    "beneficiary_id": "BEN-1036",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-19T10:00:00Z"
+  },
+  {
+    "id": "DOC-7328",
+    "beneficiary_id": "BEN-1036",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-10T10:00:00Z"
+  },
+  {
+    "id": "DOC-7329",
+    "beneficiary_id": "BEN-1036",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "ineligible",
+    "note_ar": "عدم الاهلية",
+    "uploaded_at": "2024-11-29T10:00:00Z"
+  },
+  {
+    "id": "DOC-7330",
+    "beneficiary_id": "BEN-1036",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-12T10:00:00Z"
+  },
+  {
+    "id": "DOC-7331",
+    "beneficiary_id": "BEN-1036",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-23T10:00:00Z"
+  },
+  {
+    "id": "DOC-7332",
+    "beneficiary_id": "BEN-1036",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-30T10:00:00Z"
+  },
+  {
+    "id": "DOC-7333",
+    "beneficiary_id": "BEN-1036",
+    "document_type_id": "DOC-CUSTODY",
+    "name_ar": "صك حضانة / وثيقة الاحتضان",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-11-30T10:00:00Z"
+  },
+  {
+    "id": "DOC-7334",
+    "beneficiary_id": "BEN-1037",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7335",
+    "beneficiary_id": "BEN-1037",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-06-17T10:00:00Z"
+  },
+  {
+    "id": "DOC-7336",
+    "beneficiary_id": "BEN-1037",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-06-24T10:00:00Z"
+  },
+  {
+    "id": "DOC-7337",
+    "beneficiary_id": "BEN-1037",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7338",
+    "beneficiary_id": "BEN-1037",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "missing",
+    "note_ar": null,
+    "uploaded_at": null
+  },
+  {
+    "id": "DOC-7339",
+    "beneficiary_id": "BEN-1037",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-06-20T10:00:00Z"
+  },
+  {
+    "id": "DOC-7340",
+    "beneficiary_id": "BEN-1037",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-06-23T10:00:00Z"
+  },
+  {
+    "id": "DOC-7341",
+    "beneficiary_id": "BEN-1037",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-06-18T10:00:00Z"
+  },
+  {
+    "id": "DOC-7342",
+    "beneficiary_id": "BEN-1037",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "uploaded",
+    "note_ar": null,
+    "uploaded_at": "2025-06-29T10:00:00Z"
+  },
+  {
+    "id": "DOC-7343",
+    "beneficiary_id": "BEN-1038",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-12-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7344",
+    "beneficiary_id": "BEN-1038",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-12-26T10:00:00Z"
+  },
+  {
+    "id": "DOC-7345",
+    "beneficiary_id": "BEN-1038",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-01-04T10:00:00Z"
+  },
+  {
+    "id": "DOC-7346",
+    "beneficiary_id": "BEN-1038",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-12-23T10:00:00Z"
+  },
+  {
+    "id": "DOC-7347",
+    "beneficiary_id": "BEN-1038",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-12-31T10:00:00Z"
+  },
+  {
+    "id": "DOC-7348",
+    "beneficiary_id": "BEN-1038",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-12-26T10:00:00Z"
+  },
+  {
+    "id": "DOC-7349",
+    "beneficiary_id": "BEN-1038",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-12-31T10:00:00Z"
+  },
+  {
+    "id": "DOC-7350",
+    "beneficiary_id": "BEN-1038",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-12-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7351",
+    "beneficiary_id": "BEN-1038",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2024-12-25T10:00:00Z"
+  },
+  {
+    "id": "DOC-7352",
+    "beneficiary_id": "BEN-1039",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-30T10:00:00Z"
+  },
+  {
+    "id": "DOC-7353",
+    "beneficiary_id": "BEN-1039",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7354",
+    "beneficiary_id": "BEN-1039",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-23T10:00:00Z"
+  },
+  {
+    "id": "DOC-7355",
+    "beneficiary_id": "BEN-1039",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7356",
+    "beneficiary_id": "BEN-1039",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "not_available",
+    "note_ar": "لا يوجد",
+    "uploaded_at": "2026-05-26T10:00:00Z"
+  },
+  {
+    "id": "DOC-7357",
+    "beneficiary_id": "BEN-1039",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-16T10:00:00Z"
+  },
+  {
+    "id": "DOC-7358",
+    "beneficiary_id": "BEN-1039",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-18T10:00:00Z"
+  },
+  {
+    "id": "DOC-7359",
+    "beneficiary_id": "BEN-1039",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-05-21T10:00:00Z"
+  },
+  {
+    "id": "DOC-7360",
+    "beneficiary_id": "BEN-1039",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2026-06-03T10:00:00Z"
+  },
+  {
+    "id": "DOC-7361",
+    "beneficiary_id": "BEN-1040",
+    "document_type_id": "DOC-ID",
+    "name_ar": "صورة الهوية الوطنية",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-12T10:00:00Z"
+  },
+  {
+    "id": "DOC-7362",
+    "beneficiary_id": "BEN-1040",
+    "document_type_id": "DOC-ORPHAN",
+    "name_ar": "وثيقة اثبات فئة اليتم",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-18T10:00:00Z"
+  },
+  {
+    "id": "DOC-7363",
+    "beneficiary_id": "BEN-1040",
+    "document_type_id": "DOC-FAMILY",
+    "name_ar": "سجل الاسرة / كرت العائلة",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-19T10:00:00Z"
+  },
+  {
+    "id": "DOC-7364",
+    "beneficiary_id": "BEN-1040",
+    "document_type_id": "DOC-HOUSING",
+    "name_ar": "اثبات ملكية السكن",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-28T10:00:00Z"
+  },
+  {
+    "id": "DOC-7365",
+    "beneficiary_id": "BEN-1040",
+    "document_type_id": "DOC-SALARY",
+    "name_ar": "تعريف الراتب",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-15T10:00:00Z"
+  },
+  {
+    "id": "DOC-7366",
+    "beneficiary_id": "BEN-1040",
+    "document_type_id": "DOC-SOCIAL",
+    "name_ar": "مشهد الضمان الاجتماعي",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-22T10:00:00Z"
+  },
+  {
+    "id": "DOC-7367",
+    "beneficiary_id": "BEN-1040",
+    "document_type_id": "DOC-CITIZEN",
+    "name_ar": "حساب المواطن",
+    "mandatory": true,
+    "status": "ineligible",
+    "note_ar": "عدم الاهلية",
+    "uploaded_at": "2025-12-10T10:00:00Z"
+  },
+  {
+    "id": "DOC-7368",
+    "beneficiary_id": "BEN-1040",
+    "document_type_id": "DOC-SIMAH",
+    "name_ar": "تقرير سمة الائتماني",
+    "mandatory": true,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-09T10:00:00Z"
+  },
+  {
+    "id": "DOC-7369",
+    "beneficiary_id": "BEN-1040",
+    "document_type_id": "DOC-MEDICAL",
+    "name_ar": "تقارير طبية",
+    "mandatory": false,
+    "status": "verified",
+    "note_ar": null,
+    "uploaded_at": "2025-12-12T10:00:00Z"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "CS-DESK",
+    "name_ar": "المقابلة المكتبية",
+    "name_en": "Office interview"
+  },
+  {
+    "id": "CS-ONLINE",
+    "name_ar": "المقابلة الالكترونية / الاونلاين",
+    "name_en": "Online interview"
+  },
+  {
+    "id": "CS-FIELD",
+    "name_ar": "الزيارة الميدانية",
+    "name_en": "Field visit"
+  },
+  {
+    "id": "CS-PSYCH",
+    "name_ar": "تقييم الوضع النفسي / مقاييس نفسية",
+    "name_en": "Psychological assessment"
+  }
+]
