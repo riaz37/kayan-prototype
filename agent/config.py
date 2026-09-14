@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     llm_base_url: str = "https://api.deepseek.com/v1"
     llm_model: str = "deepseek-v4-flash"
 
+    llm_fallback_api_key: str = ""
     llm_fallback_base_url: str = "https://generativelanguage.googleapis.com"
     llm_fallback_model: str = "gemini-3.5-flash-lite"
 

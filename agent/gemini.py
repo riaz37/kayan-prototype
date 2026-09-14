@@ -55,7 +55,7 @@ def _get_fallback_client():
         if not base.endswith("/v1") and "generativelanguage" not in base:
             base += "/v1"
         _fallback_client = OpenAI(
-            api_key=settings.llm_api_key or "none",
+            api_key=settings.llm_fallback_api_key or settings.llm_api_key or "none",
             base_url=base,
         )
     return _fallback_client
@@ -210,6 +210,27 @@ def _call_llm_stream(messages: list, model: str = None):
         raise
 
 
+def _tool_call_to_message_dict(tc) -> dict:
+    """
+    Convert an OpenAI tool_call object to a message dict, preserving Gemini's
+    thought_signature (returned under extra_content.google) when present.
+    Gemini 3.x rejects replayed function calls missing this signature.
+    """
+    tc_dict = {
+        "id": tc.id,
+        "type": "function",
+        "function": {
+            "name": tc.function.name,
+            "arguments": tc.function.arguments,
+        },
+    }
+    extra = getattr(tc, "model_extra", None) or {}
+    extra_content = extra.get("extra_content")
+    if extra_content:
+        tc_dict["extra_content"] = extra_content
+    return tc_dict
+
+
 def _convert_history(history: list, system_msg: Optional[str] = None) -> list:
     """Convert Gemini-style history to OpenAI message format."""
     messages = []
@@ -357,14 +378,7 @@ def handle_message(phone: str, user_text: str) -> str:
             assistant_msg = {
                 "role": "assistant",
                 "content": message.content,
-                "tool_calls": [{
-                    "id": tc.id,
-                    "type": "function",
-                    "function": {
-                        "name": tc.function.name,
-                        "arguments": tc.function.arguments,
-                    },
-                } for tc in message.tool_calls],
+                "tool_calls": [_tool_call_to_message_dict(tc) for tc in message.tool_calls],
             }
             messages.append(assistant_msg)
 
