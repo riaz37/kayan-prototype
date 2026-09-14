@@ -36,9 +36,13 @@ def _get_client():
     """Lazy-initialize the OpenAI client pointing to primary LLM provider."""
     global _client
     if _client is None:
+        base = settings.llm_base_url.rstrip("/")
+        # Don't append /v1 if URL already ends with it or contains a path
+        if not base.endswith("/v1") and "generativelanguage" not in base:
+            base += "/v1"
         _client = OpenAI(
             api_key=settings.llm_api_key or "none",
-            base_url=settings.llm_base_url + "/v1" if "generativelanguage" not in settings.llm_base_url else settings.llm_base_url,
+            base_url=base,
         )
     return _client
 
@@ -47,9 +51,12 @@ def _get_fallback_client():
     """Lazy-initialize the OpenAI client pointing to fallback LLM provider."""
     global _fallback_client
     if _fallback_client is None:
+        base = settings.llm_fallback_base_url.rstrip("/")
+        if not base.endswith("/v1") and "generativelanguage" not in base:
+            base += "/v1"
         _fallback_client = OpenAI(
             api_key=settings.llm_api_key or "none",
-            base_url=settings.llm_fallback_base_url + "/v1",
+            base_url=base,
         )
     return _fallback_client
 
@@ -137,8 +144,8 @@ def _count_message_tokens(messages: list) -> int:
 def _call_llm(messages: list, model: str = None):
     """Call LLM with fallback model support."""
     model = model or settings.llm_model
-    is_gemini = "gemini" in model.lower() or "generativelanguage" in (settings.llm_base_url or "")
-    logger.info(f"LLM call: model={model}, is_gemini={is_gemini}, base_url={settings.llm_base_url}")
+    is_qwen = "qwen" in model.lower()
+    logger.info(f"LLM call: model={model}, is_qwen={is_qwen}, base_url={settings.llm_base_url}")
     try:
         _rate_limit()
         kwargs = {
@@ -148,7 +155,7 @@ def _call_llm(messages: list, model: str = None):
             "temperature": 0.3,
             "max_tokens": 4096,
         }
-        if not is_gemini:
+        if is_qwen:
             kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
         return _get_client().chat.completions.create(**kwargs)
     except Exception as e:
@@ -172,7 +179,7 @@ def _call_llm(messages: list, model: str = None):
 def _call_llm_stream(messages: list, model: str = None):
     """Call LLM with streaming enabled."""
     model = model or settings.llm_model
-    is_gemini = "gemini" in model.lower() or "generativelanguage" in (settings.llm_base_url or "")
+    is_qwen = "qwen" in model.lower()
     try:
         _rate_limit()
         kwargs = {
@@ -183,7 +190,7 @@ def _call_llm_stream(messages: list, model: str = None):
             "max_tokens": 1024,
             "stream": True,
         }
-        if not is_gemini:
+        if is_qwen:
             kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
         return _get_client().chat.completions.create(**kwargs)
     except Exception as e:
