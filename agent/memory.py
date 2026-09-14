@@ -78,7 +78,7 @@ def _embed(text: str) -> list[float]:
         f"{settings.embedding_base_url}/v1/embeddings",
         headers={"Authorization": f"Bearer {settings.llm_api_key}"},
         json={"model": settings.embedding_model, "input": text},
-        timeout=15,
+        timeout=3,
     )
     resp.raise_for_status()
     return resp.json()["data"][0]["embedding"]
