@@ -291,7 +291,7 @@ const Field = ({ label, value, mono }) => (
 /* ---------------------------------------------- API client */
 const API_BASE = window.location.hostname === "localhost"
   ? "http://localhost:8000"
-  : "https://backend-production-b3778.up.railway.app";
+  : "https://kayan-prototype-production-f786.up.railway.app";
 let SNAP = null;
 
 async function loadSnapshot() {
