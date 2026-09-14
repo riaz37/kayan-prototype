@@ -10,8 +10,11 @@ class Settings(BaseSettings):
     port: int = 8002
 
     llm_api_key: str = ""
-    llm_base_url: str = "https://llm.arahim.dev"
-    llm_model: str = "qwen"
+    llm_base_url: str = "https://generativelanguage.googleapis.com"
+    llm_model: str = "gemini-3.5-flash-lite"
+
+    llm_fallback_base_url: str = "https://llm.arahim.dev"
+    llm_fallback_model: str = "qwen"
 
     embedding_base_url: str = "https://embedd.arahim.dev"
     embedding_model: str = "qwen3-embedding-0.6b"
