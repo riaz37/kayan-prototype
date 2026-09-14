@@ -5,9 +5,13 @@ and sending templates. Follows official Meta Cloud API documentation.
 """
 import hashlib
 import hmac
+import logging
+import threading
 from typing import Optional
 import httpx
 from agent.config import settings
+
+logger = logging.getLogger(__name__)
 
 GRAPH_API_VERSION = "v21.0"
 GRAPH_API_URL = f"https://graph.facebook.com/{GRAPH_API_VERSION}"
@@ -83,6 +87,67 @@ def send_text(to: str, text: str) -> dict:
     }
     resp = httpx.post(url, json=payload, headers=headers, timeout=30)
     return resp.json()
+
+
+def _log_delivery_async(to: str, text: str, delivered: bool, provider_response: dict, kind: str) -> None:
+    """Fire-and-forget: persist the send outcome against the matched beneficiary
+    so a failed delivery isn't silently lost. Runs off-thread so it never
+    delays the reply to the user."""
+    def _run():
+        try:
+            httpx.post(
+                f"{settings.backend_url}/whatsapp/log-delivery",
+                json={
+                    "to": to,
+                    "body_ar": text,
+                    "delivered": delivered,
+                    "provider_response": str(provider_response)[:4000],
+                    "kind": kind,
+                },
+                timeout=10,
+            )
+        except Exception as e:
+            logger.warning(f"Failed to log WhatsApp delivery for {to}: {e}")
+
+    threading.Thread(target=_run, daemon=True).start()
+
+
+def send_text_2whats(to: str, text: str) -> dict:
+    """
+    Send a free-form WhatsApp text via the 2whats.com provider (non-Meta).
+    GET /api/send per the vendor's documented endpoint.
+    """
+    params = {
+        "mobile": settings.twowhats_mobile,
+        "password": settings.twowhats_password,
+        "instanceid": settings.twowhats_instanceid,
+        "message": text,
+        "numbers": normalize_phone_for_api(to),
+        "json": 1,
+        "type": 1,
+    }
+    try:
+        resp = httpx.get("https://www.2whats.com/api/send", params=params, timeout=15)
+        try:
+            payload = resp.json()
+        except ValueError:
+            payload = {"raw": resp.text}
+        return {"ok": resp.status_code == 200, "status_code": resp.status_code, "response": payload}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+def send_text_and_log(to: str, text: str, kind: str = "agent_reply") -> dict:
+    """Send a free-form text message via the 2whats.com provider and log the
+    real delivery outcome (success/failure + provider response) against the
+    matched beneficiary. Use this instead of send_text() for any message the
+    agent sends on its own, so failed sends show up in the CRM notification log."""
+    result = send_text_2whats(to, text)
+    delivered = bool(result.get("ok"))
+    if not delivered:
+        logger.error(f"WhatsApp send failed for {to}: {result}")
+    _log_delivery_async(to, text, delivered, result, kind)
+    return result
 
 
 def send_template(to: str, template_name: str, lang: str = "ar",

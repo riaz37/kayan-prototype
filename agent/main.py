@@ -16,7 +16,7 @@ from typing import Optional
 from agent.config import settings
 from agent.whatsapp import (
     verify_webhook, validate_signature, extract_message,
-    send_text, send_template, normalize_phone_for_lookup,
+    send_text, send_text_and_log, send_template, normalize_phone_for_lookup,
 )
 from agent.sessions import get_session, set_context, get_context, clear_session, clear_all_sessions
 from agent import gemini as agent
@@ -245,7 +245,7 @@ def _send_reply(to: str, text: str):
             window = session_data.get("window", {})
             if window.get("open"):
                 # Free-form send
-                result = send_text(to, text)
+                result = send_text_and_log(to, text)
                 logger.info(f"Sent free-form to {to}: {result}")
                 return
             else:
@@ -259,7 +259,7 @@ def _send_reply(to: str, text: str):
 
     # Fallback: try free-form
     try:
-        send_text(to, text)
+        send_text_and_log(to, text)
     except Exception as e:
         logger.error(f"Failed to send reply to {to}: {e}")
 
@@ -310,7 +310,7 @@ async def agent_send_text(payload: dict):
     if not to or not text:
         return {"error": "missing 'to' or 'text'"}
     try:
-        result = send_text(to, text)
+        result = send_text_and_log(to, text, kind="crm_manual")
         logger.info(f"CRM send_text to {to}: {result}")
         return {"ok": True, "result": result}
     except Exception as e:

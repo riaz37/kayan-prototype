@@ -256,7 +256,9 @@ def _init_db():
             body_ar TEXT,
             kind TEXT,
             sent_at TEXT,
-            status TEXT DEFAULT 'sent'
+            status TEXT DEFAULT 'sent',
+            beneficiary_id TEXT,
+            provider_response TEXT
         );
 
         CREATE TABLE IF NOT EXISTS accounts (
@@ -276,6 +278,13 @@ def _migrate_db(conn):
     if "updated_at" not in cols:
         conn.execute("ALTER TABLE documents ADD COLUMN updated_at TEXT")
         conn.commit()
+
+    notif_cols = {row["name"] for row in conn.execute("PRAGMA table_info(notifications)")}
+    if "beneficiary_id" not in notif_cols:
+        conn.execute("ALTER TABLE notifications ADD COLUMN beneficiary_id TEXT")
+    if "provider_response" not in notif_cols:
+        conn.execute("ALTER TABLE notifications ADD COLUMN provider_response TEXT")
+    conn.commit()
 
 
 _init_db()
@@ -664,17 +673,28 @@ def render_template(tid, **kw):
     return body
 
 
-def send_notification(channel, to, body, kind="manual"):
+def send_notification(channel, to, body, kind="manual", delivered=True, provider_response=None):
+    """Log a notification/message send. `delivered` and `provider_response` let
+    callers (e.g. the agent, after a real WhatsApp API call) record the actual
+    outcome instead of assuming success."""
     import uuid
+    p = norm_phone(to)
+    beneficiary = beneficiary_by_phone(p)
     conn = _get_conn()
     nid = f"NTF-{uuid.uuid4().hex[:8].upper()}"
+    status = "sent" if delivered else "failed"
+    sent_at = now_iso()
+    beneficiary_id = beneficiary["id"] if beneficiary else None
     conn.execute(
-        'INSERT INTO notifications (id, channel, "to", body_ar, kind, sent_at, status) VALUES (?,?,?,?,?,?,?)',
-        (nid, channel, norm_phone(to), body, kind, now_iso(), "sent")
+        'INSERT INTO notifications (id, channel, "to", body_ar, kind, sent_at, status, beneficiary_id, provider_response) '
+        'VALUES (?,?,?,?,?,?,?,?,?)',
+        (nid, channel, p, body, kind, sent_at, status, beneficiary_id,
+         provider_response[:4000] if provider_response else None)
     )
     conn.commit()
-    return {"id": nid, "channel": channel, "to": norm_phone(to), "body_ar": body,
-            "kind": kind, "sent_at": now_iso(), "status": "sent"}
+    return {"id": nid, "channel": channel, "to": p, "body_ar": body, "kind": kind,
+            "sent_at": sent_at, "status": status, "beneficiary_id": beneficiary_id,
+            "provider_response": provider_response}
 
 
 # ---- convenience inserts
@@ -889,4 +909,4 @@ events = _TableProxy("events")
 
 # Runtime-only (kept in memory, not critical)
 accounts = {}
-notifications = []
+notifications = _TableProxy("notifications")
