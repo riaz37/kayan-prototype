@@ -6,11 +6,6 @@ class Settings(BaseSettings):
     whatsapp_access_token: str = ""
     whatsapp_phone_number_id: str = ""
     whatsapp_app_secret: str = ""
-
-    twowhats_mobile: str = ""
-    twowhats_password: str = ""
-    twowhats_instanceid: str = ""
-
     backend_url: str = "http://localhost:8001"
     port: int = 8002
 

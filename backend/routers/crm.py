@@ -470,25 +470,6 @@ def wa_template(body: TemplateSendIn):
     return {"sent": True, "template_ar": tpl["name_ar"], "body_ar": text, "notification": n}
 
 
-class WaDeliveryLogIn(BaseModel):
-    to: str = Field(..., examples=["966500287602"])
-    body_ar: str = Field(..., examples=["تم استلام طلبكم"])
-    delivered: bool = Field(..., description="Whether the WhatsApp Cloud API call succeeded")
-    provider_response: Optional[str] = Field(None, description="Raw Meta Graph API response, for troubleshooting")
-    kind: str = Field("agent_reply", examples=["agent_reply", "crm_manual", "template"])
-
-
-@router.post("/whatsapp/log-delivery", tags=[T_WA],
-             summary="Log the real outcome of a WhatsApp Cloud API send",
-             description="Called by the agent service right after it sends a live message via the "
-                         "Meta Cloud API, so the delivery outcome and provider response are recorded "
-                         "against the matched beneficiary instead of being lost.")
-def wa_log_delivery(body: WaDeliveryLogIn):
-    n = db.send_notification("whatsapp", body.to, body.body_ar, kind=body.kind,
-                              delivered=body.delivered, provider_response=body.provider_response)
-    return {"logged": True, "notification": n}
-
-
 @router.get("/whatsapp/templates", tags=[T_WA],
             summary="List approved message templates",
             description="Templates for OTP, registration confirmation, document requests, decisions, "

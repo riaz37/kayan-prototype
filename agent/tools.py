@@ -17,16 +17,19 @@ _FAQ_CACHE_TTL = 3600  # 1 hour
 
 def _get(path: str, params: Optional[dict] = None) -> dict:
     resp = httpx.get(f"{BACKEND}{path}", params=params, timeout=30)
+    resp.raise_for_status()
     return resp.json()
 
 
 def _post(path: str, body: Optional[dict] = None) -> dict:
     resp = httpx.post(f"{BACKEND}{path}", json=body or {}, timeout=30)
+    resp.raise_for_status()
     return resp.json()
 
 
 def _patch(path: str, body: Optional[dict] = None) -> dict:
     resp = httpx.patch(f"{BACKEND}{path}", json=body or {}, timeout=30)
+    resp.raise_for_status()
     return resp.json()
 
 
