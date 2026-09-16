@@ -15,20 +15,26 @@ _faq_cache = {}
 _FAQ_CACHE_TTL = 3600  # 1 hour
 
 
+def _headers() -> dict:
+    """The backend requires a session or this service key on every call."""
+    key = getattr(settings, "agent_api_key", "") or ""
+    return {"X-Agent-Key": key} if key else {}
+
+
 def _get(path: str, params: Optional[dict] = None) -> dict:
-    resp = httpx.get(f"{BACKEND}{path}", params=params, timeout=30)
+    resp = httpx.get(f"{BACKEND}{path}", params=params, headers=_headers(), timeout=30)
     resp.raise_for_status()
     return resp.json()
 
 
 def _post(path: str, body: Optional[dict] = None) -> dict:
-    resp = httpx.post(f"{BACKEND}{path}", json=body or {}, timeout=30)
+    resp = httpx.post(f"{BACKEND}{path}", json=body or {}, headers=_headers(), timeout=30)
     resp.raise_for_status()
     return resp.json()
 
 
 def _patch(path: str, body: Optional[dict] = None) -> dict:
-    resp = httpx.patch(f"{BACKEND}{path}", json=body or {}, timeout=30)
+    resp = httpx.patch(f"{BACKEND}{path}", json=body or {}, headers=_headers(), timeout=30)
     resp.raise_for_status()
     return resp.json()
 

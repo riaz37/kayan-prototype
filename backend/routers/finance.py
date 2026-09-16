@@ -45,7 +45,7 @@ def create_enrollment(body: EnrollIn):
                            (body.support_request_id,)).fetchone()["cnt"]
     if existing > 0:
         raise HTTPException(409, "This request is already enrolled")
-    approved_amount = dec.get("amount", 0)
+    approved_amount = dec.get("amount") or 0
     if approved_amount <= 0:
         raise HTTPException(409, "Approved amount is zero — nothing to disburse")
 
@@ -61,9 +61,12 @@ def create_enrollment(body: EnrollIn):
           "end_date": (start + timedelta(days=30 * months)).date().isoformat(),
           "status": "active", "enrolled_at": db.now_iso()}
     conn.execute(
-        """INSERT INTO enrollments (id, beneficiary_id, program_id, status, enrolled_at)
-           VALUES (?,?,?,?,?)""",
-        (eid, en["beneficiary_id"], en["program_id"], en["status"], en["enrolled_at"]))
+        """INSERT INTO enrollments (id, beneficiary_id, program_id, status, enrolled_at,
+               support_request_id, type, monthly_amount, total_approved, start_date, end_date)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+        (eid, en["beneficiary_id"], en["program_id"], en["status"], en["enrolled_at"],
+         en["support_request_id"], en["type"], en["monthly_amount"], en["total_approved"],
+         en["start_date"], en["end_date"]))
     conn.commit()
 
     created = []

@@ -28,7 +28,7 @@ decision (قبول / استكمال مستندات / اعتذار) ──► Wha
 enrollment ──► monthly disbursement schedule ──► payment to IBAN ──► 360 history
 ```
 
-Throughout, unresolved queries become **CRM tickets** on a kanban board with SLA countdowns and department routing.
+Throughout, unresolved queries become **CRM tickets** on a kanban board with SLA countdowns and department routing. Each phone number has **one open conversation**: new WhatsApp messages join the caller's open ticket instead of opening duplicates, and the whole exchange (beneficiary, AI agent, staff) is stored on that ticket.
 
 ## What's in the box
 
@@ -43,10 +43,15 @@ Throughout, unresolved queries become **CRM tickets** on a kanban board with SLA
 | `openapi/kayan_openapi.json` | OpenAPI 3.1 spec — **import this into your agent builder** |
 | `scripts/generate_seed.py` | Regenerates all seed data (deterministic) |
 | `scripts/smoke_test.py` | Walks the entire journey end-to-end (83 assertions) |
+| `docs/09_ACCESS_CONTROL.md` | Sign-in, roles, permissions and the agent service key |
 | `docs/` | Build plan, architecture, data model, agent design, tool reference, open-source stack, frontend |
-| `frontend/` | Arabic RTL admin console (React + Tailwind, no CDN) — served at `/app/` |
+| `frontend/` | Admin console — Next.js + shadcn/ui, Arabic (RTL) and English (LTR). See `docs/08_FRONTEND.md` |
 
 ## Run it
+
+**One command (backend + agent + console):** `./start.sh` — Ctrl+C stops everything. It prints the local sign-in details; copy `.env.example` to `.env.local` to set your own. Add `--ngrok` to expose the WhatsApp webhook.
+
+Or manually:
 
 ```bash
 pip install -r requirements.txt
@@ -56,7 +61,7 @@ PYTHONPATH=. uvicorn backend.main:app --reload --port 8000
 
 or `./run.sh`. Then:
 
-- **Console UI** — http://localhost:8000/app/
+- **Console UI** — `cd frontend && npm install && npm run dev` → http://localhost:3000
 - **Swagger UI** — http://localhost:8000/docs
 - **Verify everything** — `PYTHONPATH=. python scripts/smoke_test.py`
 
@@ -79,7 +84,7 @@ or `./run.sh`. Then:
 
 - **Stack:** Python/FastAPI, chosen because it auto-generates the OpenAPI spec your builder consumes. See `docs/06_OPEN_SOURCE_STACK.md` for the recommended production stack (ERPNext + Chatwoot + LiveKit).
 - **State:** in-memory; resets on restart — repeatable agent tests. No DB, no real money, no real SIP/WhatsApp.
-- **Auth:** none, open CORS, for sandbox use. Add a token before any shared deployment.
+- **Auth:** email + password with roles and per-user permissions (`docs/09_ACCESS_CONTROL.md`). Every endpoint requires a session; the WhatsApp agent uses a service key.
 - **Language:** Arabic-first, undiacritized (standard for ERP/UI text). English available on FAQ.
 
 > **All data is synthetic.** No real beneficiary, orphan, family, sponsor, or staff member is represented. This is a simulation for agent testing — not the production Kayan system, and not a security-hardened service. Real deployment handling orphan case data needs PDPL review, access control, audit logging, and encryption at rest.

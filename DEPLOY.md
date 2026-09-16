@@ -18,6 +18,9 @@ railway variables set GEMINI_API_KEY="your-key"
 railway variables set WHATSAPP_ACCESS_TOKEN="your-token"
 railway variables set WHATSAPP_PHONE_NUMBER_ID="your-phone-id"
 railway variables set WHATSAPP_VERIFY_TOKEN="kayan-verify-token"
+railway variables set ADMIN_EMAIL="admin@kayan.org.sa"
+railway variables set ADMIN_PASSWORD="a-long-password"
+railway variables set AGENT_API_KEY="$(openssl rand -hex 32)"
 railway variables set WHATSAPP_APP_SECRET="your-secret"
 railway variables set BACKEND_URL="http://localhost:8000"
 
@@ -35,7 +38,7 @@ railway up
 railway service create frontend
 railway service connect frontend
 
-# Set backend URL (use Railway internal URL)
+# The console proxies /api to the backend server-side
 railway variables set BACKEND_URL="https://backend-agent.up.railway.app"
 
 # Deploy
@@ -62,6 +65,10 @@ In Meta Developer Console, update the webhook URL:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Yes (first deploy) | Creates the first console admin while no account exists |
+| `AGENT_API_KEY` | Yes | Shared service key: the WhatsApp agent authenticates to the API with it |
+| `BACKEND_URL` | Yes (frontend service) | Backend URL the console's `/api` proxy forwards to |
+| `ALLOWED_ORIGINS` | No | Comma-separated origins for direct browser calls (default `*`) |
 | `LLM_API_KEY` | No | API key for the LLM endpoint (empty for local) |
 | `WHATSAPP_ACCESS_TOKEN` | Yes | Meta WhatsApp Cloud API token |
 | `WHATSAPP_PHONE_NUMBER_ID` | Yes | WhatsApp business phone number ID |

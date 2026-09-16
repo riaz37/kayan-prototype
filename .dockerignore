@@ -16,8 +16,9 @@ whatsapp-bridge/baileys-bridge/node_modules
 *.log
 
 # Build artifacts
-frontend/dist
-frontend/.cache
+frontend/.next
+frontend/out
+frontend/*.tsbuildinfo
 
 # IDE
 .vscode

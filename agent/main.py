@@ -149,6 +149,7 @@ async def webhook_receive(request: Request):
     # 9. If first message or context expired, load context from backend
     if not sess.get("context"):
         _load_context(sender, text)
+    _log_conversation(sender, text, "inbound", status="received")
 
     # 10. Send typing indicator (Baileys only)
     is_baileys = payload.get("entry", [{}])[0].get("changes", [{}])[0].get("value", {}).get("metadata", {}).get("phone_number_id") == "baileys"
@@ -179,8 +180,14 @@ async def webhook_receive(request: Request):
         _send_reply_baileys(sender, reply)
     else:
         _send_reply(sender, reply)
+    _log_conversation(sender, reply, "outbound", status="sent")
 
     return {"status": "ok"}
+
+
+def _backend_headers() -> dict:
+    key = getattr(settings, "agent_api_key", "") or ""
+    return {"X-Agent-Key": key} if key else {}
 
 
 def _load_context(phone: str, text: str):
@@ -190,6 +197,7 @@ def _load_context(phone: str, text: str):
         resp = httpx.post(
             f"{settings.backend_url}/whatsapp/inbound",
             json={"from_number": phone, "text_ar": text},
+            headers=_backend_headers(),
             timeout=30,
         )
         if resp.status_code == 200:
@@ -198,6 +206,20 @@ def _load_context(phone: str, text: str):
             logger.info(f"Loaded context for {phone}: known={data.get('known_beneficiary')}")
     except Exception as e:
         logger.warning(f"Failed to load context: {e}")
+
+
+def _log_conversation(phone: str, text: str, direction: str, status: str = None):
+    """Mirror the WhatsApp conversation onto the caller's open ticket so staff see it."""
+    import httpx
+    try:
+        httpx.post(
+            f"{settings.backend_url}/crm/conversation/log",
+            json={"phone": phone, "body_ar": text, "direction": direction,
+                  "sender": "bot" if direction == "outbound" else "beneficiary", "status": status},
+            headers=_backend_headers(), timeout=10,
+        )
+    except Exception as e:  # logging must never break the reply
+        logger.debug(f"Conversation log failed: {e}")
 
 
 def _send_reply_baileys(to: str, text: str):
@@ -238,6 +260,7 @@ def _send_reply(to: str, text: str):
         lookup_phone = normalize_phone_for_lookup(to)
         resp = httpx.get(
             f"{settings.backend_url}/whatsapp/session/{lookup_phone}",
+            headers=_backend_headers(),
             timeout=10,
         )
         if resp.status_code == 200:
@@ -279,6 +302,7 @@ async def agent_chat(req: ChatRequest):
     sess = get_session(phone)
     if not sess.get("context"):
         _load_context(phone, text)
+    _log_conversation(phone, text, "inbound", status="received")
 
     # Process through agent
     try:
@@ -291,6 +315,8 @@ async def agent_chat(req: ChatRequest):
             reply = "عذراً، حدث خطأ تقني. يرجى المحاولة مرة أخرى."
         else:
             reply = "Sorry, a technical error occurred. Please try again."
+
+    _log_conversation(phone, reply, "outbound", status="sent")
 
     # Get current context
     context = get_context(phone)

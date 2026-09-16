@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     whatsapp_phone_number_id: str = ""
     whatsapp_app_secret: str = ""
     backend_url: str = "http://localhost:8001"
+    agent_api_key: str = ""  # service key for the backend API (X-Agent-Key)
     port: int = 8002
 
     llm_api_key: str = ""

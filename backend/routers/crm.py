@@ -81,38 +81,10 @@ def get_ticket(ticket_id: str):
         b = db.get_beneficiary(t["beneficiary_id"])
         if b:
             cust_name = b.get("sections", {}).get("SEC-BASIC", {}).get("full_name_ar")
-    # Fetch WhatsApp conversation history from agent session
-    wa_history = []
-    if t.get("phone"):
-        import httpx as _httpx, os as _os
-        agent_url = _os.environ.get("AGENT_URL", "http://127.0.0.1:8002")
-        phone = t["phone"]
-        # Try multiple phone formats to match session key
-        digits = "".join(c for c in phone if c.isdigit())
-        candidates = [phone, digits, "88" + digits, "966" + digits.lstrip("0")]
-        history_data = []
-        for candidate in candidates:
-            try:
-                resp = _httpx.get(f"{agent_url}/agent/session/{candidate}/history", timeout=10)
-                raw = resp.json().get("history", [])
-                if raw:
-                    history_data = raw
-                    break
-            except Exception:
-                continue
-        for h in history_data:
-            role = h.get("role", "")
-            parts = h.get("parts", [])
-            text = " ".join(p.get("text", "") for p in parts if p.get("text"))
-            if text:
-                wa_history.append({
-                    "direction": "inbound" if role == "user" else "outbound",
-                    "sender": "beneficiary" if role == "user" else "agent",
-                    "body_ar": text,
-                })
-    # Merge: ticket_messages (explicit CRM messages) + wa_history (agent conversation)
-    all_msgs = msgs + wa_history
-    all_msgs.sort(key=lambda m: m.get("sent_at", ""))
+    # The conversation itself lives in ticket_messages: the agent logs every inbound
+    # and outbound WhatsApp message through /crm/conversation/log, so the thread is
+    # complete without querying the agent process at render time.
+    all_msgs = sorted(msgs, key=lambda m: m.get("sent_at") or "")
     return {**t, "status_ar": db.status_ar(t["status"]),
             "department_ar": db.by_id["department"].get(t["department_id"], {}).get("name_ar"),
             "customer_name_ar": cust_name or "غير مسجل",
@@ -144,13 +116,32 @@ def create_ticket(body: CreateTicketIn):
     dep = db.by_id["department"].get(body.department_id)
     if not dep:
         raise HTTPException(404, "Unknown department")
+
+    # One conversation per number: while a ticket for this caller is still open,
+    # everything they send lands in it instead of opening TK-1032, TK-1033, ...
+    phone = db.norm_phone(body.phone) if body.phone else \
+        (b or {}).get("sections", {}).get("SEC-CONTACT", {}).get("whatsapp")
+    existing = db.active_ticket_for(phone, (b or {}).get("id"))
+    if existing:
+        if body.first_message_ar:
+            db.append_ticket_message(existing["id"], body.first_message_ar,
+                                     direction="inbound", sender="beneficiary", dedupe=True)
+        updates = {"updated_at": db.now_iso()}
+        if existing["status"] in ("waiting_customer", "replied"):
+            updates["status"] = "in_progress"
+        db.update_row("tickets", existing["id"], updates)
+        existing.update(updates)
+        return {"ticket_id": existing["id"], "status": existing["status"], "reused": True,
+                "sla": db.ticket_sla(existing),
+                "department_ar": db.by_id["department"].get(existing["department_id"], {}).get("name_ar"),
+                "reply_ar": f"طلبكم مضاف الى تذكرتكم الحالية رقم {existing['id']} وسيتم التواصل معكم قريبا."}
+
     tid = db.next_id("tkt", "TK-2026-")
     t = {
         "id": tid, "beneficiary_id": (b or {}).get("id"),
         "subject_ar": body.subject_ar,
         "channel": body.channel,
-        "phone": db.norm_phone(body.phone) if body.phone else
-                 (b or {}).get("sections", {}).get("SEC-CONTACT", {}).get("whatsapp"),
+        "phone": phone,
         "department_id": body.department_id, "priority": body.priority,
         "status": "open", "assigned_to": None,
         "opened_at": db.now_iso(), "updated_at": db.now_iso(),
@@ -163,9 +154,37 @@ def create_ticket(body: CreateTicketIn):
             "id": msg_id, "ticket_id": tid, "direction": "inbound",
             "sender": "beneficiary", "body_ar": body.first_message_ar,
             "sent_at": db.now_iso()})
-    return {"ticket_id": tid, "status": "open", "sla": db.ticket_sla(t),
+    return {"ticket_id": tid, "status": "open", "reused": False, "sla": db.ticket_sla(t),
             "department_ar": dep["name_ar"],
             "reply_ar": f"تم فتح تذكرة برقم {tid} وسيتم التواصل معكم خلال {dep['sla_hours']} ساعة."}
+
+
+class ConversationLogIn(BaseModel):
+    phone: str = Field(..., examples=["966500000000"])
+    body_ar: str = Field(..., min_length=1)
+    direction: str = Field("inbound", examples=["inbound", "outbound"])
+    sender: Optional[str] = Field(None, examples=["beneficiary", "bot"])
+    status: Optional[str] = Field(None, examples=["sent", "failed"])
+
+
+@router.post("/crm/conversation/log", tags=[T_CRM],
+             summary="Record a WhatsApp message on the caller's active ticket",
+             description="Appends an inbound or outbound WhatsApp message to the open ticket for that "
+                         "number so staff see the whole conversation. Does nothing when the caller has "
+                         "no open ticket (returns logged=false).")
+def log_conversation(body: ConversationLogIn):
+    phone = db.norm_phone(body.phone)
+    ticket = db.active_ticket_for(phone, None)
+    if not ticket:
+        return {"logged": False, "reason": "no active ticket for this number"}
+    sender = body.sender or ("beneficiary" if body.direction == "inbound" else "bot")
+    msg = db.append_ticket_message(ticket["id"], body.body_ar, direction=body.direction,
+                                   sender=sender, status=body.status, dedupe=True)
+    updates = {"updated_at": db.now_iso()}
+    if body.direction == "inbound" and ticket["status"] in ("waiting_customer", "replied"):
+        updates["status"] = "in_progress"
+    db.update_row("tickets", ticket["id"], updates)
+    return {"logged": bool(msg), "ticket_id": ticket["id"], "message_id": (msg or {}).get("id")}
 
 
 class MoveTicketIn(BaseModel):
@@ -238,7 +257,8 @@ def reply_ticket(ticket_id: str, body: ReplyIn):
     msg_id = db.next_id("msg", "MSG-")
     m = {"id": msg_id, "ticket_id": ticket_id, "direction": "outbound",
          "sender": body.sender, "body_ar": body.body_ar, "sent_at": db.now_iso(),
-         "is_internal": not body.send_to_whatsapp}
+         "is_internal": not body.send_to_whatsapp,
+         "status": "note" if not body.send_to_whatsapp else "pending"}
     db.insert_ticket_message(m)
     # Auto-transition: open/in_progress → waiting_customer
     new_status = "waiting_customer" if t["status"] in ("open", "in_progress") else t["status"]
@@ -279,6 +299,9 @@ def reply_ticket(ticket_id: str, body: ReplyIn):
         warn = "ملاحظة داخلية — لم تُرسل للمستفيد"
     elif body.send_to_whatsapp and not phone:
         warn = "لم يتم العثور على رقم واتساب مرتبط بالتذكرة"
+    if body.send_to_whatsapp:
+        m["status"] = "sent" if wa_sent else "failed"
+        db.update_row("ticket_messages", msg_id, {"status": m["status"]})
     return {"message": m, "ticket_status": new_status, "whatsapp_sent": wa_sent, "warning_ar": warn}
 
 
@@ -421,6 +444,14 @@ def wa_inbound(body: WaInboundIn):
                 "window_expires_at": (db.now() + timedelta(hours=24)).replace(microsecond=0).isoformat() + "Z",
                 "last_message_at": db.now_iso(), "direction": "inbound"}
         db.insert_whatsapp_session(sess)
+    # Keep the ticket conversation complete: log what the beneficiary just sent.
+    if body.text_ar:
+        active = db.active_ticket_for(p, (b or {}).get("id"))
+        if active:
+            db.append_ticket_message(active["id"], body.text_ar, direction="inbound",
+                                     sender="beneficiary", status="received", dedupe=True)
+            db.update_row("tickets", active["id"], {"updated_at": db.now_iso()})
+
     ctx = _context_for(b)
     return {"session_id": sess["id"], "window": db.wa_window(sess),
             "known_beneficiary": bool(b), "context": ctx,

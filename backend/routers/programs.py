@@ -137,8 +137,11 @@ def get_request(request_id: str):
                 "under_study": "قيد دراسة الحالة",
                 "committee": "معروض على اللجنة المختصة",
                 "decided": "تم اصدار القرار"}[sr["stage"]]
+    b = db.get_beneficiary(sr["beneficiary_id"])
     return {**sr, "program_ar": db.program_name(sr["program_id"]),
+            "name_ar": ((b or {}).get("sections", {}).get("SEC-BASIC") or {}).get("full_name_ar") or (b or {}).get("full_name_ar"),
             "stage_ar": stage_ar, "case_study": case, "decision": dec,
+            "enrollment": db.enrollment_for_request(request_id),
             "reply_ar": f"حالة طلبكم {sr['id']}: {stage_ar}." +
                         (f" القرار: {dec['decision_ar']}." if dec else "")}
 
@@ -173,8 +176,9 @@ def add_detail(request_id: str, body: AddDetailIn):
     sr = db.get_support_request(request_id)
     if not sr:
         raise HTTPException(404, "Support request not found")
-    desc = sr.get("case_description_ar") or sr.get("description_ar") or ""
+    desc = sr.get("description_ar") or sr.get("case_description_ar") or ""
     sr["description_ar"] = desc + f"\n[{db.now_iso()}] {body.additional_detail_ar}"
+    db.update_support_request(request_id, {"description_ar": sr["description_ar"]})
     return {"support_request_id": request_id,
             "case_description_ar": sr["description_ar"],
             "reply_ar": "شكرا لتوضيحكم، تم اضافة التفاصيل الى الطلب."}
@@ -198,14 +202,16 @@ def open_case(request_id: str, researcher_id: str = Query("STF-04", examples=["S
         raise HTTPException(404, "Support request not found")
     if db.case_for(request_id):
         raise HTTPException(409, "A case study is already open for this request")
+    if sr["stage"] not in ("submitted", "new"):
+        raise HTTPException(409, f"A case study can only be opened for a submitted request (stage: {sr['stage']})")
     cid = db.next_id("case", "CASE-")
-    case = {"id": cid, "support_request_id": request_id,
-            "beneficiary_id": sr["beneficiary_id"], "opened_at": db.now_iso(),
-            "steps": [], "social_researcher_id": researcher_id,
-            "recommendation_ar": None, "status": "open"}
-    db.case_studies.append(case)
-    sr["stage"] = "under_study"
-    return {"case_id": cid, "stage": "under_study", "case_study": case}
+    now = db.now_iso()
+    case = {"id": cid, "support_request_id": request_id, "beneficiary_id": sr["beneficiary_id"],
+            "caseworker": researcher_id, "steps": [], "recommendation_ar": None,
+            "status": "open", "created_at": now, "updated_at": now}
+    db.insert_case(case)
+    db.update_support_request(request_id, {"stage": "under_study"})
+    return {"case_id": cid, "stage": "under_study", "case_study": db.case_by_id(cid)}
 
 
 class ScheduleStepIn(BaseModel):
@@ -220,9 +226,11 @@ class ScheduleStepIn(BaseModel):
              description="Schedules a field visit, office or online interview, or psychological "
                          "assessment, and notifies the beneficiary on WhatsApp.")
 def schedule_step(case_id: str, body: ScheduleStepIn):
-    case = next((c for c in db.case_studies if c["id"] == case_id), None)
+    case = db.case_by_id(case_id)
     if not case:
         raise HTTPException(404, "Case study not found")
+    if case["status"] != "open":
+        raise HTTPException(409, "This case study is closed")
     st = next((s for s in db.case_steps if s["id"] == body.step_id), None)
     if not st:
         raise HTTPException(404, "Unknown case step")
@@ -230,10 +238,12 @@ def schedule_step(case_id: str, body: ScheduleStepIn):
             "scheduled_at": body.scheduled_at, "status": "scheduled",
             "assigned_staff_id": body.assigned_staff_id, "findings_ar": None}
     case["steps"].append(step)
+    db.update_row("case_studies", case_id, {"steps": case["steps"], "updated_at": db.now_iso()})
     b = db.get_beneficiary(case["beneficiary_id"])
-    if b:
+    phone = ((b or {}).get("sections", {}).get("SEC-CONTACT") or {}).get("whatsapp") or (b or {}).get("phone")
+    if phone:
         msg = db.render_template("TPL-VISIT", date=body.scheduled_at[:10])
-        db.send_notification("whatsapp", b["sections"]["SEC-CONTACT"]["whatsapp"], msg, kind="visit")
+        db.send_notification("whatsapp", phone, msg, kind="visit")
     return {"case_id": case_id, "step": step,
             "reply_ar": f"تم تحديد موعد {st['name_ar']} بتاريخ {body.scheduled_at[:10]}."}
 
@@ -247,14 +257,18 @@ class FindingsIn(BaseModel):
              summary="Record findings for a completed step",
              description="Marks a case step complete and stores the researcher's findings.")
 def record_findings(case_id: str, body: FindingsIn):
-    case = next((c for c in db.case_studies if c["id"] == case_id), None)
+    case = db.case_by_id(case_id)
     if not case:
         raise HTTPException(404, "Case study not found")
-    step = next((s for s in case["steps"] if s["step_id"] == body.step_id), None)
+    # Prefer the oldest still-scheduled occurrence of this step type.
+    step = next((s for s in case["steps"] if s.get("step_id") == body.step_id and s.get("status") != "completed"), None) \
+        or next((s for s in case["steps"] if s.get("step_id") == body.step_id), None)
     if not step:
         raise HTTPException(404, "Step not scheduled on this case")
     step["status"] = "completed"
     step["findings_ar"] = body.findings_ar
+    step["completed_at"] = db.now_iso()
+    db.update_row("case_studies", case_id, {"steps": case["steps"], "updated_at": db.now_iso()})
     return {"case_id": case_id, "step": step}
 
 
@@ -267,16 +281,14 @@ class SubmitCommitteeIn(BaseModel):
              description="Presents the case to اللجنة المختصة with the researcher's recommendation. "
                          "Requires at least one completed step (409 otherwise).")
 def submit_committee(case_id: str, body: SubmitCommitteeIn):
-    case = next((c for c in db.case_studies if c["id"] == case_id), None)
+    case = db.case_by_id(case_id)
     if not case:
         raise HTTPException(404, "Case study not found")
     done = [s for s in case["steps"] if s["status"] == "completed"]
     if not done:
         raise HTTPException(409, "لا يمكن العرض على اللجنة قبل اكمال خطوة واحدة على الاقل من دراسة الحالة")
-    case["recommendation_ar"] = body.recommendation_ar
-    sr = db.get_support_request(case["support_request_id"])
-    if sr:
-        sr["stage"] = "committee"
+    db.update_row("case_studies", case_id, {"recommendation_ar": body.recommendation_ar, "updated_at": db.now_iso()})
+    db.update_support_request(case["support_request_id"], {"stage": "committee"})
     return {"case_id": case_id, "stage": "committee",
             "completed_steps": len(done), "recommendation_ar": body.recommendation_ar}
 
@@ -312,24 +324,21 @@ def record_decision(request_id: str, body: DecisionIn):
            "decision": body.decision,
            "decision_ar": next(d["name_ar"] for d in db.decision_types if d["id"] == body.decision),
            "approved_amount_sar": amt if body.decision == "accepted" else 0.0,
-           "committee_date": db.now_iso(),
+           "committee_date": db.now_iso(), "decided_by": "committee",
            "committee_members": [s["name_ar"] for s in db.staff[:3]],
            "reason_ar": body.reason_ar,
            "required_documents_ar": body.required_documents_ar,
            "notified_whatsapp": True, "notified_sms": True}
-    db.committee_decisions.append(dec)
-    conn = db._get_conn()
-    conn.execute("UPDATE support_requests SET stage = ?, decision = ? WHERE id = ?",
-                 ("decided", body.decision, request_id))
-    conn.commit()
+    db.insert_decision(dec)
+    db.update_support_request(request_id, {"stage": "decided", "decision": body.decision})
     sr["stage"] = "decided"
     sr["decision"] = body.decision
     case = db.case_for(request_id)
     if case:
-        case["status"] = "closed"
+        db.update_row("case_studies", case["id"], {"status": "closed", "updated_at": db.now_iso()})
 
     b = db.get_beneficiary(sr["beneficiary_id"])
-    phone = b["sections"]["SEC-CONTACT"]["whatsapp"] if b else None
+    phone = ((b or {}).get("sections", {}).get("SEC-CONTACT") or {}).get("whatsapp") or (b or {}).get("phone")
     if body.decision == "accepted":
         msg = db.render_template("TPL-ACCEPT", request_no=request_id,
                                  program=db.program_name(sr["program_id"]))

@@ -212,6 +212,15 @@ def update_section(beneficiary_id: str, section_id: str, body: UpdateSectionIn):
         raise HTTPException(422, f"Fields not in {section_id}: {unknown}. Allowed: {sorted(allowed)}")
     b["sections"].setdefault(section_id, {}).update(body.values)
     b["updated_at"] = db.now_iso()
+    # The list/search columns mirror a few section fields — keep them in step.
+    if section_id == "SEC-BASIC" and body.values.get("full_name_ar"):
+        b["full_name_ar"] = body.values["full_name_ar"]
+    if section_id == "SEC-BASIC" and body.values.get("orphan_category_id"):
+        b["orphan_category"] = body.values["orphan_category_id"]
+    if section_id == "SEC-CONTACT" and body.values.get("mobile"):
+        b["phone"] = db.norm_phone(body.values["mobile"])
+    if section_id == "SEC-HOUSING" and body.values.get("city"):
+        b["city"] = body.values["city"]
     db.insert_beneficiary(b)
 
     # keep the financial profile in sync when income-bearing fields change
@@ -275,6 +284,91 @@ def submit_file(beneficiary_id: str):
     return {"beneficiary_id": beneficiary_id, "status": "submitted",
             "reply_ar": "تم رفع ملفكم بنجاح. سيتم التواصل معكم لاستكمال اجراءات دراسة الحالة. "
                         "علما بان التسجيل في النظام لا يعني قبول الطلب."}
+
+
+class UpdateFileIn(BaseModel):
+    full_name_ar: Optional[str] = Field(None, min_length=2, examples=["نوره العتيبي"])
+    phone: Optional[str] = Field(None, examples=["0501234567"])
+    city: Optional[str] = Field(None, examples=["الرياض"])
+    case_type: Optional[str] = Field(None, examples=["CT-IND"])
+    orphan_category_id: Optional[str] = Field(None, examples=["OC-UNK"])
+
+
+@router.patch("/beneficiary/{beneficiary_id}", tags=[T],
+              summary="Correct the file's core fields",
+              description="Staff-side correction of the identity fields (name, phone, city, case type, "
+                          "orphan category). Section data is edited through /section/{section_id}.")
+def update_file(beneficiary_id: str, body: UpdateFileIn):
+    b = db.get_beneficiary(beneficiary_id)
+    if not b:
+        raise HTTPException(404, "Beneficiary not found")
+    values = body.model_dump(exclude_unset=True)
+    if values.get("case_type") and not any(c["id"] == values["case_type"] for c in db.case_types):
+        raise HTTPException(404, "Unknown case type")
+    if values.get("orphan_category_id"):
+        cat = db.by_id["orphan_category"].get(values["orphan_category_id"])
+        if not cat:
+            raise HTTPException(404, "Unknown orphan category")
+        if not cat["eligible"]:
+            raise HTTPException(409, "Category is not served by Kayan")
+    if values.get("phone"):
+        phone = db.norm_phone(values["phone"])
+        other = db.beneficiary_by_phone(phone)
+        if other and other["id"] != beneficiary_id:
+            raise HTTPException(409, "رقم الجوال مسجل مسبقا — another file already uses this phone")
+        b["phone"] = phone
+        b["sections"].setdefault("SEC-CONTACT", {}).update({"mobile": phone, "whatsapp": phone})
+    if values.get("full_name_ar"):
+        b["full_name_ar"] = values["full_name_ar"]
+        b["sections"].setdefault("SEC-BASIC", {})["full_name_ar"] = values["full_name_ar"]
+    if values.get("city"):
+        b["city"] = values["city"]
+        b["sections"].setdefault("SEC-HOUSING", {})["city"] = values["city"]
+    if values.get("case_type"):
+        b["case_type"] = values["case_type"]
+    if values.get("orphan_category_id"):
+        b["orphan_category"] = values["orphan_category_id"]
+        b["sections"].setdefault("SEC-BASIC", {})["orphan_category_id"] = values["orphan_category_id"]
+    b["updated_at"] = db.now_iso()
+    db.insert_beneficiary(b)
+    return {"beneficiary": db.get_beneficiary(beneficiary_id),
+            "completeness": db.file_completeness(beneficiary_id)}
+
+
+class ReviewIn(BaseModel):
+    decision: str = Field(..., examples=["approved"], description="approved | rejected | under_review")
+    note_ar: Optional[str] = Field(None, examples=["تم التحقق من البيانات والمستندات"])
+
+
+@router.post("/beneficiary/{beneficiary_id}/review", tags=[T],
+             summary="Staff review of a submitted file (اعتماد الملف)",
+             description="Moves a submitted file to under_review, approved or rejected and notifies the "
+                         "beneficiary. Only approved files can raise support requests. Returns 409 unless "
+                         "the file has been submitted.")
+def review_file(beneficiary_id: str, body: ReviewIn):
+    b = db.get_beneficiary(beneficiary_id)
+    if not b:
+        raise HTTPException(404, "Beneficiary not found")
+    if body.decision not in ("approved", "rejected", "under_review"):
+        raise HTTPException(422, "decision must be approved, rejected or under_review")
+    if b["status"] not in ("submitted", "under_review"):
+        raise HTTPException(409, {"message": "Only submitted files can be reviewed", "file_status": b["status"]})
+    now = db.now_iso()
+    fields = {"status": body.decision, "updated_at": now, "review_note_ar": body.note_ar}
+    if body.decision == "approved":
+        fields["approved_at"] = now
+    db.update_row("beneficiaries", beneficiary_id, fields)
+
+    phone = (b.get("sections", {}).get("SEC-CONTACT") or {}).get("whatsapp") or b.get("phone")
+    msg = {
+        "approved": f"تم اعتماد ملفكم رقم {b.get('file_no')} لدى جمعية كيان. يمكنكم الآن تقديم طلبات الدعم.",
+        "rejected": f"نعتذر، لم يتم اعتماد ملفكم رقم {b.get('file_no')}."
+                    + (f" السبب: {body.note_ar}" if body.note_ar else ""),
+        "under_review": f"ملفكم رقم {b.get('file_no')} قيد المراجعة لدى الجمعية.",
+    }[body.decision]
+    if phone:
+        db.send_notification("whatsapp", phone, msg, kind="file_review")
+    return {"beneficiary_id": beneficiary_id, "status": body.decision, "message_sent_ar": msg if phone else None}
 
 
 # ============================================================ dependents
@@ -454,10 +548,10 @@ def _recalc(f):
     need_score = max(0, min(100, round(100 - (per_capita / 15), 1)))
     conn = db._get_conn()
     conn.execute("""UPDATE financial_profiles SET
-        obligations=?, person_costs=?, need_score=? WHERE id=?""",
+        obligations=?, person_costs=?, need_score=?, monthly_income=? WHERE id=?""",
         (json.dumps(obligations, ensure_ascii=False),
          json.dumps(person_costs, ensure_ascii=False),
-         need_score, f["id"]))
+         need_score, f.get("monthly_income", 0), f["id"]))
     conn.commit()
     f["obligations"] = obligations
     f["person_costs"] = person_costs

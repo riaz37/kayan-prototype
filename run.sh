@@ -1,17 +1,14 @@
 #!/usr/bin/env bash
-# Kayan prototype — API + console launcher
+# Kayan prototype — API + console launcher (local development)
 set -e
 cd "$(dirname "$0")"
 
 python3 -m pip install -r requirements.txt --quiet
 
-if [ ! -f frontend/dist/app.css ]; then
-  echo "Building the console UI (first run)..."
-  (cd frontend && ./build.sh)
+if [ ! -d frontend/node_modules ]; then
+  echo "Installing console dependencies (first run)..."
+  (cd frontend && npm install --no-audit --no-fund)
 fi
-
-echo "Regenerating seed data..."
-python3 scripts/generate_seed.py > /dev/null
 
 cat <<BANNER
 
@@ -23,10 +20,9 @@ cat <<BANNER
 
 BANNER
 
-# Start backend in background, frontend in foreground
+# Start backend in background, console in foreground
 PYTHONPATH=. uvicorn backend.main:app --reload --port 8000 &
 BACKEND_PID=$!
-sleep 1
+trap 'kill $BACKEND_PID 2>/dev/null' EXIT INT TERM
 
-(cd frontend && python3 -m http.server 3000)
-wait $BACKEND_PID
+(cd frontend && npm run dev -- --port 3000)

@@ -24,17 +24,30 @@ Docs: http://localhost:8000/docs
 """
 import os
 import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 
-from backend import store as db
-from backend.routers import beneficiary, crm, programs, finance
+from backend import auth, store as db
+from backend.routers import accounts, beneficiary, crm, programs, finance
 
 logger = logging.getLogger("kayan")
 
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    created = accounts.ensure_admin()
+    if created:
+        logger.info("Created the first admin account: %s", created)
+    elif not db.count_users():
+        logger.warning("No staff accounts exist. Set ADMIN_EMAIL and ADMIN_PASSWORD, then restart.")
+    yield
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title="Kayan Orphan Care — AI Agent Platform (Mock)",
     version="1.0.0",
     description=(
@@ -42,8 +55,32 @@ app = FastAPI(
         "Multi-channel (Voice/SIP + WhatsApp), Arabic-first. Each route is an agent tool."
     ),
 )
-app.add_middleware(CORSMiddleware, allow_origins=["*"],
-                   allow_methods=["*"], allow_headers=["*"])
+# The console talks to this API through its own /api proxy, so credentials never cross origins.
+_origins = [o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "*").split(",") if o.strip()]
+app.add_middleware(CORSMiddleware, allow_origins=_origins,
+                   allow_credentials=_origins != ["*"], allow_methods=["*"], allow_headers=["*"])
+
+
+@app.middleware("http")
+async def authorize(request: Request, call_next):
+    """Every endpoint needs a signed-in user (or the agent service key), except the
+    public ones; write operations additionally need the permission for that area."""
+    path = request.url.path
+    if request.method == "OPTIONS" or auth.is_public(path):
+        return await call_next(request)
+    principal = auth.principal_from_request(request)
+    if not principal:
+        return JSONResponse(status_code=401, content={"detail": "Sign in required"})
+    permission = auth.required_permission(request.method, path)
+    if permission and not auth.has_permission(principal, permission):
+        return JSONResponse(status_code=403,
+                            content={"detail": "You do not have permission for this action",
+                                     "required": permission})
+    request.state.principal = principal
+    return await call_next(request)
+
+
+
 
 
 @app.exception_handler(Exception)
@@ -54,6 +91,7 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={"detail": "Internal server error", "error": str(exc)},
     )
 
+app.include_router(accounts.router)
 app.include_router(beneficiary.router)
 app.include_router(crm.router)
 app.include_router(programs.router)

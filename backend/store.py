@@ -122,6 +122,31 @@ def _init_db():
             updated_at TEXT
         );
 
+        CREATE TABLE IF NOT EXISTS users (
+            id TEXT PRIMARY KEY,
+            email TEXT UNIQUE,
+            password_hash TEXT,
+            name_ar TEXT,
+            name_en TEXT,
+            role TEXT DEFAULT 'services',
+            department_id TEXT,
+            staff_id TEXT,
+            extra_permissions TEXT DEFAULT '[]',
+            revoked_permissions TEXT DEFAULT '[]',
+            is_active INTEGER DEFAULT 1,
+            must_change_password INTEGER DEFAULT 0,
+            last_login_at TEXT,
+            created_at TEXT,
+            updated_at TEXT
+        );
+
+        CREATE TABLE IF NOT EXISTS sessions (
+            token_hash TEXT PRIMARY KEY,
+            user_id TEXT,
+            created_at TEXT,
+            expires_at TEXT
+        );
+
         CREATE TABLE IF NOT EXISTS case_studies (
             id TEXT PRIMARY KEY,
             support_request_id TEXT,
@@ -271,11 +296,34 @@ def _init_db():
 
 
 def _migrate_db(conn):
-    """Add columns to tables that pre-date them (CREATE TABLE IF NOT EXISTS won't do this)."""
-    cols = {row["name"] for row in conn.execute("PRAGMA table_info(documents)")}
-    if "updated_at" not in cols:
-        conn.execute("ALTER TABLE documents ADD COLUMN updated_at TEXT")
-        conn.commit()
+    """Add columns to tables that pre-date them (CREATE TABLE IF NOT EXISTS won't do this).
+    Additive only, so it is safe to run against an existing production database."""
+    def add(table, column, decl):
+        cols = {row["name"] for row in conn.execute(f"PRAGMA table_info({table})")}
+        if column not in cols:
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
+
+    add("documents", "updated_at", "TEXT")
+    # conversation: delivery state per message, and where a merged ticket went
+    add("ticket_messages", "status", "TEXT")
+    add("ticket_messages", "is_internal", "INTEGER DEFAULT 0")
+    add("tickets", "merged_into", "TEXT")
+    # file review (approve / reject by staff)
+    add("beneficiaries", "approved_at", "TEXT")
+    add("beneficiaries", "review_note_ar", "TEXT")
+    # casework lifecycle
+    add("case_studies", "status", "TEXT DEFAULT 'open'")
+    add("case_studies", "updated_at", "TEXT")
+    # committee decision details
+    add("committee_decisions", "required_documents", "TEXT")
+    # enrollment <-> request link and schedule terms
+    add("enrollments", "support_request_id", "TEXT")
+    add("enrollments", "type", "TEXT")
+    add("enrollments", "monthly_amount", "REAL")
+    add("enrollments", "total_approved", "REAL")
+    add("enrollments", "start_date", "TEXT")
+    add("enrollments", "end_date", "TEXT")
+    conn.commit()
 
 
 _init_db()
@@ -455,12 +503,113 @@ def decision_for(srid):
         return None
     d = dict(row)
     d["decision_ar"] = next((dt["name_ar"] for dt in decision_types if dt["id"] == d["decision"]), d["decision"])
+    # API field names (the table stores amount / notes_ar / decided_at)
+    d["approved_amount_sar"] = d.get("amount")
+    d["reason_ar"] = d.get("notes_ar")
+    d["committee_date"] = d.get("decided_at")
+    try:
+        d["required_documents_ar"] = json.loads(d.get("required_documents") or "[]") or None
+    except (TypeError, ValueError):
+        d["required_documents_ar"] = None
     return d
+
+
+# Legacy seed rows store steps as plain labels; map them to the case-step reference ids.
+_LEGACY_STEP_IDS = {"visit": "CS-FIELD", "interview": "CS-DESK", "assessment": "CS-PSYCH", "online": "CS-ONLINE"}
+
+
+def _normalize_case(row):
+    """Case study row -> dict with parsed steps and the field names the API exposes."""
+    if not row:
+        return None
+    c = dict(row)
+    raw = c.get("steps")
+    try:
+        steps = json.loads(raw) if isinstance(raw, str) else (raw or [])
+    except (TypeError, ValueError):
+        steps = []
+    norm = []
+    for s in steps:
+        if isinstance(s, str):
+            sid = _LEGACY_STEP_IDS.get(s, s)
+            ref = next((x for x in case_steps if x["id"] == sid), None)
+            norm.append({"step_id": sid, "name_ar": ref["name_ar"] if ref else s, "status": "completed",
+                         "scheduled_at": None, "assigned_staff_id": c.get("caseworker"), "findings_ar": None})
+        elif isinstance(s, dict):
+            norm.append(s)
+    c["steps"] = norm
+    c["status"] = c.get("status") or "open"
+    c["social_researcher_id"] = c.get("caseworker")
+    c["opened_at"] = c.get("created_at")
+    return c
 
 
 def case_for(srid):
     conn = _get_conn()
     row = conn.execute("SELECT * FROM case_studies WHERE support_request_id = ?", (srid,)).fetchone()
+    return _normalize_case(row)
+
+
+def case_by_id(case_id):
+    conn = _get_conn()
+    row = conn.execute("SELECT * FROM case_studies WHERE id = ?", (case_id,)).fetchone()
+    return _normalize_case(row)
+
+
+def insert_case(case):
+    conn = _get_conn()
+    conn.execute(
+        """INSERT INTO case_studies
+           (id, support_request_id, beneficiary_id, caseworker, notes_ar, recommendation_ar, steps, status, created_at, updated_at)
+           VALUES (?,?,?,?,?,?,?,?,?,?)""",
+        (case["id"], case["support_request_id"], case["beneficiary_id"], case.get("caseworker"),
+         case.get("notes_ar"), case.get("recommendation_ar"),
+         json.dumps(case.get("steps", []), ensure_ascii=False), case.get("status", "open"),
+         case.get("created_at"), case.get("updated_at")))
+    conn.commit()
+
+
+def update_row(table, row_id, fields):
+    """Persist `fields` on one row. Unknown columns are ignored; lists/dicts are stored as JSON.
+    `table` must be a trusted constant (it is interpolated), values are always bound."""
+    conn = _get_conn()
+    valid = {r["name"] for r in conn.execute(f"PRAGMA table_info({table})")}
+    cols = [k for k in fields if k in valid and k != "id"]
+    if not cols:
+        return
+    values = [json.dumps(fields[k], ensure_ascii=False) if isinstance(fields[k], (list, dict)) else fields[k]
+              for k in cols]
+    assignments = ", ".join(f'"{c}" = ?' for c in cols)
+    conn.execute(f"UPDATE {table} SET {assignments} WHERE id = ?", (*values, row_id))
+    conn.commit()
+
+
+def update_support_request(request_id, fields):
+    fields = {**fields, "updated_at": now_iso()}
+    update_row("support_requests", request_id, fields)
+    # Keep the in-memory index in step (it holds raw rows warmed at startup).
+    index = by_id.get("support_request")
+    if index is not None and request_id in index:
+        fresh = get_support_request(request_id)
+        if fresh:
+            index[request_id] = fresh
+
+
+def insert_decision(dec):
+    conn = _get_conn()
+    conn.execute(
+        """INSERT INTO committee_decisions
+           (id, support_request_id, beneficiary_id, decision, amount, notes_ar, decided_by, decided_at, required_documents)
+           VALUES (?,?,?,?,?,?,?,?,?)""",
+        (dec["id"], dec["support_request_id"], dec.get("beneficiary_id"), dec["decision"],
+         dec.get("approved_amount_sar", 0.0), dec.get("reason_ar"), dec.get("decided_by"),
+         dec.get("committee_date"), json.dumps(dec.get("required_documents_ar") or [], ensure_ascii=False)))
+    conn.commit()
+
+
+def enrollment_for_request(srid):
+    conn = _get_conn()
+    row = conn.execute("SELECT * FROM enrollments WHERE support_request_id = ?", (srid,)).fetchone()
     return dict(row) if row else None
 
 
@@ -614,44 +763,68 @@ _seq = {}
 _seq_initialized = False
 
 def _init_seq():
+    """Seed the id counters from the database.
+
+    Ids look like `TK-2026-2031`, `MSG-95012`, `KY-1007`: the counter is the digits
+    after the LAST dash. Parsing a fixed offset (the old approach) read `TK-2026-2031`
+    as 2026 and handed out ids that already existed, and `INSERT OR REPLACE` then
+    overwrote the existing row.
+    """
     global _seq_initialized
     if _seq_initialized:
         return
     conn = _get_conn()
-    # Get max IDs from each table to avoid duplicates
-    queries = {
-        "ben": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM beneficiaries",
-        "dep": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM dependents",
-        "doc": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM documents",
-        "sr": "SELECT MAX(CAST(SUBSTR(id, 4) AS INTEGER)) FROM support_requests",
-        "case": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM case_studies",
-        "dec": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM committee_decisions",
-        "enr": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM enrollments",
-        "dis": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM disbursements",
-        "pay": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM payments",
-        "tkt": "SELECT MAX(CAST(SUBSTR(id, 4) AS INTEGER)) FROM tickets",
-        "msg": "SELECT MAX(CAST(SUBSTR(id, 5) AS INTEGER)) FROM ticket_messages",
-        "call": "SELECT MAX(CAST(SUBSTR(id, 6) AS INTEGER)) FROM call_sessions",
-        "wa": "SELECT MAX(CAST(SUBSTR(id, 4) AS INTEGER)) FROM whatsapp_sessions",
-        "file": "SELECT MAX(CAST(SUBSTR(file_no, 4) AS INTEGER)) FROM beneficiaries WHERE file_no LIKE 'KY-%'",
+    sources = {
+        "ben": ("beneficiaries", "id"), "dep": ("dependents", "id"), "doc": ("documents", "id"),
+        "sr": ("support_requests", "id"), "case": ("case_studies", "id"),
+        "dec": ("committee_decisions", "id"), "enr": ("enrollments", "id"),
+        "dis": ("disbursements", "id"), "pay": ("payments", "id"), "tkt": ("tickets", "id"),
+        "msg": ("ticket_messages", "id"), "call": ("call_sessions", "id"),
+        "wa": ("whatsapp_sessions", "id"), "file": ("beneficiaries", "file_no"),
     }
     defaults = {"ben": 2000, "dep": 6000, "doc": 8000, "sr": 25000, "case": 35000,
                 "dec": 45000, "enr": 55000, "dis": 65000, "pay": 75000, "tkt": 6000,
                 "msg": 95000, "call": 15000, "wa": 16000, "file": 4000}
-    for kind, query in queries.items():
+
+    def tail_number(value):
+        if not value:
+            return None
+        tail = str(value).rsplit("-", 1)[-1]
+        return int(tail) if tail.isdigit() else None
+
+    for kind, (table, column) in sources.items():
         try:
-            row = conn.execute(query).fetchone()
-            max_val = row[0] if row and row[0] else defaults[kind]
-            _seq[kind] = max_val
+            rows = conn.execute(f"SELECT {column} FROM {table}").fetchall()
+            numbers = [n for n in (tail_number(r[0]) for r in rows) if n is not None]
+            _seq[kind] = max(numbers) if numbers else defaults[kind]
         except Exception:
             _seq[kind] = defaults[kind]
     _seq_initialized = True
 
 
+# Which table each id kind lives in, so a generated id is never handed out twice.
+_SEQ_TABLES = {"ben": ("beneficiaries", "id"), "dep": ("dependents", "id"), "doc": ("documents", "id"),
+               "sr": ("support_requests", "id"), "case": ("case_studies", "id"),
+               "dec": ("committee_decisions", "id"), "enr": ("enrollments", "id"),
+               "dis": ("disbursements", "id"), "pay": ("payments", "id"), "tkt": ("tickets", "id"),
+               "msg": ("ticket_messages", "id"), "call": ("call_sessions", "id"),
+               "wa": ("whatsapp_sessions", "id"), "file": ("beneficiaries", "file_no")}
+
+
 def next_id(kind, prefix):
+    """Next free id for this kind — skips values that already exist in the table."""
     _init_seq()
-    _seq[kind] += 1
-    return f"{prefix}{_seq[kind]}"
+    conn = _get_conn()
+    table, column = _SEQ_TABLES.get(kind, (None, None))
+    for _ in range(1000):
+        _seq[kind] += 1
+        candidate = f"{prefix}{_seq[kind]}"
+        if not table:
+            return candidate
+        taken = conn.execute(f"SELECT 1 FROM {table} WHERE {column} = ? LIMIT 1", (candidate,)).fetchone()
+        if not taken:
+            return candidate
+    raise RuntimeError(f"Could not allocate an id for {kind}")
 
 
 def render_template(tid, **kw):
@@ -675,6 +848,132 @@ def send_notification(channel, to, body, kind="manual"):
     conn.commit()
     return {"id": nid, "channel": channel, "to": norm_phone(to), "body_ar": body,
             "kind": kind, "sent_at": now_iso(), "status": "sent"}
+
+
+# ---- conversation helpers
+OPEN_TICKET_STATUSES = ("open", "in_progress", "waiting_customer", "replied")
+
+
+def phone_key(value):
+    """Comparable form of a phone number: the last 9 digits.
+
+    Numbers reach us in several shapes for the same person (`0556842134`,
+    `966556842134`, `+966 55 684 2134`), so conversations are matched on the
+    significant digits rather than on the exact stored string.
+    """
+    digits = "".join(c for c in str(value or "") if c.isdigit())
+    return digits[-9:] if len(digits) >= 9 else digits
+
+
+def active_ticket_for(phone, beneficiary_id=None):
+    """The ticket that new messages from this caller belong to: the most recently
+    updated ticket that is not closed. One conversation per number."""
+    conn = _get_conn()
+    placeholders = ",".join("?" * len(OPEN_TICKET_STATUSES))
+    rows = conn.execute(
+        f"""SELECT * FROM tickets WHERE status IN ({placeholders})
+            ORDER BY updated_at DESC, opened_at DESC""", OPEN_TICKET_STATUSES).fetchall()
+    key = phone_key(phone)
+    if key:
+        for row in rows:
+            if phone_key(row["phone"]) == key:
+                return dict(row)
+    if beneficiary_id:
+        for row in rows:
+            if row["beneficiary_id"] == beneficiary_id:
+                return dict(row)
+    return None
+
+
+def append_ticket_message(ticket_id, body_ar, direction="inbound", sender="beneficiary",
+                          status=None, is_internal=False, dedupe=False):
+    """Add one message to a ticket. With `dedupe`, an identical message in the same
+    direction within the last two minutes is skipped (the agent logs a message that
+    may also arrive as a ticket's first_message)."""
+    conn = _get_conn()
+    if dedupe:
+        recent = conn.execute(
+            """SELECT id, sent_at FROM ticket_messages
+               WHERE ticket_id = ? AND direction = ? AND body_ar = ?
+               ORDER BY sent_at DESC LIMIT 1""",
+            (ticket_id, direction, body_ar)).fetchone()
+        if recent:
+            when = parse(recent["sent_at"])
+            if when and (now() - when).total_seconds() < 120:
+                return None
+    msg = {"id": next_id("msg", "MSG-"), "ticket_id": ticket_id, "direction": direction,
+           "sender": sender, "body_ar": body_ar, "sent_at": now_iso(),
+           "is_internal": bool(is_internal), "status": status}
+    insert_ticket_message(msg)
+    return msg
+
+
+# ---- users & sessions
+def get_user(user_id):
+    conn = _get_conn()
+    row = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    return dict(row) if row else None
+
+
+def user_by_email(email):
+    conn = _get_conn()
+    row = conn.execute("SELECT * FROM users WHERE lower(email) = lower(?)", ((email or "").strip(),)).fetchone()
+    return dict(row) if row else None
+
+
+def list_users():
+    conn = _get_conn()
+    rows = conn.execute("SELECT * FROM users ORDER BY created_at").fetchall()
+    return [dict(r) for r in rows]
+
+
+def count_users():
+    return count_table("users")
+
+
+def insert_user(u):
+    conn = _get_conn()
+    conn.execute(
+        """INSERT INTO users (id, email, password_hash, name_ar, name_en, role, department_id, staff_id,
+               extra_permissions, revoked_permissions, is_active, must_change_password, created_at, updated_at)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (u["id"], (u.get("email") or "").strip().lower(), u.get("password_hash"), u.get("name_ar"),
+         u.get("name_en"), u.get("role", "services"), u.get("department_id"), u.get("staff_id"),
+         json.dumps(u.get("extra_permissions", []), ensure_ascii=False),
+         json.dumps(u.get("revoked_permissions", []), ensure_ascii=False),
+         1 if u.get("is_active", True) else 0, 1 if u.get("must_change_password") else 0,
+         u.get("created_at") or now_iso(), u.get("updated_at") or now_iso()))
+    conn.commit()
+    return get_user(u["id"])
+
+
+def insert_session(token_hash, user_id, expires_at):
+    conn = _get_conn()
+    conn.execute("INSERT OR REPLACE INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?,?,?,?)",
+                 (token_hash, user_id, now_iso(), expires_at))
+    conn.commit()
+
+
+def delete_session(token_hash):
+    conn = _get_conn()
+    conn.execute("DELETE FROM sessions WHERE token_hash = ?", (token_hash,))
+    conn.commit()
+
+
+def delete_sessions_for_user(user_id):
+    conn = _get_conn()
+    conn.execute("DELETE FROM sessions WHERE user_id = ?", (user_id,))
+    conn.commit()
+
+
+def user_for_session(token_hash, now_ts):
+    conn = _get_conn()
+    conn.execute("DELETE FROM sessions WHERE expires_at < ?", (now_ts,))
+    row = conn.execute(
+        """SELECT u.* FROM sessions s JOIN users u ON u.id = s.user_id
+           WHERE s.token_hash = ? AND s.expires_at >= ?""", (token_hash, now_ts)).fetchone()
+    conn.commit()
+    return dict(row) if row else None
 
 
 # ---- convenience inserts
@@ -708,9 +1007,11 @@ def insert_ticket(t):
 def insert_ticket_message(m):
     conn = _get_conn()
     conn.execute(
-        """INSERT OR REPLACE INTO ticket_messages (id, ticket_id, direction, sender, body_ar, sent_at)
-           VALUES (?,?,?,?,?,?)""",
-        (m["id"], m["ticket_id"], m["direction"], m["sender"], m["body_ar"], m["sent_at"])
+        """INSERT OR REPLACE INTO ticket_messages
+           (id, ticket_id, direction, sender, body_ar, sent_at, is_internal, status)
+           VALUES (?,?,?,?,?,?,?,?)""",
+        (m["id"], m["ticket_id"], m["direction"], m["sender"], m["body_ar"], m["sent_at"],
+         1 if m.get("is_internal") else 0, m.get("status"))
     )
     conn.commit()
 
