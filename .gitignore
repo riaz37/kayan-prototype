@@ -63,3 +63,13 @@ whatsapp-bridge/*.json
 
 # MCP config (may contain local/secret settings)
 .mcp.json
+
+# Local databases and backups (contain real conversations and beneficiary data)
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/*.db-journal
+data/*.backup-*
+
+# Local service logs
+logs/
