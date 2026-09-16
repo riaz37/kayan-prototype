@@ -177,6 +177,15 @@ async def proxy_webhook(request: Request):
     )
 
 
+@app.post("/admin/merge-duplicate-tickets", tags=["admin"],
+          summary="Merge duplicate open tickets from the same caller",
+          description="One conversation per number: merges each caller's extra open tickets into "
+                      "their oldest one. Dry run by default — pass apply=true to write.")
+def admin_merge_duplicate_tickets(apply: bool = False):
+    from backend.maintenance import merge_duplicate_tickets
+    return merge_duplicate_tickets(apply=apply)
+
+
 @app.post("/admin/seed", tags=["admin"])
 def admin_seed():
     import subprocess, sys
