@@ -31,19 +31,23 @@ railway volume add -m /app/data
 railway up
 ```
 
-## Step 2: Deploy Frontend
+## Step 2: Deploy the console (Vercel)
 
-```bash
-# Create frontend service
-railway service create frontend
-railway service connect frontend
+The console is a Next.js app and is deployed on Vercel; Railway runs only the backend + agent.
 
-# The console proxies /api to the backend server-side
-railway variables set BACKEND_URL="https://backend-agent.up.railway.app"
+1. **Import the repository** at vercel.com → New Project → pick this repo.
+2. **Root Directory: `frontend`** (Vercel then detects Next.js automatically).
+3. **Environment variables** (Production and Preview):
 
-# Deploy
-railway up
-```
+   | Variable | Value |
+   |---|---|
+   | `BACKEND_URL` | `https://<your-backend>.up.railway.app` |
+
+   The browser only ever calls the console's own `/api`, which forwards to `BACKEND_URL`
+   server-side. That keeps the session cookie first-party, so no CORS setup is needed.
+4. **Deploy.** Every push to `main` deploys; pull requests get preview URLs.
+5. On the backend, set `ALLOWED_ORIGINS` to your Vercel domain if you ever call the API
+   directly from a browser (not needed for the console itself).
 
 ## Step 3: Configure Domains
 
@@ -89,8 +93,8 @@ In Meta Developer Console, update the webhook URL:
 └─────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────┐
-│  Railway: frontend service              │
-│  nginx :PORT (static files)             │
+│  Vercel: console (Next.js)              │
+│  /ar, /en  +  /api proxy → backend      │
 └─────────────────────────────────────────┘
 ```
 
